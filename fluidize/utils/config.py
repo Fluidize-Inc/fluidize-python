@@ -1,4 +1,4 @@
-"""Configuration management for fluidize library."""
+"""Configuration management for Fluidize Client"""
 
 import os
 from pathlib import Path
