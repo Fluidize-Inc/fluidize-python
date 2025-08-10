@@ -1,11 +1,11 @@
 site_name: fluidize-python
-repo_url: https://github.com/fluidize_inc/fluidize-python
-site_url: https://fluidize_inc.github.io/fluidize-python
+repo_url: https://github.com/Fluidize-Inc/fluidize-python
+site_url: https://Fluidize-Inc.github.io/fluidize-python
 site_description: Python package for automatic generation of scientific computing software pipelines.
 site_author: Henry Bae
 edit_uri: edit/main/docs/
-repo_name: fluidize_inc/fluidize-python
-copyright: Maintained by <a href="https://fluidize_inc.com">fluidize_inc</a>.
+repo_name: Fluidize-Inc/fluidize-python
+copyright: Maintained by <a href="https://Fluidize-Inc.com">Fluidize-Inc</a>.
 
 nav:
   - Home: index.md
@@ -41,7 +41,7 @@ theme:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/fluidize_inc/fluidize-python
+      link: https://github.com/Fluidize-Inc/fluidize-python
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/fluidize-python
 

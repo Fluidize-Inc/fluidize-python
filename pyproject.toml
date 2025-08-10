@@ -19,9 +19,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://fluidize_inc.github.io/fluidize-python/"
-Repository = "https://github.com/fluidize_inc/fluidize-python"
-Documentation = "https://fluidize_inc.github.io/fluidize-python/"
+Homepage = "https://Fluidize-Inc.github.io/fluidize-python/"
+Repository = "https://github.com/Fluidize-Inc/fluidize-python"
+Documentation = "https://Fluidize-Inc.github.io/fluidize-python/"
 
 [dependency-groups]
 dev = [
