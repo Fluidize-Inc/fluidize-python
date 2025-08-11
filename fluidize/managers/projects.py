@@ -1,5 +1,7 @@
 from typing import Any, Optional
 
+from .project import Project
+
 
 class Projects:
     """Manager for project-related operations."""
@@ -20,7 +22,7 @@ class Projects:
         description: str = "",
         location: str = "",
         status: str = "",
-    ) -> Any:
+    ) -> Project:
         """
         Create a new project.
 
@@ -32,17 +34,18 @@ class Projects:
             status: Project status
 
         Returns:
-            Created project data
+            Created project wrapped in Project class
         """
-        return self.backend.projects.upsert(
+        project_summary = self.backend.projects.upsert(
             id=project_id,
             label=label,
             description=description,
             location=location,
             status=status,
         )
+        return Project(self.backend, project_summary)
 
-    def get(self, project_id: str) -> Any:
+    def get(self, project_id: str) -> Project:
         """
         Get a project by ID.
 
@@ -50,18 +53,20 @@ class Projects:
             project_id: The project ID
 
         Returns:
-            Project data
+            Project wrapped in Project class
         """
-        return self.backend.projects.retrieve(project_id)
+        project_summary = self.backend.projects.retrieve(project_id)
+        return Project(self.backend, project_summary)
 
-    def list(self) -> Any:
+    def list(self) -> list[Project]:
         """
         List all projects.
 
         Returns:
-            List of project data dictionaries
+            List of projects wrapped in Project class
         """
-        return self.backend.projects.list()
+        project_summaries = self.backend.projects.list()
+        return [Project(self.backend, summary) for summary in project_summaries]
 
     def update(
         self,
@@ -70,7 +75,7 @@ class Projects:
         description: Optional[str] = None,
         location: Optional[str] = None,
         status: Optional[str] = None,
-    ) -> Any:
+    ) -> Project:
         """
         Update an existing project.
 
@@ -82,7 +87,7 @@ class Projects:
             status: New status
 
         Returns:
-            Updated project data
+            Updated project wrapped in Project class
         """
         # Build update data, only include non-None values
         update_data = {"id": project_id}
@@ -95,4 +100,5 @@ class Projects:
         if status is not None:
             update_data["status"] = status
 
-        return self.backend.projects.upsert(**update_data)
+        project_summary = self.backend.projects.upsert(**update_data)
+        return Project(self.backend, project_summary)

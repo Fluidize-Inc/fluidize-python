@@ -10,7 +10,7 @@ from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
 from fluidize.core.types.project import ProjectSummary
 
 
-class LocalGraphProcessor:
+class GraphHandler:
     """
     Local filesystem-based graph processor backend.
 

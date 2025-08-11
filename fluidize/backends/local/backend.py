@@ -4,6 +4,7 @@ Local backend implementation - aggregates all local handlers.
 
 from typing import Any
 
+from .graph import GraphHandler
 from .projects import ProjectsHandler
 
 
@@ -29,6 +30,5 @@ class LocalBackend:
         # Initialize handlers (like SDK resources)
         self.projects = ProjectsHandler(config)
 
-        # TODO: Add other handlers when implemented
-        # self.graph = GraphHandler(config)
+        self.graph = GraphHandler()
         # self.runs = RunsHandler(config)
