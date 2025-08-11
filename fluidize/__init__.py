@@ -7,7 +7,8 @@ import fluidize.core.utils.dataloader.loader.writer_local
 # This ensures handlers are available without manual imports
 import fluidize.core.utils.pathfinder.methods.local  # noqa: F401
 
+from .client import FluidizeClient
 from .config import config
 
 __version__ = "0.0.2"
-__all__ = ["config"]
+__all__ = ["FluidizeClient", "config"]
