@@ -155,7 +155,7 @@ class TestGraphProcessor:
     def test_insert_node_without_simulation_id(
         self, graph_processor, mock_path_finder, mock_graph_model, mock_data_loader, sample_project
     ):
-        """Test node insertion without simulation_id."""
+        """Test node insertion without simulation_id creates empty node directory."""
         mock_path_finder.get_project_path.return_value = Path("/test/project")
         mock_graph_instance = Mock()
         mock_graph_model.from_file.return_value = mock_graph_instance
@@ -164,11 +164,69 @@ class TestGraphProcessor:
         # Ensure no simulation_id
         node.data.simulation_id = ""
 
-        result = graph_processor.insert_node(node, True)
+        # Mock the _initialize_node_directory method
+        with patch.object(graph_processor, "_initialize_node_directory") as mock_init:
+            result = graph_processor.insert_node(node, True)
 
-        assert result == node
-        # Should not attempt to copy simulation
+            assert result == node
+            # Should not attempt to copy simulation
+            mock_data_loader.copy_directory.assert_not_called()
+            # Should initialize empty node directory
+            mock_init.assert_called_once_with(node.id)
+
+    def test_insert_node_invalid_simulation_id(
+        self, graph_processor, mock_path_finder, mock_graph_model, mock_data_loader, sample_project
+    ):
+        """Test node insertion with invalid simulation_id throws error."""
+        mock_path_finder.get_project_path.return_value = Path("/test/project")
+        mock_graph_instance = Mock()
+        mock_graph_model.from_file.return_value = mock_graph_instance
+
+        # Setup simulation path finder
+        mock_simulation_path = Path("/test/nonexistent-simulation")
+        mock_path_finder.get_simulation_path.return_value = mock_simulation_path
+
+        # Mock that the simulation metadata file doesn't exist
+        mock_data_loader.check_file_exists.return_value = False
+
+        node = SampleGraphs.sample_nodes()[0]
+        node.data.simulation_id = "nonexistent-simulation"
+
+        # Should raise ValueError for invalid simulation
+        with pytest.raises(ValueError, match="Simulation 'nonexistent-simulation' not found"):
+            graph_processor.insert_node(node, True)
+
+        # Graph should still be updated (but node directory not created)
+        mock_graph_instance.add_node.assert_called_once_with(node)
+        mock_graph_instance.save_to_file.assert_called_once()
+        # Should not attempt to copy nonexistent simulation
         mock_data_loader.copy_directory.assert_not_called()
+
+    def test_initialize_node_directory(self, graph_processor, mock_path_finder, sample_project):
+        """Test _initialize_node_directory creates node directory with default files."""
+        from unittest.mock import patch
+
+        mock_node_path = Path("/test/project/test-node")
+        mock_path_finder.get_node_path.return_value = mock_node_path
+
+        with patch("fluidize.core.modules.graph.processor.DataWriter") as mock_data_writer:
+            graph_processor._initialize_node_directory("test-node")
+
+            # Should create directory
+            mock_data_writer.create_directory.assert_called_once_with(mock_node_path)
+
+            # Should create parameters.json
+            expected_params = {"metadata": {}, "parameters": {}}
+            params_path = mock_node_path / "parameters.json"
+            mock_data_writer.write_json.assert_called_with(params_path, expected_params)
+
+            # Should create properties.yaml
+            expected_properties = {"properties": {}}
+            properties_path = mock_node_path / "properties.yaml"
+            mock_data_writer.write_yaml.assert_called_with(properties_path, expected_properties)
+
+            # Verify get_node_path was called with correct parameters
+            mock_path_finder.get_node_path.assert_called_once_with(sample_project, "test-node")
 
     def test_update_node_position_success(self, graph_processor, mock_path_finder, mock_graph_model, sample_project):
         """Test successful node position update."""

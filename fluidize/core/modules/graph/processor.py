@@ -10,6 +10,7 @@ from fluidize.core.modules.graph.model import Graph
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
 from fluidize.core.types.project import ProjectSummary
 from fluidize.core.utils.dataloader.data_loader import DataLoader
+from fluidize.core.utils.dataloader.data_writer import DataWriter
 from fluidize.core.utils.pathfinder.path_finder import PathFinder
 
 
@@ -52,11 +53,11 @@ class GraphProcessor:
 
     def insert_node(self, node: GraphNode, sim_global: bool = True) -> GraphNode:
         """
-        Inserts a node from the list of simulations.
+        Inserts a node from the list of simulations or creates a new one.
 
         Args:
             node: The node to insert
-            sim_global: Whether to use global simulations (placeholder for future implementation)
+            sim_global: Whether to use global simulations
 
         Returns:
             The inserted node
@@ -72,19 +73,30 @@ class GraphProcessor:
         # Save updated graph
         graph.save_to_file(graph_file_path)
 
-        # Copy simulation template to node directory (when simulations are available)
-        try:
-            if hasattr(node.data, "simulation_id") and node.data.simulation_id:
+        # Create node directory with appropriate content
+        node_path = PathFinder.get_node_path(self.project, node.id)
+
+        if hasattr(node.data, "simulation_id") and node.data.simulation_id:
+            # Case 1: Node has simulation_id - copy simulation template
+            try:
                 simulation_path = PathFinder.get_simulation_path(
                     simulation_id=node.data.simulation_id, sim_global=sim_global
                 )
-                node_path = PathFinder.get_node_path(self.project, node.id)
 
-                # Copy simulation template to create the node
+                # Validate simulation exists (check for metadata file as indicator)
+                metadata_path = simulation_path / FileConstants.METADATA_SUFFIX
+                if not DataLoader.check_file_exists(metadata_path):
+                    self._raise_simulation_not_found_error(node.data.simulation_id, simulation_path)
+
+                # Copy simulation template to node directory
                 DataLoader.copy_directory(source=simulation_path, destination=node_path)
-        except Exception as e:
-            print(f"Warning: Could not copy simulation template: {e!s}")
-            # Continue without template copying - this is expected until simulations are implemented
+
+            except Exception as e:
+                # Fail fast - don't create inconsistent state
+                self._raise_copy_template_error(e)
+        else:
+            # Case 2: No simulation_id - create empty node with initial files
+            self._initialize_node_directory(node.id)
 
         return node
 
@@ -183,3 +195,39 @@ class GraphProcessor:
         if not graph_file_path.exists():
             empty_graph = Graph()
             empty_graph.save_to_file(graph_file_path)
+
+    def _initialize_node_directory(self, node_id: str) -> None:
+        """
+        Initialize a node directory with default files.
+        Similar to how _create_new_project creates project files.
+
+        Args:
+            node_id: The ID of the node to initialize
+        """
+        node_path = PathFinder.get_node_path(self.project, node_id)
+
+        # Create the node directory
+        DataWriter.create_directory(node_path)
+
+        # Create default files (following project pattern)
+        # 1. Empty parameters.json (for node configuration)
+        empty_params: dict[str, dict] = {"metadata": {}, "parameters": {}}
+        params_path = node_path / FileConstants.PARAMETERS_SUFFIX
+        DataWriter.write_json(params_path, empty_params)
+
+        # 2. Empty properties.yaml (for node properties)
+        empty_properties: dict[str, dict] = {"properties": {}}
+        properties_path = node_path / FileConstants.PROPERTIES_SUFFIX
+        DataWriter.write_yaml(properties_path, empty_properties)
+
+    def _raise_simulation_not_found_error(self, simulation_id: str, simulation_path) -> None:
+        """Raise error when simulation is not found."""
+        msg = (
+            f"Simulation '{simulation_id}' not found at {simulation_path}. "
+            "Please ensure the simulation exists or create a node without a simulation_id."
+        )
+        raise ValueError(msg)
+
+    def _raise_copy_template_error(self, error: Exception) -> None:
+        """Raise error when copying simulation template fails."""
+        raise ValueError() from error
