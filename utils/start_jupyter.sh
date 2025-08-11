@@ -9,20 +9,23 @@ echo "============================================="
 # Change to project root directory (parent of utils)
 cd "$(dirname "$0")/.."
 
-# Check if virtual environment exists
-if [ ! -d ".venv" ]; then
-    echo "❌ Virtual environment not found. Running setup..."
-    make install
+# Ensure uv environment is set up
+echo "📦 Setting up uv environment..."
+if ! command -v uv &> /dev/null; then
+    echo "❌ uv not found. Please install uv first: https://github.com/astral-sh/uv"
+    exit 1
 fi
 
-# Activate virtual environment
-echo "📦 Activating virtual environment..."
-source .venv/bin/activate
+# Sync dependencies and install package in development mode
+uv sync
+echo "📦 Installing package in development mode..."
+uv run pip install -e .
 
-# Check if jupyter is installed
-if ! command -v jupyter &> /dev/null; then
-    echo "📚 Installing Jupyter..."
-    pip install jupyter
+# Check if jupyter is installed in the uv environment
+echo "📚 Ensuring Jupyter is available..."
+if ! uv run jupyter --version &> /dev/null; then
+    echo "📚 Adding Jupyter to uv environment..."
+    uv add --dev jupyter
 fi
 
 # Show environment info
@@ -40,4 +43,4 @@ echo ""
 
 # Start Jupyter from the project root so imports work correctly
 # The notebook will be available at utils/fluidize_demo.ipynb
-jupyter notebook --notebook-dir=. utils/fluidize_demo.ipynb
+uv run jupyter notebook --notebook-dir=. utils/fluidize_demo.ipynb
