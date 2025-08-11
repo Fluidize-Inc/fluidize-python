@@ -379,6 +379,7 @@ version = "0.0.2"
 source = { editable = "." }
 dependencies = [
     { name = "fluidize-sdk" },
+    { name = "universal-pathlib" },
 ]
 
 [package.dev-dependencies]
@@ -396,7 +397,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "fluidize-sdk", specifier = ">=0.4.0" }]
+requires-dist = [
+    { name = "fluidize-sdk", specifier = ">=0.4.0" },
+    { name = "universal-pathlib", specifier = ">=0.2.6" },
+]
 
 [package.metadata.requires-dev]
 dev = [
@@ -427,6 +431,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/90/ef/167f581b140afec073ee4961b18fe347c090477b3263a5276656539cf9af/fluidize_sdk-0.4.0.tar.gz", hash = "sha256:0b80ff0a561fadf01cf7da6a1c0b425bfec287af9d31a8596d6e3cd15e476381", size = 118050, upload-time = "2025-08-10T10:16:28.617Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cf/f4/8d1b1f630058a951bd5702f29069ea6f1bf1396d3649663a3752f7f4b699/fluidize_sdk-0.4.0-py3-none-any.whl", hash = "sha256:501e7093f998cecc171e95e57d4f4e9d207820859f13bdb8a0a45e1c72d9f21b", size = 120117, upload-time = "2025-08-10T10:16:27.245Z" },
+]
+
+[[package]]
+name = "fsspec"
+version = "2025.7.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/8b/02/0835e6ab9cfc03916fe3f78c0956cfcdb6ff2669ffa6651065d5ebf7fc98/fsspec-2025.7.0.tar.gz", hash = "sha256:786120687ffa54b8283d942929540d8bc5ccfa820deb555a2b5d0ed2b737bf58", size = 304432, upload-time = "2025-07-15T16:05:21.19Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2f/e0/014d5d9d7a4564cf1c40b5039bc882db69fd881111e03ab3657ac0b218e2/fsspec-2025.7.0-py3-none-any.whl", hash = "sha256:8b012e39f63c7d5f10474de957f3ab793b47b45ae7d39f2fb735f8bbe25c0e21", size = 199597, upload-time = "2025-07-15T16:05:19.529Z" },
 ]
 
 [[package]]
@@ -1317,6 +1330,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f8/b1/0c11f5058406b3af7609f121aaa6b609744687f1d158b3c3a5bf4cc94238/typing_inspection-0.4.1.tar.gz", hash = "sha256:6ae134cc0203c33377d43188d4064e9b357dba58cff3185f22924610e70a9d28", size = 75726, upload-time = "2025-05-21T18:55:23.885Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/17/69/cd203477f944c353c31bade965f880aa1061fd6bf05ded0726ca845b6ff7/typing_inspection-0.4.1-py3-none-any.whl", hash = "sha256:389055682238f53b04f7badcb49b989835495a96700ced5dab2d8feae4b26f51", size = 14552, upload-time = "2025-05-21T18:55:22.152Z" },
+]
+
+[[package]]
+name = "universal-pathlib"
+version = "0.2.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "fsspec" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/eb/21/dd871495af3933e585261adce42678dcdf1168c9d6fa0a8f7b6565e54472/universal_pathlib-0.2.6.tar.gz", hash = "sha256:50817aaeaa9f4163cb1e76f5bdf84207fa05ce728b23fd779479b3462e5430ac", size = 175427, upload-time = "2024-12-13T00:58:27.514Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e5/4d/2e577f6db7aa0f932d19f799c18f604b2b302c65f733419b900ec07dbade/universal_pathlib-0.2.6-py3-none-any.whl", hash = "sha256:700dec2b58ef34b87998513de6d2ae153b22f083197dfafb8544744edabd1b18", size = 50087, upload-time = "2024-12-13T00:58:24.582Z" },
 ]
 
 [[package]]

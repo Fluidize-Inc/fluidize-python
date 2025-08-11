@@ -1,8 +1,11 @@
 """
-Local projects handler - ports logic from FastAPI ProjectProcessor.
+Local projects handler - uses core ProjectProcessor for filesystem operations.
 """
 
 from typing import Any, Optional
+
+from fluidize.core.modules.projects.processor import ProjectProcessor
+from fluidize.core.types.project import ProjectSummary
 
 
 class ProjectsHandler:
@@ -16,11 +19,9 @@ class ProjectsHandler:
             config: FluidizeConfig instance
         """
         self.config = config
-        # Extract needed paths from config
-        self.projects_path = config.local_projects_path
-        self.base_path = config.local_base_path
+        self.processor = ProjectProcessor()
 
-    def delete(self, project_id: str) -> object:
+    def delete(self, project_id: str) -> dict:
         """
         Delete a project based on its ID.
 
@@ -28,22 +29,21 @@ class ProjectsHandler:
             project_id: The project ID to delete
 
         Returns:
-            Object indicating success
+            Dict indicating success
         """
-        # TODO: Port from FastAPI ProjectProcessor.delete_project
-        raise NotImplementedError("Local project deletion not implemented")
+        self.processor.delete_project(project_id)
+        return {"success": True, "message": f"Project {project_id} deleted"}
 
-    def list(self) -> Any:
+    def list(self) -> list[ProjectSummary]:
         """
         Get a summary of all projects.
 
         Returns:
-            ProjectListResponse equivalent (list of project summaries)
+            List of project summaries
         """
-        # TODO: Port from FastAPI ProjectProcessor.get_projects
-        raise NotImplementedError("Local project listing not implemented")
+        return self.processor.get_projects()
 
-    def retrieve(self, project_id: str) -> Any:
+    def retrieve(self, project_id: str) -> ProjectSummary:
         """
         Get a project by its ID.
 
@@ -51,21 +51,9 @@ class ProjectsHandler:
             project_id: The project ID to retrieve
 
         Returns:
-            ProjectSummary equivalent (project data)
+            ProjectSummary (project data)
         """
-        # TODO: Port from FastAPI ProjectProcessor.get_project
-        raise NotImplementedError("Local project retrieval not implemented")
-
-    def sync(self) -> object:
-        """
-        Sync all projects from file system to Firestore.
-        Treats file system as the source of truth and overwrites Firestore data.
-
-        Returns:
-            Object indicating sync result
-        """
-        # TODO: Port from FastAPI ProjectProcessor.sync_projects
-        raise NotImplementedError("Local project sync not implemented")
+        return self.processor.get_project(project_id)
 
     def upsert(
         self,
@@ -77,7 +65,7 @@ class ProjectsHandler:
         metadata_version: Optional[str] = "1.0",
         status: Optional[str] = None,
         **kwargs: Any,
-    ) -> Any:
+    ) -> ProjectSummary:
         """
         Create or update a project.
 
@@ -91,7 +79,14 @@ class ProjectsHandler:
             **kwargs: Additional arguments
 
         Returns:
-            ProjectSummary equivalent (created/updated project data)
+            ProjectSummary (created/updated project data)
         """
-        # TODO: Port from FastAPI ProjectProcessor.insert_project
-        raise NotImplementedError("Local project upsert not implemented")
+        return self.processor.upsert_project(
+            id=id,
+            description=description,
+            label=label,
+            location=location,
+            metadata_version=metadata_version,
+            status=status,
+            **kwargs,
+        )
