@@ -109,6 +109,7 @@ class TestGraphProcessor:
         mock_project_path = Path("/test/project")
         mock_simulation_path = Path("/test/simulation")
         mock_node_path = Path("/test/project/node")
+        mock_metadata_path = mock_simulation_path / "metadata.yaml"
 
         mock_path_finder.get_project_path.return_value = mock_project_path
         mock_path_finder.get_simulation_path.return_value = mock_simulation_path
@@ -116,6 +117,9 @@ class TestGraphProcessor:
 
         mock_graph_instance = Mock()
         mock_graph_model.from_file.return_value = mock_graph_instance
+
+        # Mock that simulation metadata file exists (valid simulation)
+        mock_data_loader.check_file_exists.return_value = True
 
         # Create node with simulation_id
         node = SampleGraphs.sample_nodes()[0]
@@ -127,28 +131,36 @@ class TestGraphProcessor:
         assert result == node
         mock_path_finder.get_simulation_path.assert_called_once_with(simulation_id="test-sim-123", sim_global=True)
         mock_path_finder.get_node_path.assert_called_once_with(sample_project, node.id)
+        mock_data_loader.check_file_exists.assert_called_once_with(mock_metadata_path)
         mock_data_loader.copy_directory.assert_called_once_with(source=mock_simulation_path, destination=mock_node_path)
 
     def test_insert_node_simulation_copy_failure(
         self, graph_processor, mock_path_finder, mock_graph_model, mock_data_loader, sample_project
     ):
-        """Test node insertion when simulation copy fails."""
+        """Test node insertion when simulation copy fails - should raise ValueError."""
         # Setup mocks
-        mock_path_finder.get_project_path.return_value = Path("/test/project")
+        mock_project_path = Path("/test/project")
+        mock_simulation_path = Path("/test/simulation")
+
+        mock_path_finder.get_project_path.return_value = mock_project_path
+        mock_path_finder.get_simulation_path.return_value = mock_simulation_path
+
         mock_graph_instance = Mock()
         mock_graph_model.from_file.return_value = mock_graph_instance
 
-        # Make simulation copy fail
+        # Mock that simulation metadata file exists (so it passes validation)
+        mock_data_loader.check_file_exists.return_value = True
+        # But make simulation copy fail
         mock_data_loader.copy_directory.side_effect = Exception("Copy failed")
 
         node = SampleGraphs.sample_nodes()[0]
         node.data.simulation_id = "test-sim-123"
 
-        # Should not raise exception, just continue
-        result = graph_processor.insert_node(node, True)
+        # Should raise ValueError when copy fails (fail fast behavior)
+        with pytest.raises(ValueError):
+            graph_processor.insert_node(node, True)
 
-        assert result == node
-        # Graph operations should still succeed
+        # Graph operations should still have been attempted
         mock_graph_instance.add_node.assert_called_once_with(node)
         mock_graph_instance.save_to_file.assert_called_once()
 
@@ -178,7 +190,8 @@ class TestGraphProcessor:
         self, graph_processor, mock_path_finder, mock_graph_model, mock_data_loader, sample_project
     ):
         """Test node insertion with invalid simulation_id throws error."""
-        mock_path_finder.get_project_path.return_value = Path("/test/project")
+        mock_project_path = Path("/test/project")
+        mock_path_finder.get_project_path.return_value = mock_project_path
         mock_graph_instance = Mock()
         mock_graph_model.from_file.return_value = mock_graph_instance
 
@@ -187,18 +200,21 @@ class TestGraphProcessor:
         mock_path_finder.get_simulation_path.return_value = mock_simulation_path
 
         # Mock that the simulation metadata file doesn't exist
+        mock_metadata_path = mock_simulation_path / "metadata.yaml"
         mock_data_loader.check_file_exists.return_value = False
 
         node = SampleGraphs.sample_nodes()[0]
         node.data.simulation_id = "nonexistent-simulation"
 
-        # Should raise ValueError for invalid simulation
-        with pytest.raises(ValueError, match="Simulation 'nonexistent-simulation' not found"):
+        # Should raise ValueError for invalid simulation (gets re-raised as generic ValueError)
+        with pytest.raises(ValueError):
             graph_processor.insert_node(node, True)
 
         # Graph should still be updated (but node directory not created)
         mock_graph_instance.add_node.assert_called_once_with(node)
         mock_graph_instance.save_to_file.assert_called_once()
+        # Should check for metadata file existence
+        mock_data_loader.check_file_exists.assert_called_once_with(mock_metadata_path)
         # Should not attempt to copy nonexistent simulation
         mock_data_loader.copy_directory.assert_not_called()
 
@@ -215,18 +231,22 @@ class TestGraphProcessor:
             # Should create directory
             mock_data_writer.create_directory.assert_called_once_with(mock_node_path)
 
-            # Should create parameters.json
+            # Should create parameters.json with correct structure
             expected_params = {"metadata": {}, "parameters": {}}
             params_path = mock_node_path / "parameters.json"
             mock_data_writer.write_json.assert_called_with(params_path, expected_params)
 
-            # Should create properties.yaml
+            # Should create properties.yaml with correct structure
             expected_properties = {"properties": {}}
             properties_path = mock_node_path / "properties.yaml"
             mock_data_writer.write_yaml.assert_called_with(properties_path, expected_properties)
 
             # Verify get_node_path was called with correct parameters
             mock_path_finder.get_node_path.assert_called_once_with(sample_project, "test-node")
+
+            # Verify both file writes were called
+            assert mock_data_writer.write_json.call_count == 1
+            assert mock_data_writer.write_yaml.call_count == 1
 
     def test_update_node_position_success(self, graph_processor, mock_path_finder, mock_graph_model, sample_project):
         """Test successful node position update."""
@@ -391,21 +411,30 @@ class TestGraphProcessor:
         """Test that PathFinder is used consistently across operations."""
         mock_project_path = Path("/test/project")
         mock_path_finder.get_project_path.return_value = mock_project_path
+        mock_node_path = Path("/test/project/test-node-basic")
+        mock_path_finder.get_node_path.return_value = mock_node_path
 
         mock_graph_instance = Mock()
         mock_graph_model.from_file.return_value = mock_graph_instance
         mock_graph_instance.to_graph_data.return_value = SampleGraphs.empty_graph()
 
         node = SampleGraphs.sample_nodes()[0]
+        # Remove simulation_id to avoid simulation path lookup that would cause issues
+        node.data.simulation_id = ""
         edge = SampleGraphs.sample_edges()[0]
 
-        # Perform various operations
-        graph_processor.get_graph()
-        graph_processor.insert_node(node)
-        graph_processor.update_node_position(node)
-        graph_processor.upsert_edge(edge)
-        graph_processor.delete_edge(edge.id)
-        graph_processor.delete_node(node.id)
+        # Mock the _initialize_node_directory method to avoid DataWriter dependencies
+        with (
+            patch.object(graph_processor, "_initialize_node_directory"),
+            patch("fluidize.core.modules.graph.processor.DataLoader"),
+        ):
+            # Perform various operations
+            graph_processor.get_graph()
+            graph_processor.insert_node(node)
+            graph_processor.update_node_position(node)
+            graph_processor.upsert_edge(edge)
+            graph_processor.delete_edge(edge.id)
+            graph_processor.delete_node(node.id)
 
         # PathFinder should be called consistently with the same project
         for call_args in mock_path_finder.get_project_path.call_args_list:
@@ -439,6 +468,177 @@ class TestGraphProcessor:
             mock_path_finder.get_simulation_path.assert_called_once_with(
                 simulation_id="test-sim", sim_global=sim_global
             )
+
+    def test_insert_node_without_simulation_id_none(
+        self, graph_processor, mock_path_finder, mock_graph_model, sample_project
+    ):
+        """Test node insertion when simulation_id is None."""
+        mock_path_finder.get_project_path.return_value = Path("/test/project")
+        mock_graph_instance = Mock()
+        mock_graph_model.from_file.return_value = mock_graph_instance
+
+        node = SampleGraphs.sample_nodes()[0]
+        node.data.simulation_id = None  # Explicitly None
+
+        with patch.object(graph_processor, "_initialize_node_directory") as mock_init:
+            result = graph_processor.insert_node(node, True)
+
+            assert result == node
+            mock_init.assert_called_once_with(node.id)
+            mock_graph_instance.add_node.assert_called_once_with(node)
+            mock_graph_instance.save_to_file.assert_called_once()
+
+    def test_insert_node_without_simulation_id_missing_attribute(
+        self, graph_processor, mock_path_finder, mock_graph_model, sample_project
+    ):
+        """Test node insertion when simulation_id attribute doesn't exist."""
+        mock_path_finder.get_project_path.return_value = Path("/test/project")
+        mock_graph_instance = Mock()
+        mock_graph_model.from_file.return_value = mock_graph_instance
+
+        node = SampleGraphs.sample_nodes()[0]
+        # Remove the simulation_id attribute entirely
+        delattr(node.data, "simulation_id")
+
+        with patch.object(graph_processor, "_initialize_node_directory") as mock_init:
+            result = graph_processor.insert_node(node, True)
+
+            assert result == node
+            mock_init.assert_called_once_with(node.id)
+            mock_graph_instance.add_node.assert_called_once_with(node)
+            mock_graph_instance.save_to_file.assert_called_once()
+
+    def test_insert_node_with_whitespace_only_simulation_id(
+        self, graph_processor, mock_path_finder, mock_graph_model, mock_data_loader, sample_project
+    ):
+        """Test node insertion when simulation_id contains only whitespace - treated as valid simulation_id."""
+        mock_project_path = Path("/test/project")
+        mock_simulation_path = Path("/test/simulation")
+        mock_node_path = Path("/test/project/node")
+
+        mock_path_finder.get_project_path.return_value = mock_project_path
+        mock_path_finder.get_simulation_path.return_value = mock_simulation_path
+        mock_path_finder.get_node_path.return_value = mock_node_path
+
+        mock_graph_instance = Mock()
+        mock_graph_model.from_file.return_value = mock_graph_instance
+
+        # Current implementation treats whitespace-only as valid simulation_id and tries to find it
+        # Mock that the simulation doesn't exist (which it won't for whitespace)
+        mock_data_loader.check_file_exists.return_value = False
+
+        node = SampleGraphs.sample_nodes()[0]
+        node.data.simulation_id = "   "  # Whitespace only - current code treats as truthy
+
+        # Should raise ValueError because whitespace simulation won't exist
+        with pytest.raises(ValueError):
+            graph_processor.insert_node(node, True)
+
+    def test_initialize_node_directory_error_handling(self, graph_processor, mock_path_finder, sample_project):
+        """Test _initialize_node_directory error handling when directory creation fails."""
+        from unittest.mock import patch
+
+        mock_node_path = Path("/test/project/test-node")
+        mock_path_finder.get_node_path.return_value = mock_node_path
+
+        with patch("fluidize.core.modules.graph.processor.DataWriter") as mock_data_writer:
+            # Make directory creation fail
+            mock_data_writer.create_directory.side_effect = Exception("Permission denied")
+
+            # Should propagate the exception
+            with pytest.raises(Exception, match="Permission denied"):
+                graph_processor._initialize_node_directory("test-node")
+
+    def test_initialize_node_directory_file_creation_error(self, graph_processor, mock_path_finder, sample_project):
+        """Test _initialize_node_directory when file creation fails."""
+        from unittest.mock import patch
+
+        mock_node_path = Path("/test/project/test-node")
+        mock_path_finder.get_node_path.return_value = mock_node_path
+
+        with patch("fluidize.core.modules.graph.processor.DataWriter") as mock_data_writer:
+            # Directory creation succeeds, but JSON file creation fails
+            mock_data_writer.write_json.side_effect = Exception("Write failed")
+
+            # Should propagate the exception
+            with pytest.raises(Exception, match="Write failed"):
+                graph_processor._initialize_node_directory("test-node")
+
+            # Directory should still have been created
+            mock_data_writer.create_directory.assert_called_once_with(mock_node_path)
+
+    def test_insert_node_filesystem_consistency_valid_sim(
+        self, graph_processor, mock_path_finder, mock_graph_model, mock_data_loader, sample_project
+    ):
+        """Test that inserting a node with valid simulation_id creates filesystem structure."""
+        mock_project_path = Path("/test/project")
+        mock_simulation_path = Path("/test/simulation")
+        mock_node_path = Path("/test/project/node-123")
+
+        mock_path_finder.get_project_path.return_value = mock_project_path
+        mock_path_finder.get_simulation_path.return_value = mock_simulation_path
+        mock_path_finder.get_node_path.return_value = mock_node_path
+
+        mock_graph_instance = Mock()
+        mock_graph_model.from_file.return_value = mock_graph_instance
+
+        # Mock successful simulation validation and copy
+        mock_data_loader.check_file_exists.return_value = True
+
+        node = SampleGraphs.sample_nodes()[0]
+        node.id = "node-123"
+        node.data.simulation_id = "valid-sim"
+
+        result = graph_processor.insert_node(node, True)
+
+        # Verify graph operations
+        assert result == node
+        mock_graph_instance.add_node.assert_called_once_with(node)
+        mock_graph_instance.save_to_file.assert_called_once()
+
+        # Verify filesystem operations
+        mock_path_finder.get_node_path.assert_called_once_with(sample_project, "node-123")
+        mock_data_loader.copy_directory.assert_called_once_with(source=mock_simulation_path, destination=mock_node_path)
+
+    def test_insert_node_filesystem_consistency_no_sim(
+        self, graph_processor, mock_path_finder, mock_graph_model, sample_project
+    ):
+        """Test that inserting a node without simulation_id creates basic filesystem structure."""
+        mock_project_path = Path("/test/project")
+        mock_node_path = Path("/test/project/node-456")
+
+        mock_path_finder.get_project_path.return_value = mock_project_path
+        mock_path_finder.get_node_path.return_value = mock_node_path
+
+        mock_graph_instance = Mock()
+        mock_graph_model.from_file.return_value = mock_graph_instance
+
+        node = SampleGraphs.sample_nodes()[0]
+        node.id = "node-456"
+        node.data.simulation_id = ""  # No simulation
+
+        with patch("fluidize.core.modules.graph.processor.DataWriter") as mock_data_writer:
+            result = graph_processor.insert_node(node, True)
+
+            # Verify graph operations
+            assert result == node
+            mock_graph_instance.add_node.assert_called_once_with(node)
+            mock_graph_instance.save_to_file.assert_called_once()
+
+            # Verify filesystem operations - should create basic structure
+            # get_node_path is called twice: once in insert_node and once in _initialize_node_directory
+            assert mock_path_finder.get_node_path.call_count == 2
+            mock_path_finder.get_node_path.assert_called_with(sample_project, "node-456")
+            mock_data_writer.create_directory.assert_called_once_with(mock_node_path)
+
+            # Should create both default files
+            expected_params = {"metadata": {}, "parameters": {}}
+            expected_properties = {"properties": {}}
+            params_path = mock_node_path / "parameters.json"
+            properties_path = mock_node_path / "properties.yaml"
+
+            mock_data_writer.write_json.assert_called_once_with(params_path, expected_params)
+            mock_data_writer.write_yaml.assert_called_once_with(properties_path, expected_properties)
 
     def test_processor_project_isolation(self, mock_path_finder, mock_graph_model):
         """Test that different processors for different projects are isolated."""

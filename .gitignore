@@ -216,3 +216,6 @@ CLAUDE.md
 
 # DS_Store
 .DS_Store
+
+# MagicMock
+MagicMock/*

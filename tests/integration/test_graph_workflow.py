@@ -62,7 +62,7 @@ class TestGraphWorkflow:
         assert len(graph_data.edges) == 0
 
         # Add a node
-        node_data = graphNodeData(label="Test Node 1", simulation_id="test-sim-1")
+        node_data = graphNodeData(label="Test Node 1", simulation_id="")
         node = GraphNode(id="test-node-1", position=Position(x=100.0, y=200.0), data=node_data, type="simulation")
 
         added_node = graph.add_node(node)
@@ -75,7 +75,7 @@ class TestGraphWorkflow:
         assert updated_graph.nodes[0].id == "test-node-1"
 
         # Add another node
-        node2_data = graphNodeData(label="Test Node 2", simulation_id="test-sim-2")
+        node2_data = graphNodeData(label="Test Node 2", simulation_id="")
         node2 = GraphNode(id="test-node-2", position=Position(x=300.0, y=400.0), data=node2_data, type="simulation")
 
         graph.add_node(node2)
@@ -114,7 +114,7 @@ class TestGraphWorkflow:
         node1 = GraphNode(
             id="node-in-project-1",
             position=Position(x=0.0, y=0.0),
-            data=graphNodeData(label="Node 1", simulation_id="sim-1"),
+            data=graphNodeData(label="Node 1", simulation_id=""),
             type="simulation",
         )
         project1.graph.add_node(node1)
@@ -123,7 +123,7 @@ class TestGraphWorkflow:
         node2 = GraphNode(
             id="node-in-project-2",
             position=Position(x=0.0, y=0.0),
-            data=graphNodeData(label="Node 2", simulation_id="sim-2"),
+            data=graphNodeData(label="Node 2", simulation_id=""),
             type="simulation",
         )
         project2.graph.add_node(node2)
@@ -145,7 +145,7 @@ class TestGraphWorkflow:
         original_node = GraphNode(
             id="update-node",
             position=Position(x=100.0, y=100.0),
-            data=graphNodeData(label="Original Label", simulation_id="sim"),
+            data=graphNodeData(label="Original Label", simulation_id=""),
             type="simulation",
         )
         project.graph.add_node(original_node)
@@ -154,7 +154,7 @@ class TestGraphWorkflow:
         updated_node = GraphNode(
             id="update-node",
             position=Position(x=500.0, y=600.0),
-            data=graphNodeData(label="Updated Label", simulation_id="sim"),
+            data=graphNodeData(label="Updated Label", simulation_id=""),
             type="simulation",
         )
 
@@ -177,13 +177,13 @@ class TestGraphWorkflow:
         node1 = GraphNode(
             id="node-to-keep",
             position=Position(x=0.0, y=0.0),
-            data=graphNodeData(label="Keep Node", simulation_id="sim-1"),
+            data=graphNodeData(label="Keep Node", simulation_id=""),
             type="simulation",
         )
         node2 = GraphNode(
             id="node-to-delete",
             position=Position(x=100.0, y=100.0),
-            data=graphNodeData(label="Delete Node", simulation_id="sim-2"),
+            data=graphNodeData(label="Delete Node", simulation_id=""),
             type="simulation",
         )
 
@@ -282,7 +282,7 @@ class TestGraphWorkflow:
         node = GraphNode(
             id="persistent-node",
             position=Position(x=100.0, y=200.0),
-            data=graphNodeData(label="Persistent Node", simulation_id="sim"),
+            data=graphNodeData(label="Persistent Node", simulation_id=""),
             type="simulation",
         )
         project1.graph.add_node(node)
@@ -337,7 +337,7 @@ class TestGraphWorkflow:
             node = GraphNode(
                 id=f"node-{proj_id}",
                 position=Position(x=0.0, y=0.0),
-                data=graphNodeData(label=f"Node for {label}", simulation_id="sim"),
+                data=graphNodeData(label=f"Node for {label}", simulation_id=""),
                 type="simulation",
             )
             project.graph.add_node(node)
@@ -371,7 +371,7 @@ class TestGraphWorkflow:
         node = GraphNode(
             id="demo-node",
             position=Position(x=100.0, y=100.0),
-            data=graphNodeData(label="Demo Node", simulation_id="demo-sim"),
+            data=graphNodeData(label="Demo Node", simulation_id=""),
             type="simulation",
         )
         project.graph.add_node(node)

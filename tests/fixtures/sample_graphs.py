@@ -17,7 +17,7 @@ class SampleGraphs:
         node = GraphNode(
             id="single-node",
             position=Position(x=100.0, y=200.0),
-            data=graphNodeData(label="Single Test Node", simulation_id="sim-001"),
+            data=graphNodeData(label="Single Test Node", simulation_id=""),
             type="simulation",
         )
         return GraphData(nodes=[node], edges=[])
@@ -28,13 +28,13 @@ class SampleGraphs:
         node1 = GraphNode(
             id="node-1",
             position=Position(x=100.0, y=200.0),
-            data=graphNodeData(label="First Node", simulation_id="sim-001"),
+            data=graphNodeData(label="First Node", simulation_id=""),
             type="simulation",
         )
         node2 = GraphNode(
             id="node-2",
             position=Position(x=300.0, y=400.0),
-            data=graphNodeData(label="Second Node", simulation_id="sim-002"),
+            data=graphNodeData(label="Second Node", simulation_id=""),
             type="simulation",
         )
         return GraphData(nodes=[node1, node2], edges=[])
@@ -53,25 +53,25 @@ class SampleGraphs:
             GraphNode(
                 id="input-node",
                 position=Position(x=50.0, y=100.0),
-                data=graphNodeData(label="Input Node", simulation_id="sim-input"),
+                data=graphNodeData(label="Input Node", simulation_id=""),
                 type="input",
             ),
             GraphNode(
                 id="process-node-1",
                 position=Position(x=200.0, y=100.0),
-                data=graphNodeData(label="Process Node 1", simulation_id="sim-process-1"),
+                data=graphNodeData(label="Process Node 1", simulation_id=""),
                 type="simulation",
             ),
             GraphNode(
                 id="process-node-2",
                 position=Position(x=200.0, y=300.0),
-                data=graphNodeData(label="Process Node 2", simulation_id="sim-process-2"),
+                data=graphNodeData(label="Process Node 2", simulation_id=""),
                 type="simulation",
             ),
             GraphNode(
                 id="output-node",
                 position=Position(x=400.0, y=200.0),
-                data=graphNodeData(label="Output Node", simulation_id="sim-output"),
+                data=graphNodeData(label="Output Node", simulation_id=""),
                 type="output",
             ),
         ]
@@ -92,19 +92,19 @@ class SampleGraphs:
             GraphNode(
                 id="test-node-basic",
                 position=Position(x=0.0, y=0.0),
-                data=graphNodeData(label="Basic Test Node", simulation_id="basic-sim"),
+                data=graphNodeData(label="Basic Test Node", simulation_id=""),
                 type="simulation",
             ),
             GraphNode(
                 id="test-node-positioned",
                 position=Position(x=150.5, y=275.25),
-                data=graphNodeData(label="Positioned Node", simulation_id="positioned-sim"),
+                data=graphNodeData(label="Positioned Node", simulation_id=""),
                 type="simulation",
             ),
             GraphNode(
                 id="test-node-special-chars",
                 position=Position(x=100.0, y=100.0),
-                data=graphNodeData(label="Node with Special Chars: !@#$%", simulation_id="special-char-sim"),
+                data=graphNodeData(label="Node with Special Chars: !@#$%", simulation_id=""),
                 type="custom",
             ),
         ]
@@ -162,6 +162,6 @@ class SampleGraphs:
         return {
             "id": "node-to-update",
             "position": Position(x=500.0, y=600.0),
-            "data": graphNodeData(label="Updated Node Label", simulation_id="updated-sim"),
+            "data": graphNodeData(label="Updated Node Label", simulation_id=""),
             "type": "updated-type",
         }
