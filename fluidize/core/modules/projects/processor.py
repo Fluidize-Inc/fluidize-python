@@ -61,7 +61,9 @@ class ProjectProcessor:
         projects = []
         projects_path = PathFinder.get_projects_path()
 
-        if not DataLoader.check_file_exists(projects_path):
+        # Check if projects directory exists using simple path check
+        # DataLoader.check_file_exists is for files, not directories
+        if not projects_path.exists():
             return []
 
         # List all project directories
@@ -94,10 +96,12 @@ class ProjectProcessor:
         projects_path = PathFinder.get_projects_path()
         project_path = projects_path / project_id
 
-        if not DataLoader.check_file_exists(project_path):
-            raise FileNotFoundError()
-
-        return ProjectSummary.from_file(project_path)
+        # Let ProjectSummary.from_file handle the file existence check
+        # since check_file_exists is for files, not directories
+        try:
+            return ProjectSummary.from_file(project_path)
+        except (FileNotFoundError, ValueError) as err:
+            raise FileNotFoundError() from err
 
     def insert_project(self, project: ProjectSummary) -> ProjectSummary:
         """
@@ -145,7 +149,7 @@ class ProjectProcessor:
         # Delete entire project directory
         DataLoader.delete_entire_project_folder(project)
 
-    def upsert_project(
+    def upsert_project(  # noqa: C901
         self,
         *,
         id: str,  # noqa: A002
@@ -171,26 +175,52 @@ class ProjectProcessor:
         Returns:
             The created/updated project
         """
-        # Create ProjectSummary from parameters
-        project_data: dict[str, str] = {
-            "id": id,
-            "metadata_version": metadata_version or "1.0",
-        }
+        # Check if project exists for update
+        try:
+            existing_project = self.get_project(id)
+            # Project exists - update it by merging fields
+            project_data = existing_project.model_dump()
 
-        # Add optional fields if provided
-        if description is not None:
-            project_data["description"] = description
-        if label is not None:
-            project_data["label"] = label
-        if location is not None:
-            project_data["location"] = location
-        if status is not None:
-            project_data["status"] = status
+            # Update provided fields
+            if description is not None:
+                project_data["description"] = description
+            if label is not None:
+                project_data["label"] = label
+            if location is not None:
+                project_data["location"] = location
+            if status is not None:
+                project_data["status"] = status
+            if metadata_version is not None:
+                project_data["metadata_version"] = metadata_version
 
-        # Add any additional kwargs (filtered to strings only)
-        for key, value in kwargs.items():
-            if isinstance(value, str):
-                project_data[key] = value
+            # Add any additional kwargs (filtered to strings only)
+            for key, value in kwargs.items():
+                if isinstance(value, str):
+                    project_data[key] = value
 
-        project = ProjectSummary(**project_data)
+            project = ProjectSummary(**project_data)
+        except FileNotFoundError:
+            # Project doesn't exist - create new one
+            project_data: dict[str, str] = {
+                "id": id,
+                "metadata_version": metadata_version or "1.0",
+            }
+
+            # Add optional fields if provided
+            if description is not None:
+                project_data["description"] = description
+            if label is not None:
+                project_data["label"] = label
+            if location is not None:
+                project_data["location"] = location
+            if status is not None:
+                project_data["status"] = status
+
+            # Add any additional kwargs (filtered to strings only)
+            for key, value in kwargs.items():
+                if isinstance(value, str):
+                    project_data[key] = value
+
+            project = ProjectSummary(**project_data)
+
         return self.insert_project(project)

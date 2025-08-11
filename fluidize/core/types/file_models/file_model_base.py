@@ -5,9 +5,6 @@ from typing import Any, TypeVar
 from pydantic import BaseModel, PrivateAttr, ValidationError
 from upath import UPath
 
-from fluidize.core.utils.dataloader.data_loader import DataLoader
-from fluidize.core.utils.dataloader.data_writer import DataWriter
-
 T = TypeVar("T", bound="FileModelBase")
 
 
@@ -29,6 +26,8 @@ class FileModelBase(BaseModel):
 
     @classmethod
     def from_file(cls: type[T], directory: str | UPath) -> T:
+        from fluidize.core.utils.dataloader.data_loader import DataLoader
+
         filename = getattr(cls, "_filename", None)
         if not filename:
             raise TypeError()
@@ -75,6 +74,9 @@ class FileModelBase(BaseModel):
         return {key: self.model_dump(mode="json")}
 
     def save(self, directory: str | UPath | None = None) -> None:
+        from fluidize.core.utils.dataloader.data_loader import DataLoader
+        from fluidize.core.utils.dataloader.data_writer import DataWriter
+
         if directory:
             filename = getattr(self.__class__, "_filename", None)
             if not filename:
