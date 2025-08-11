@@ -6,12 +6,12 @@ from typing import Any, Literal
 
 from fluidize_sdk import FluidizeSDK
 
+# from .managers.runs import Runs
+from .backends.local import LocalBackend
 from .config import FluidizeConfig
 
 # TODO: Import these when implemented
-# from .managers.projects import Projects
-# from .managers.runs import Runs
-# from .backends.local import LocalBackend
+from .managers.projects import Projects
 
 
 class FluidizeClient:
@@ -42,9 +42,10 @@ class FluidizeClient:
         # Initialize the appropriate backend based on mode
         self._backend = self._initialize_backend()
 
-        # TODO: Initialize resource managers when implemented
-        # self.projects = ProjectManager(self._backend, self.config)
-        # self.runs = RunManager(self._backend, self.config)
+        # Initialize resource managers
+        self.projects = Projects(self._backend)
+        # TODO: Add when implemented
+        # self.runs = Runs(self._backend)
 
     def _initialize_backend(self) -> Any:
         """Initialize the appropriate backend based on the mode."""
@@ -63,11 +64,9 @@ class FluidizeClient:
             api_token=self.config.api_key,
         )
 
-    def _initialize_local_backend(self) -> Any:
+    def _initialize_local_backend(self) -> LocalBackend:
         """Initialize the local backend."""
-        # TODO: Implement LocalBackend
-        # return LocalBackend(self.config)
-        raise NotImplementedError("Local backend not yet implemented")
+        return LocalBackend(self.config)
 
     @property
     def mode(self) -> str:

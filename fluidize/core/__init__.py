@@ -1,3 +1,3 @@
 """
-Core logic ported from FastAPI backend.
+Core Fluidize Logic
 """

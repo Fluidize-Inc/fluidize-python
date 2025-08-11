@@ -1,3 +1,0 @@
-"""
-Fluidize models module.
-"""
