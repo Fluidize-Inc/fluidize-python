@@ -26,7 +26,6 @@ class FluidizeConfig:
         self.local_simulations_path = self.local_base_path / "simulations"
 
         # API configuration (when mode="api")
-        self.api_base_url = os.getenv("FLUIDIZE_API_URL", "https://api.fluidize.ai")
         self.api_key = os.getenv("FLUIDIZE_API_KEY")
 
         # Ensure local directories exist when in local mode

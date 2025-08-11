@@ -17,6 +17,9 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+dependencies = [
+    "fluidize-sdk>=0.4.0",
+]
 
 [project.urls]
 Homepage = "https://Fluidize-Inc.github.io/fluidize-python/"
