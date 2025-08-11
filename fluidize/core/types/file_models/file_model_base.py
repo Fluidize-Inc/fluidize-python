@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, TypeVar
 
-from pydantic import BaseModel, PrivateAttr, ValidationError
+from pydantic import BaseModel, ConfigDict, PrivateAttr, ValidationError
 from upath import UPath
 
 T = TypeVar("T", bound="FileModelBase")
@@ -103,5 +103,4 @@ class FileModelBase(BaseModel):
                 raise AttributeError()
         self.save()
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)

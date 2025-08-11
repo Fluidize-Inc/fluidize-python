@@ -6,6 +6,12 @@ from typing import Any, Literal
 
 from fluidize_sdk import FluidizeSDK
 
+import fluidize.core.utils.dataloader.loader.loader_local
+import fluidize.core.utils.dataloader.loader.writer_local
+
+# Ensure handlers are registered (redundant safety check)
+import fluidize.core.utils.pathfinder.methods.local  # noqa: F401
+
 # from .managers.runs import Runs
 from .backends.local import LocalBackend
 from .config import FluidizeConfig
