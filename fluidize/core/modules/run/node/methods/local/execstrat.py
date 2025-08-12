@@ -6,8 +6,10 @@ from fluidize.core.modules.run.node.methods.local.ExecuteNew import LocalExecuti
 
 
 class LocalExecutionStrategy(BaseExecutionStrategy):
-    def __init__(self, node, prev_node, project, mlflow_tracker=None, run_id: Optional[str] = None) -> None:
-        super().__init__(node, prev_node, project, mlflow_tracker, run_id)
+    def __init__(
+        self, node, prev_node, project, mlflow_tracker=None, run_id: Optional[str] = None, run_metadata=None
+    ) -> None:
+        super().__init__(node, prev_node, project, mlflow_tracker, run_id, run_metadata)
 
     def _set_environment(self):
         return LocalEnvironment.LocalEnvironmentManager(
@@ -23,3 +25,9 @@ class LocalExecutionStrategy(BaseExecutionStrategy):
             self.project,
             self.run_id,
         )
+
+    def handle_files(self):
+        """Handle file operations for local execution."""
+        # For local execution, file handling is done by the environment manager
+        # This method can be extended in the future for specific file operations
+        pass

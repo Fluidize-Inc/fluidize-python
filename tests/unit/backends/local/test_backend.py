@@ -68,10 +68,7 @@ class TestLocalBackend:
 
             # These have been implemented
             assert hasattr(backend, "graph")  # ✅ Now implemented
-            # assert hasattr(backend, 'runs')     # TODO: Future
-
-            # For now, ensure runs doesn't exist yet
-            assert not hasattr(backend, "runs")
+            assert hasattr(backend, "runs")  # ✅ Now implemented
 
     def test_multiple_backend_instances(self, mock_config):
         """Test that multiple backend instances can be created independently."""

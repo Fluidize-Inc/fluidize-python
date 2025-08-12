@@ -94,6 +94,46 @@ class TestRunFlowDirect:
             assert isinstance(result["run_number"], int)
             assert result["run_number"] > 0
 
+            # Verify run outputs directory structure
+            run_dir = test_config.local_projects_path / "project-1754038373536" / "runs" / f"run_{result['run_number']}"
+            outputs_dir = run_dir / "outputs"
+
+            # Check that outputs directory is created
+            assert outputs_dir.exists(), f"Outputs directory not found at {outputs_dir}"
+
+            # Wait a bit for async execution to complete (if needed)
+            import time
+
+            max_wait = 10  # seconds
+            wait_interval = 0.5
+            elapsed = 0
+
+            # Check for output files from both nodes
+            node1_output = outputs_dir / "node-1754038461760" / "output.txt"
+            node2_output = outputs_dir / "node-1754038465820" / "output.txt"
+
+            # Wait for outputs to be created
+            while elapsed < max_wait:
+                if node1_output.exists() and node2_output.exists():
+                    break
+                time.sleep(wait_interval)
+                elapsed += wait_interval
+
+            # Verify outputs exist and have correct content
+            assert node1_output.exists(), f"Node 1 output not found at {node1_output}"
+            assert node2_output.exists(), f"Node 2 output not found at {node2_output}"
+
+            # Check output contents
+            node1_content = node1_output.read_text().strip()
+            node2_content = node2_output.read_text().strip()
+
+            print("\n📁 Output verification:")
+            print(f"  Node 1 output: '{node1_content}' (expected: 'CANDY')")
+            print(f"  Node 2 output: '{node2_content}' (expected: 'CANDYCANDY')")
+
+            assert node1_content == "CANDY", f"Node 1 should output 'CANDY', got '{node1_content}'"
+            assert node2_content == "CANDYCANDY", f"Node 2 should output 'CANDYCANDY', got '{node2_content}'"
+
     def test_run_flow_payload_variations(self, project_manager, test_config):
         """Test run_flow with different payload configurations."""
 

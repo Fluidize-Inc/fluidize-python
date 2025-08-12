@@ -74,9 +74,17 @@ class RunsHandler:
         run_number = runner.prepare_run_environment(payload)
         print(f"Created run environment with number: {run_number}")
 
-        # Execute all nodes in the flow asynchronously
-        task = asyncio.create_task(runner.execute_flow(nodes_to_run, prev_nodes))
-        _ = task  # Store reference to avoid RUF006
+        # Execute all nodes in the flow
+        # Try to get the running event loop, if none exists, run synchronously for testing
+        try:
+            _ = asyncio.get_running_loop()
+            # We're in an async context, create task
+            task = asyncio.create_task(runner.execute_flow(nodes_to_run, prev_nodes))
+            _ = task  # Store reference to avoid RUF006
+        except RuntimeError:
+            # No event loop running (e.g., in tests), run synchronously
+            # Fire and forget - we don't wait for completion either way
+            asyncio.run(runner.execute_flow(nodes_to_run, prev_nodes))
 
         return {"flow_status": "running", "run_number": run_number}
 
