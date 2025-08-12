@@ -2,7 +2,6 @@
 
 import tempfile
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
@@ -24,20 +23,34 @@ class TestGraphWorkflow:
     @pytest.fixture
     def client(self, temp_dir):
         """Create a FluidizeClient in local mode with temp directory."""
-        # Mock the config to use temp directory
-        with patch("fluidize.config.FluidizeConfig") as mock_config_class:
-            mock_config = mock_config_class.return_value
-            mock_config.is_api_mode.return_value = False
-            mock_config.local_base_path = temp_dir
-            mock_config.local_projects_path = temp_dir / "projects"
-            mock_config.local_simulations_path = temp_dir / "simulations"
+        # Configure global config for testing
+        from fluidize.config import config
 
-            # Ensure directories exist
-            mock_config.local_projects_path.mkdir(parents=True, exist_ok=True)
-            mock_config.local_simulations_path.mkdir(parents=True, exist_ok=True)
+        # Store original values
+        original_mode = config.mode
+        original_base_path = config.local_base_path
+        original_projects_path = config.local_projects_path
+        original_simulations_path = config.local_simulations_path
 
+        # Configure global config
+        config.mode = "local"
+        config.local_base_path = temp_dir
+        config.local_projects_path = temp_dir / "projects"
+        config.local_simulations_path = temp_dir / "simulations"
+
+        # Ensure directories exist
+        config.local_projects_path.mkdir(parents=True, exist_ok=True)
+        config.local_simulations_path.mkdir(parents=True, exist_ok=True)
+
+        try:
             client = FluidizeClient(mode="local")
             yield client
+        finally:
+            # Restore original values
+            config.mode = original_mode
+            config.local_base_path = original_base_path
+            config.local_projects_path = original_projects_path
+            config.local_simulations_path = original_simulations_path
 
     def test_complete_project_graph_workflow(self, client):
         """Test complete workflow from client creation to graph operations."""
@@ -292,23 +305,17 @@ class TestGraphWorkflow:
         assert len(graph1.nodes) == 1
 
         # Create new client (simulating new session)
-        with patch("fluidize.config.FluidizeConfig") as mock_config_class:
-            mock_config = mock_config_class.return_value
-            mock_config.is_api_mode.return_value = False
-            mock_config.local_base_path = temp_dir
-            mock_config.local_projects_path = temp_dir / "projects"
-            mock_config.local_simulations_path = temp_dir / "simulations"
+        # Since the config is already configured by the fixture, just create a new client
+        client2 = FluidizeClient(mode="local")
 
-            client2 = FluidizeClient(mode="local")
+        # Retrieve same project
+        project2 = client2.projects.get(project_id)
 
-            # Retrieve same project
-            project2 = client2.projects.get(project_id)
-
-            # Verify graph data persisted
-            graph2 = project2.graph.get()
-            assert len(graph2.nodes) == 1
-            assert graph2.nodes[0].id == "persistent-node"
-            assert graph2.nodes[0].data.label == "Persistent Node"
+        # Verify graph data persisted
+        graph2 = project2.graph.get()
+        assert len(graph2.nodes) == 1
+        assert graph2.nodes[0].id == "persistent-node"
+        assert graph2.nodes[0].data.label == "Persistent Node"
 
     def test_error_handling_in_workflow(self, client):
         """Test error handling in graph workflows."""
