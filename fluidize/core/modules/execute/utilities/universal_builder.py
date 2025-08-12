@@ -77,21 +77,22 @@ class UniversalContainerBuilder:
             },
         )
 
-        # Step 6: Add resources to container spec if available
-        if resource_spec:
-            container_spec.resources = ResourceBuilder.build_kubernetes_resources(resource_spec)
+        # # Step 6: Add resources to container spec if available
+        # if resource_spec:
+        #     container_spec.resources = ResourceBuilder.build_kubernetes_resources(resource_spec)
 
-        # Step 7: Create pod spec for Kubernetes
+        # # Step 7: Create pod spec for Kubernetes
+        # pod_spec = None
+        # if context.execution_mode == ExecutionMode.KUBERNETES:
+        #     pod_spec = PodSpec(
+        #         containers=[container_spec],
+        #         volumes=volume_spec.volumes,
+        #         restart_policy="Never",
+        #         labels=container_spec.labels.copy(),
+        #         node_selector=resource_spec.node_selector if resource_spec else None,
+        #         tolerations=resource_spec.tolerations if resource_spec else None,
+        #     )
         pod_spec = None
-        if context.execution_mode == ExecutionMode.KUBERNETES:
-            pod_spec = PodSpec(
-                containers=[container_spec],
-                volumes=volume_spec.volumes,
-                restart_policy="Never",
-                labels=container_spec.labels.copy(),
-                node_selector=resource_spec.node_selector if resource_spec else None,
-                tolerations=resource_spec.tolerations if resource_spec else None,
-            )
 
         # Step 8: Build Docker arguments for local/VM execution
         docker_args = None

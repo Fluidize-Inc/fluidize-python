@@ -85,15 +85,15 @@ class ResourceBuilder:
 
         return args
 
-    @staticmethod
-    def build_kubernetes_resources(resource_spec: ResourceSpec) -> dict:
-        """
-        Convert to Kubernetes resource format.
+    # @staticmethod
+    # def build_kubernetes_resources(resource_spec: ResourceSpec) -> dict:
+    #     """
+    #     Convert to Kubernetes resource format.
 
-        Args:
-            resource_spec: Resource specification
+    #     Args:
+    #         resource_spec: Resource specification
 
-        Returns:
-            Kubernetes resource requirements dictionary
-        """
-        return {"requests": resource_spec.requests, "limits": resource_spec.limits}
+    #     Returns:
+    #         Kubernetes resource requirements dictionary
+    #     """
+    #     return {"requests": resource_spec.requests, "limits": resource_spec.limits}

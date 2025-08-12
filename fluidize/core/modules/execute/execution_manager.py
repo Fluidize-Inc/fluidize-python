@@ -13,7 +13,8 @@ from fluidize.core.types.node import nodeProperties_simulation
 from fluidize.core.types.project import ProjectSummary
 
 from .docker_client import DockerExecutionClient
-from .kubernetes_client import KubernetesExecutionClient
+
+# from .kubernetes_client import KubernetesExecutionClient
 from .utilities.universal_builder import UniversalContainerBuilder
 from .vm_client import VMExecutionClient
 
@@ -167,34 +168,34 @@ class ExecutionManager:
                 "execution_mode": "vm_docker",
             }
 
-    def _execute_kubernetes(self, spec, **kwargs) -> dict[str, Any]:
-        """Execute using Kubernetes client."""
-        try:
-            if not self.k8s_client:
-                namespace = kwargs.get("namespace", "fluidize")
-                self.k8s_client = KubernetesExecutionClient(namespace=namespace)
+    # def _execute_kubernetes(self, spec, **kwargs) -> dict[str, Any]:
+    #     """Execute using Kubernetes client."""
+    #     try:
+    #         if not self.k8s_client:
+    #             namespace = kwargs.get("namespace", "fluidize")
+    #             self.k8s_client = KubernetesExecutionClient(namespace=namespace)
 
-            # Generate job name
-            job_name = f"fluidize-{spec.container_spec.name}-{kwargs.get('timestamp', 'job')}"
-            job_name = job_name.lower().replace("_", "-")[:63]  # K8s name limits
+    #         # Generate job name
+    #         job_name = f"fluidize-{spec.container_spec.name}-{kwargs.get('timestamp', 'job')}"
+    #         job_name = job_name.lower().replace("_", "-")[:63]  # K8s name limits
 
-            # Submit Kubernetes job
-            result = self.k8s_client.submit_job(spec.pod_spec, job_name, **kwargs)
-        except Exception as e:
-            logger.exception("Kubernetes execution failed")
-            return {"success": False, "error": str(e), "execution_mode": "kubernetes"}
-        else:
-            return {
-                "success": result.success,
-                "job_name": result.job_name,
-                "namespace": result.namespace,
-                "logs": result.logs,
-                "exit_code": result.exit_code,
-                "start_time": result.start_time,
-                "completion_time": result.completion_time,
-                "failure_reason": result.failure_reason,
-                "execution_mode": "kubernetes",
-            }
+    #         # Submit Kubernetes job
+    #         result = self.k8s_client.submit_job(spec.pod_spec, job_name, **kwargs)
+    #     except Exception as e:
+    #         logger.exception("Kubernetes execution failed")
+    #         return {"success": False, "error": str(e), "execution_mode": "kubernetes"}
+    #     else:
+    #         return {
+    #             "success": result.success,
+    #             "job_name": result.job_name,
+    #             "namespace": result.namespace,
+    #             "logs": result.logs,
+    #             "exit_code": result.exit_code,
+    #             "start_time": result.start_time,
+    #             "completion_time": result.completion_time,
+    #             "failure_reason": result.failure_reason,
+    #             "execution_mode": "kubernetes",
+    #         }
 
     def close(self):
         """Clean up resources."""

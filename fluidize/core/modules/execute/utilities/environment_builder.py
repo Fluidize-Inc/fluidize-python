@@ -149,18 +149,18 @@ class EnvironmentBuilder:
 
         return env_vars
 
-    @staticmethod
-    def build_kubernetes_env_list(env_vars: dict[str, str]) -> list[dict[str, str]]:
-        """
-        Convert environment variables to Kubernetes env list format.
+    # @staticmethod
+    # def build_kubernetes_env_list(env_vars: dict[str, str]) -> list[dict[str, str]]:
+    #     """
+    #     Convert environment variables to Kubernetes env list format.
 
-        Args:
-            env_vars: Dictionary of environment variables
+    #     Args:
+    #         env_vars: Dictionary of environment variables
 
-        Returns:
-            List of Kubernetes env objects
-        """
-        return [{"name": key, "value": value} for key, value in env_vars.items()]
+    #     Returns:
+    #         List of Kubernetes env objects
+    #     """
+    #     return [{"name": key, "value": value} for key, value in env_vars.items()]
 
     @staticmethod
     def build_docker_env_args(env_vars: dict[str, str]) -> list[str]:
