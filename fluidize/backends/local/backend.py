@@ -13,10 +13,6 @@ class LocalBackend:
     """
     Local backend that provides SDK-compatible interface using local handlers.
 
-    Organized like FluidizeSDK:
-    - backend.projects.list()
-    - backend.graph.retrieve()  (TODO)
-    - backend.runs.run_flow()   (TODO)
     """
 
     def __init__(self, config: Any) -> None:
@@ -28,8 +24,6 @@ class LocalBackend:
         """
         self.config = config
 
-        # Initialize handlers (like SDK resources)
         self.projects = ProjectsHandler(config)
-
         self.graph = GraphHandler()
         self.runs = RunsHandler(config)

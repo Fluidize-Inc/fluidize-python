@@ -13,15 +13,23 @@ All clients use proper libraries instead of unsafe command string construction:
 """
 
 from .docker_client import ContainerResult, DockerExecutionClient
+from .execution_manager import ExecutionManager
 
 # from .kubernetes_client import JobResult, KubernetesExecutionClient
+from .utilities.environment_builder import EnvironmentBuilder
+from .utilities.path_converter import PathConverter
+from .utilities.volume_builder import VolumeBuilder
 from .vm_client import VMExecutionClient, VMExecutionResult
 
 __all__ = [
     "ContainerResult",
     "DockerExecutionClient",
-    "JobResult",
-    # "KubernetesExecutionClient",
+    "EnvironmentBuilder",
+    "ExecutionManager",
+    "PathConverter",
     "VMExecutionClient",
     "VMExecutionResult",
+    "VolumeBuilder",
+    # "JobResult",
+    # "KubernetesExecutionClient",
 ]
