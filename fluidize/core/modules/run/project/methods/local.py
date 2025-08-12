@@ -26,7 +26,7 @@ class LocalProjectRunner(BaseProjectRunner):
         run_numbers = [int(p.name.split("_")[1]) for p in runs_path.glob("run_*") if p.is_dir()]
         return 1 if not run_numbers else max(run_numbers) + 1
 
-    def _copy_project_contents(self, source_path: Path, destination_path: Path):
+    def _copy_project_contents(self, source_path: Path, destination_path: Path) -> None:
         """
         Copy the contents of the project directory to the new run directory (excluding the 'run' directory).
         """
@@ -38,7 +38,7 @@ class LocalProjectRunner(BaseProjectRunner):
                 else:
                     shutil.copy2(item, dest_item)
 
-    def get_default_execution_strategy(self):
+    def get_default_execution_strategy(self):  # type: ignore[no-untyped-def]
         return LocalExecutionStrategy
 
 

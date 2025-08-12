@@ -48,8 +48,14 @@ class ResourceBuilder:
         # Use explicit requirements if provided
         if context.resource_requirements:
             return ResourceSpec(
-                requests=context.resource_requirements.requests,
-                limits=context.resource_requirements.limits,
+                requests={
+                    "cpu": context.resource_requirements.cpu_request,
+                    "memory": context.resource_requirements.memory_request,
+                },
+                limits={
+                    "cpu": context.resource_requirements.cpu_limit,
+                    "memory": context.resource_requirements.memory_limit,
+                },
                 node_selector={"cloud.google.com/gke-nodepool": context.get_node_pool()},
             )
 

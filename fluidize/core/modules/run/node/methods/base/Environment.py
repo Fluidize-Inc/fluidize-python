@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from jinja2 import Environment, FileSystemLoader
 from upath import UPath
@@ -11,16 +12,16 @@ from fluidize.core.utils.pathfinder.path_finder import PathFinder
 
 class BaseEnvironmentManager(ABC):
     def __init__(
-        self, node: nodeProperties_simulation, prev_node: nodeProperties_simulation, project: ProjectSummary
+        self, node: nodeProperties_simulation, prev_node: Optional[nodeProperties_simulation], project: ProjectSummary
     ) -> None:
         self.node = node
         self.prev_node = prev_node
         self.project = project
-        self.node_folder = PathFinder.get_node_path(project, node.node_id)
+        self.node_folder = PathFinder.get_node_path(project, str(node.node_id))
         self.node_run_folder = node.directory
         # Maybe some stronger checking on the node run folder?
 
-    def load_node_parameters(self):
+    def load_node_parameters(self) -> tuple[Optional[list], Optional[list]]:
         # Load parameters via JSONDataLoader helper rather than local file access here
         try:
             # JSONDataLoader will handle the appropriate storage based on project location
@@ -34,7 +35,7 @@ class BaseEnvironmentManager(ABC):
             return None, None
         return simulation_params, properties_params
 
-    def process_parameters(self, simulation_params, properties_params) -> None:  # noqa: C901
+    def process_parameters(self, simulation_params: list, properties_params: list) -> None:  # noqa: C901
         # Consolidate all parameters into a single context dictionary
         context = {param["name"]: param["value"] for param in simulation_params}
         context.update({param["name"]: param["value"] for param in properties_params})

@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any
+from typing import Any, Optional, cast
 
 from fluidize.core.types.project import ProjectSummary
 from fluidize.core.types.runs import RunFlowPayload
@@ -24,16 +24,16 @@ class ProjectRunner:
         Create a new run folder for the project
         Returns the run number
         """
-        return self.handler.prepare_run_environment(metadata)
+        return cast(int, self.handler.prepare_run_environment(metadata))
 
-    async def execute_node(self, node_id: str, **kwargs) -> dict[str, Any]:
+    async def execute_node(self, node_id: str, prev_node_id: Optional[str] = None, **kwargs: Any) -> dict[str, Any]:
         """
         Execute a single node within the project run
         Returns the execution result
         """
-        return await asyncio.to_thread(self.handler.execute_node, node_id, **kwargs)
+        return await asyncio.to_thread(self.handler.execute_node, node_id, prev_node_id=prev_node_id, **kwargs)
 
-    async def execute_flow(self, nodes_to_run: list[str], prev_nodes: list[str], **kwargs) -> list[dict[str, Any]]:
+    async def execute_flow(self, nodes_to_run: list[str], prev_nodes: list[str], **kwargs: Any) -> list[dict[str, Any]]:
         """
         Execute a flow of nodes in the correct order
         nodes_to_run: List of node IDs
@@ -43,4 +43,4 @@ class ProjectRunner:
         if len(nodes_to_run) != len(prev_nodes):
             msg = "nodes_to_run and prev_nodes must be of the same length"
             raise ValueError(msg)
-        return await self.handler.execute_flow(nodes_to_run, prev_nodes, **kwargs)
+        return cast(list[dict[str, Any]], await self.handler.execute_flow(nodes_to_run, prev_nodes, **kwargs))

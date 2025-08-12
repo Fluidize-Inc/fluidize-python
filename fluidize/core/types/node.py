@@ -31,13 +31,11 @@ class nodeProperties_simulation(PropertiesModel):
     version: Union[str, float] = "1.0"  # Accept both string and float
 
     @computed_field
-    @property
     def node_id(self) -> str:
         """Node ID is always the folder name where this node exists"""
         return self.directory.name
 
     @computed_field
-    @property
     def output_path(self) -> str:
         return str(self.directory / self.source_output_folder)
 

@@ -1,6 +1,6 @@
 import time
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Optional
 
 from fluidize.core.types.node import nodeProperties_simulation
 from fluidize.core.types.project import ProjectSummary
@@ -12,10 +12,10 @@ class BaseExecutionStrategy(ABC):
         node: nodeProperties_simulation,
         prev_node: Optional[nodeProperties_simulation],
         project: ProjectSummary,
-        mlflow_tracker=None,
+        mlflow_tracker: Any = None,
         run_id: Optional[str] = None,
-        run_metadata=None,
-    ):
+        run_metadata: Any = None,
+    ) -> None:
         self.node = node
         self.prev_node = prev_node
         self.project = project
@@ -23,23 +23,28 @@ class BaseExecutionStrategy(ABC):
         self.run_id = run_id
         self.run_metadata = run_metadata
 
-    def set_context(self, nodeProperties_simulation, prev_nodeProperties_simulation, project):
+    def set_context(
+        self,
+        nodeProperties_simulation: nodeProperties_simulation,
+        prev_nodeProperties_simulation: Optional[nodeProperties_simulation],
+        project: ProjectSummary,
+    ) -> None:
         """Update the context for reusing the strategy instance"""
         self.node = nodeProperties_simulation
         self.prev_node = prev_nodeProperties_simulation
         self.project = project
 
     @abstractmethod
-    def _set_environment(self):
+    def _set_environment(self) -> Any:
         """Load the environment for the node execution"""
         pass
 
     @abstractmethod
-    def _load_execution_manager(self):
+    def _load_execution_manager(self) -> Any:
         """Load the execution manager for the node"""
         pass
 
-    def prepare_environment(self):
+    def prepare_environment(self) -> None:
         self.env_manager = self._set_environment()
 
         # Load the parameters
@@ -48,7 +53,7 @@ class BaseExecutionStrategy(ABC):
         # Process the parameters with the environment manager
         self.env_manager.process_parameters(simulation_params, properties_params)
 
-    def execute_simulation(self):
+    def execute_simulation(self) -> Any:
         # Track execution time
         start_time = time.time()
 
@@ -81,6 +86,6 @@ class BaseExecutionStrategy(ABC):
         return result
 
     @abstractmethod
-    def handle_files(self):
+    def handle_files(self) -> None:
         """Handle file operations for the execution."""
         pass

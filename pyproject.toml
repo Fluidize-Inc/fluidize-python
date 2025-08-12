@@ -18,11 +18,13 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
+    "docker>=7.1.0",
     "fluidize-sdk>=0.4.0",
+    "jinja2>=3.1.6",
     "mlflow>=3.1.4",
     "networkx>=3.2.1",
+    "pydantic>=2.11.7",
     "pyyaml>=6.0.2",
-    "types-pyyaml>=6.0.12.20250809",
     "universal-pathlib>=0.2.6",
 ]
 
@@ -43,6 +45,8 @@ dev = [
     "mkdocs>=1.4.2",
     "mkdocs-material>=8.5.10",
     "mkdocstrings[python]>=0.26.1",
+    "types-networkx>=3.4.2.20250509",
+    "types-pyyaml>=6.0.12.20250809",
 ]
 
 [build-system]

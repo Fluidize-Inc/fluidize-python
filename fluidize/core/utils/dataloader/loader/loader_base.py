@@ -88,7 +88,7 @@ class BaseDataLoader(ABC):
             return {}
         try:
             content = self._get_file_content(filepath)
-            return json.loads(content)
+            return json.loads(content)  # type: ignore[no-any-return]
         except Exception:
             return {}
 
@@ -111,14 +111,14 @@ class BaseDataLoader(ABC):
         full_path = PathFinder.get_project_path(project) / suffix
         return self.load_json(full_path)
 
-    def delete_directory_for_project(self, project: ProjectSummary, folder_name: str):
+    def delete_directory_for_project(self, project: ProjectSummary, folder_name: str) -> None:
         """Delete a directory from a project folder."""
         path = PathFinder.get_project_path(project) / folder_name
 
         if self._directory_exists(path):
             self.remove_directory(path)
 
-    def delete_entire_project_folder(self, project: ProjectSummary):
+    def delete_entire_project_folder(self, project: ProjectSummary) -> None:
         """Delete the entire project folder."""
         path = PathFinder.get_project_path(project)
 
@@ -135,7 +135,7 @@ class BaseDataLoader(ABC):
             raise FileNotFoundError()
 
         content = self._get_file_content(parameters_path)
-        return json.loads(content)
+        return json.loads(content)  # type: ignore[no-any-return]
 
     def list_runs(self, project: ProjectSummary) -> list[str]:
         """List all runs for a project."""
@@ -198,7 +198,7 @@ class BaseDataLoader(ABC):
         for directory in dirs:
             try:
                 # Use from_file to load and validate properties for each directory
-                obj = objectType.from_file(directory)
+                obj = objectType.from_file(directory)  # type: ignore[attr-defined]
                 objects.append(obj)
             except Exception as e:
                 # Skip entries without valid properties
@@ -207,6 +207,6 @@ class BaseDataLoader(ABC):
 
         return objects
 
-    def list_simulations(self, sim_global: bool = True):
+    def list_simulations(self, sim_global: bool = True) -> list:
         """Load all simulations by reading each folder's metadata.yaml"""
         return self.list_metadatas(PathFinder.get_simulations_path(sim_global), nodeMetadata_simulation)

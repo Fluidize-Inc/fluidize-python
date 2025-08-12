@@ -56,7 +56,7 @@ class RunsHandler:
         data = DataLoader.load_for_project(project, FileConstants.GRAPH_SUFFIX)
 
         # Create a directed graph manually from the React Flow format
-        graph = nx.DiGraph()
+        graph: nx.DiGraph = nx.DiGraph()
 
         # Add nodes with their data
         for node in data.get("nodes", []):

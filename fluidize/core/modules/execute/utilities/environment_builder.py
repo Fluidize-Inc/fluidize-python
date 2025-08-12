@@ -58,7 +58,7 @@ class EnvironmentBuilder:
             Standard Fluidize environment variables
         """
         env_vars = {
-            "FLUIDIZE_NODE_ID": context.node.node_id,
+            "FLUIDIZE_NODE_ID": str(context.node.node_id),
             "FLUIDIZE_PROJECT_ID": context.project.id,
             "FLUIDIZE_PROJECT_LABEL": context.project.label,
             "FLUIDIZE_EXECUTION_MODE": context.execution_mode.value,

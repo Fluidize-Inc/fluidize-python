@@ -36,9 +36,9 @@ class BaseProjectRunner(ABC):
 
         # Initialize MLFlow tracker
         try:
-            self.mlflow_tracker = MLFlowTracker(project)
-            self.mlflow_experiment_id = None
-            self.mlflow_run_id = None
+            self.mlflow_tracker: Optional[MLFlowTracker] = MLFlowTracker(project)
+            self.mlflow_experiment_id: Optional[str] = None
+            self.mlflow_run_id: Optional[str] = None
         except Exception as e:
             logger.warning(f"Failed to initialize MLFlow tracker: {e}")
             self.mlflow_tracker = None
@@ -134,7 +134,7 @@ class BaseProjectRunner(ABC):
         print(f"Created project run folder: {self.run_path}")
         return self.run_number
 
-    def execute_node(self, node_id: str, prev_node_id: Optional[str] = None, **kwargs) -> dict[str, Any]:  # noqa: C901
+    def execute_node(self, node_id: str, prev_node_id: Optional[str] = None, **kwargs: Any) -> dict[str, Any]:  # noqa: C901
         """
         Execute a single node within the project run
         Returns the execution result
@@ -206,7 +206,8 @@ class BaseProjectRunner(ABC):
         )
 
         try:
-            job_result = job.run()
+            job.run()
+            job_result = "success"
 
             # End the node MLFlow run
             if self.mlflow_tracker and node_mlflow_id:
@@ -221,7 +222,7 @@ class BaseProjectRunner(ABC):
         # ISSUE #22:
         return {"node_id": node_id, "status": "success", "result": job_result}
 
-    async def execute_flow(self, nodes_to_run: list[str], prev_nodes: list[str], **kwargs) -> list[dict[str, Any]]:
+    async def execute_flow(self, nodes_to_run: list[str], prev_nodes: list[str], **kwargs: Any) -> list[dict[str, Any]]:
         """
         Execute a flow of nodes in the correct order
         nodes_to_run: List of node IDs

@@ -71,7 +71,7 @@ class UniversalContainerBuilder:
             volume_mounts=volume_spec.volume_mounts,
             working_dir=str(container_paths.simulation_path),
             labels={
-                "fluidize.node_id": context.node.node_id,
+                "fluidize.node_id": str(context.node.node_id),
                 "fluidize.project_id": context.project.id,
                 "fluidize.execution_mode": context.execution_mode.value,
             },

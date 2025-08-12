@@ -46,7 +46,7 @@ class PathConverter:
         logger.info(f"PathConverter: Building paths with run_number={context.run_number}")
 
         # Get host paths using existing PathFinder
-        host_node_path = PathFinder.get_node_path(context.project, context.node.node_id, context.run_number)
+        host_node_path = PathFinder.get_node_path(context.project, str(context.node.node_id), context.run_number)
         logger.info(f"PathConverter: host_node_path={host_node_path}")
 
         # Convert to container paths based on execution mode
@@ -220,7 +220,9 @@ class PathConverter:
         # Build input path for dependencies
         input_path = None
         if context.dependencies and context.prev_node:
-            prev_node_path = PathFinder.get_node_path(context.project, context.prev_node.node_id, context.run_number)
+            prev_node_path = PathFinder.get_node_path(
+                context.project, str(context.prev_node.node_id), context.run_number
+            )
             prev_path_str = str(prev_node_path)
             if prev_path_str.startswith("gs://"):
                 prev_container_base = PathConverter.convert_gcs_to_container_path(prev_path_str)
@@ -239,7 +241,7 @@ class PathConverter:
         mounts = {}
 
         # Main node directory mount
-        host_node_path = PathFinder.get_node_path(context.project, context.node.node_id, context.run_number)
+        host_node_path = PathFinder.get_node_path(context.project, str(context.node.node_id), context.run_number)
 
         mounts["node-data"] = {
             "host_path": str(host_node_path),
@@ -249,7 +251,9 @@ class PathConverter:
 
         # Input mount if dependencies exist
         if context.dependencies and context.prev_node:
-            prev_node_path = PathFinder.get_node_path(context.project, context.prev_node.node_id, context.run_number)
+            prev_node_path = PathFinder.get_node_path(
+                context.project, str(context.prev_node.node_id), context.run_number
+            )
             input_host_path = prev_node_path / context.prev_node.source_output_folder
 
             mounts["input-data"] = {

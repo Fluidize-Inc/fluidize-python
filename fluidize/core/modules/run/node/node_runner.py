@@ -34,7 +34,7 @@ class RunJob:
             run_metadata=self.run_metadata,  # Pass metadata to strategy
         )
 
-    def run(self):
+    def run(self) -> None:
         print(f"\n=== Starting run for node: {self.nodeProperties_simulation.node_id} ===")
         try:
             # Set context once at the beginning of the run
@@ -53,4 +53,3 @@ class RunJob:
         except Exception as e:
             print(f"ERROR during run execution: {e!s}")
             raise
-        return result

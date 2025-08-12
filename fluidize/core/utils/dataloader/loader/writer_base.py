@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Union
 
 from upath import UPath
 
@@ -12,7 +13,7 @@ class BaseDataWriter(ABC):
     methods that must be implemented by subclasses.
     """
 
-    def write_json_for_project(self, project: ProjectSummary, suffix: str, data: dict):
+    def write_json_for_project(self, project: ProjectSummary, suffix: str, data: dict) -> None:
         """
         Writes the given data to JSON for the given project.
         """
@@ -24,7 +25,7 @@ class BaseDataWriter(ABC):
         self._ensure_directory_exists(dir_path)
         self._write_json_file(file_path, data)
 
-    def write_json(self, filepath, data: dict):
+    def write_json(self, filepath: Union[str, UPath], data: dict) -> None:
         """
         Writes JSON data to the specified file path.
         """
@@ -33,7 +34,7 @@ class BaseDataWriter(ABC):
         self._ensure_directory_exists(dir_path)
         self._write_json_file(path, data)
 
-    def write_yaml(self, filepath: UPath, data: dict):
+    def write_yaml(self, filepath: UPath, data: dict) -> None:
         """
         Writes YAML data to the specified file path.
 

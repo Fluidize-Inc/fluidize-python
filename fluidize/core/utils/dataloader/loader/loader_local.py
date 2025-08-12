@@ -50,7 +50,7 @@ class LocalDataLoader(BaseDataLoader):
         """List files matching `pattern` under the given path on local filesystem."""
         return [UPath(p) for p in path.glob(pattern)]
 
-    def _cat_files(self, paths: list[UPath]) -> dict:
+    def _cat_files(self, paths: list[UPath]) -> dict[str, bytes]:
         """Read multiple files' content in a batch from the local filesystem."""
         contents = {}
         for path in paths:
@@ -61,11 +61,13 @@ class LocalDataLoader(BaseDataLoader):
                     contents[str(path)] = f.read()
             except FileNotFoundError:
                 # Handle cases where a file might disappear between glob and read
-                contents[str(path)] = None
+                # Skip files that can't be read instead of adding None values
+                continue
             except Exception as e:
                 # Handle other potential reading errors
                 print(f"Error reading file {path}: {e}")
-                contents[str(path)] = None
+                # Skip files that can't be read instead of adding None values
+                continue
         return contents
 
 

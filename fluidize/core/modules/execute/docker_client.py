@@ -10,9 +10,9 @@ from dataclasses import dataclass
 from typing import Optional
 
 try:
-    import docker
-    from docker.errors import ContainerError, DockerException, ImageNotFound
-    from docker.models.containers import Container
+    import docker  # type: ignore[import-untyped]
+    from docker.errors import ContainerError, DockerException, ImageNotFound  # type: ignore[import-untyped]
+    from docker.models.containers import Container  # type: ignore[import-untyped]
 except ImportError:
     docker = None
 
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class DockerSDKMissingError(ImportError):
     """Raised when Docker SDK is not available."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Docker SDK not available. Install with: pip install docker")
 
 
@@ -38,7 +38,7 @@ class ContainerResult:
     container_id: Optional[str] = None
     success: bool = False
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.success = self.exit_code == 0
 
 
@@ -50,7 +50,7 @@ class DockerExecutionClient:
     without the risks of command string construction.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize Docker client."""
         if docker is None:
             raise DockerSDKMissingError()
@@ -87,7 +87,7 @@ class DockerExecutionClient:
         else:
             return True
 
-    def run_container(self, container_spec: ContainerSpec, volumes: list[Volume], **kwargs) -> ContainerResult:
+    def run_container(self, container_spec: ContainerSpec, volumes: list[Volume], **kwargs: str) -> ContainerResult:
         """
         Run container using Docker SDK.
 
@@ -165,7 +165,7 @@ class DockerExecutionClient:
             logger.exception("Unexpected error")
             return ContainerResult(exit_code=-1, stderr=str(e), success=False)
 
-    def run_container_async(self, container_spec: ContainerSpec, volumes: list[Volume], **kwargs) -> Container:
+    def run_container_async(self, container_spec: ContainerSpec, volumes: list[Volume], **kwargs: str):  # type: ignore[no-untyped-def]
         """
         Run container in detached mode.
 
@@ -201,7 +201,7 @@ class DockerExecutionClient:
 
         return container
 
-    def wait_for_container(self, container: Container) -> ContainerResult:
+    def wait_for_container(self, container) -> ContainerResult:  # type: ignore[no-untyped-def]
         """
         Wait for container completion and return results.
 
@@ -260,24 +260,24 @@ class DockerExecutionClient:
         if container_spec.args:
             command.extend(container_spec.args)
 
-        return command if command else None
+        return command or []
 
-    def _apply_security_context(self, run_kwargs: dict, security_context: dict):
+    def _apply_security_context(self, run_kwargs: dict, security_context: dict) -> None:
         """Apply security context to docker run arguments."""
         if "runAsUser" in security_context:
             run_kwargs["user"] = security_context["runAsUser"]
         if security_context.get("privileged"):
             run_kwargs["privileged"] = True
 
-    def close(self):
+    def close(self) -> None:
         """Close Docker client connection."""
         if hasattr(self, "client"):
             self.client.close()
 
-    def __enter__(self):
+    def __enter__(self):  # type: ignore[no-untyped-def]
         """Context manager entry."""
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:  # type: ignore[no-untyped-def]
         """Context manager exit."""
         self.close()

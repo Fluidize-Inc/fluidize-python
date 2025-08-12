@@ -158,7 +158,7 @@ class ProjectProcessor:
         location: Optional[str] = None,
         metadata_version: Optional[str] = "1.0",
         status: Optional[str] = None,
-        **kwargs,
+        **kwargs: str,
     ) -> ProjectSummary:
         """
         Create or update a project with the given parameters.
@@ -201,26 +201,26 @@ class ProjectProcessor:
             project = ProjectSummary(**project_data)
         except FileNotFoundError:
             # Project doesn't exist - create new one
-            project_data: dict[str, str] = {
+            new_project_data: dict[str, str] = {
                 "id": id,
                 "metadata_version": metadata_version or "1.0",
             }
 
             # Add optional fields if provided
             if description is not None:
-                project_data["description"] = description
+                new_project_data["description"] = description
             if label is not None:
-                project_data["label"] = label
+                new_project_data["label"] = label
             if location is not None:
-                project_data["location"] = location
+                new_project_data["location"] = location
             if status is not None:
-                project_data["status"] = status
+                new_project_data["status"] = status
 
             # Add any additional kwargs (filtered to strings only)
             for key, value in kwargs.items():
                 if isinstance(value, str):
-                    project_data[key] = value
+                    new_project_data[key] = value
 
-            project = ProjectSummary(**project_data)
+            project = ProjectSummary(**new_project_data)
 
         return self.insert_project(project)

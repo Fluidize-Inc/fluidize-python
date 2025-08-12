@@ -1,10 +1,16 @@
+from typing import Optional
+
 from upath import UPath
 
 from fluidize.core.modules.run.node.methods.base.Environment import BaseEnvironmentManager
+from fluidize.core.types.node import nodeProperties_simulation
+from fluidize.core.types.project import ProjectSummary
 
 
 class LocalEnvironmentManager(BaseEnvironmentManager):
-    def __init__(self, node, prev_node, project) -> None:
+    def __init__(
+        self, node: nodeProperties_simulation, prev_node: Optional[nodeProperties_simulation], project: ProjectSummary
+    ) -> None:
         super().__init__(node, prev_node, project)
 
     def _get_file_content(self, loc: UPath) -> str:

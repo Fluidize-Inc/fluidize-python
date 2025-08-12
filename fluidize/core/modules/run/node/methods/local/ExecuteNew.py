@@ -12,6 +12,9 @@ from fluidize.core.modules.execute.docker_client import DockerExecutionClient
 from fluidize.core.modules.execute.utilities import UniversalContainerBuilder
 from fluidize.core.modules.run.node.methods.base.Execute import BaseExecutionManager
 from fluidize.core.types.execution_models import ExecutionMode, create_execution_context
+from fluidize.core.types.node import nodeProperties_simulation
+from fluidize.core.types.project import ProjectSummary
+from fluidize.core.types.runs import ContainerPaths, NodePaths
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +30,13 @@ class LocalExecutionManagerNew(BaseExecutionManager):
     - Provides better error handling and validation
     """
 
-    def __init__(self, node, prev_node, project, run_id: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        node: nodeProperties_simulation,
+        prev_node: Optional[nodeProperties_simulation],
+        project: ProjectSummary,
+        run_id: Optional[str] = None,
+    ) -> None:
         super().__init__(node, prev_node, project)
         self.run_id = run_id
         self.docker_client: Optional[DockerExecutionClient] = None
@@ -118,7 +127,7 @@ class LocalExecutionManagerNew(BaseExecutionManager):
             # if self.docker_client:
             #     self.docker_client.close()
 
-    def run_container(self, node_paths, container_paths) -> tuple[str, bool]:
+    def run_container(self, node_paths: NodePaths, container_paths: ContainerPaths) -> tuple[str, bool]:
         """
         Legacy method for backwards compatibility.
 

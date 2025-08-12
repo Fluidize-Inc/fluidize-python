@@ -7,7 +7,7 @@
 
 **Automated scientific computing pipeline generation and execution platform**
 
-Fluidize simplifies building, managing, and executing complex computational workflows with support for both local development and cloud deployment. Create modular data pipelines, manage project lifecycles, and scale from prototype to production seamlessly.
+Fluidize simplifies building, managing, and executing scientific computing workflows. Create modular data pipelines, manage project lifecycles, and scale from prototype to production seamlessly.
 
 ---
 
@@ -67,6 +67,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact
 
 Henry Bae - henry@fluidize.ai
+
+
+
+---
+
+What should the documentation contain:
+
+Overview of Fluidize Project
+Overfiew of Fluidize Node
+Overview of
 
 
 ---

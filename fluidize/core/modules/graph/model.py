@@ -15,7 +15,7 @@ from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
 class InvalidEdgeError(ValueError):
     """Raised when trying to add an edge connected to non-existent nodes."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Cannot add edge connected to non-existent node")
 
 
@@ -38,11 +38,11 @@ class Graph:
     def edges(self) -> list[GraphEdge]:
         return list(self._edges.values())
 
-    def add_node(self, node: GraphNode):
+    def add_node(self, node: GraphNode) -> None:
         """Adds a node to the graph."""
         self._nodes[node.id] = node
 
-    def remove_node(self, node_id: str):
+    def remove_node(self, node_id: str) -> None:
         """
         Removes a node and any edges connected to it.
         This is the core logic for offline/file-based manipulation.
@@ -54,13 +54,13 @@ class Graph:
             for edge_id in connected_edge_ids:
                 self.remove_edge(edge_id)
 
-    def add_edge(self, edge: GraphEdge):
+    def add_edge(self, edge: GraphEdge) -> None:
         """Adds an edge to the graph."""
         if edge.source not in self._nodes or edge.target not in self._nodes:
             raise InvalidEdgeError()
         self._edges[edge.id] = edge
 
-    def remove_edge(self, edge_id: str):
+    def remove_edge(self, edge_id: str) -> None:
         """Removes an edge from the graph."""
         if edge_id in self._edges:
             del self._edges[edge_id]
@@ -69,7 +69,7 @@ class Graph:
         """Checks for graph inconsistencies, like orphaned edges."""
         return all(edge.source in self._nodes and edge.target in self._nodes for edge in self.edges)
 
-    def heal(self):
+    def heal(self) -> None:
         """Destructively removes any orphaned edges."""
         orphaned_edge_ids = [edge.id for edge in self.edges if not self._validate_edge(edge)]
         for edge_id in orphaned_edge_ids:
@@ -96,7 +96,7 @@ class Graph:
         edges = [GraphEdge(**edge_data) for edge_data in data.get("edges", [])]
         return cls(nodes, edges)
 
-    def save_to_file(self, path: Path):
+    def save_to_file(self, path: Path) -> None:
         """Saves the current graph state to a graph.json file."""
         graph_data = self.to_graph_data()
         path.parent.mkdir(parents=True, exist_ok=True)

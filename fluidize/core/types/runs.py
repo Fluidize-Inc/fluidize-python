@@ -49,7 +49,7 @@ class NodePaths(BaseModel):
     node_path: Union[Path, UPath]
     simulation_path: Union[Path, UPath]
     input_path: Optional[Union[Path, UPath]] = None
-    output_path: Optional[Union[Path, UPath]] = None
+    output_path: Union[Path, UPath]
 
 
 class ContainerPaths(BaseModel):

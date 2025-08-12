@@ -291,18 +291,18 @@ class VolumeBuilder:
     @staticmethod
     def _get_node_paths(context: ExecutionContext) -> dict[str, Optional[str]]:
         """Get host paths for node execution."""
-        paths = {}
+        paths: dict[str, Optional[str]] = {}
 
         # Node path - use the node's actual directory (already run-specific)
-        paths["node_path"] = context.node.directory
+        paths["node_path"] = str(context.node.directory)
 
         # Output path - use node's directory parent for run-specific outputs
-        paths["output_path"] = context.node.directory.parent / "outputs" / context.node.node_id
+        paths["output_path"] = str(context.node.directory.parent / "outputs" / str(context.node.node_id))
 
         # Input path - if there are dependencies
         if context.dependencies and context.prev_node:
             # Previous node's directory is also already run-specific
-            paths["input_path"] = context.prev_node.directory.parent / "outputs" / context.prev_node.node_id
+            paths["input_path"] = str(context.prev_node.directory.parent / "outputs" / str(context.prev_node.node_id))
         else:
             paths["input_path"] = None
 
@@ -373,7 +373,7 @@ class VolumeBuilder:
     def _validate_mount(mount: VolumeMount) -> tuple[list[str], list[str]]:
         """Validate individual volume mount configuration."""
         errors = []
-        warnings = []
+        warnings: list[str] = []
 
         if not mount.name:
             errors.append("Volume mount missing name")

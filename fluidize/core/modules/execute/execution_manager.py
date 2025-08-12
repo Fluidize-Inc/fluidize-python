@@ -29,11 +29,11 @@ class ExecutionManager:
     containers using the new universal utilities.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize execution manager."""
-        self.docker_client = None
-        self.k8s_client = None
-        self.vm_client = None
+        self.docker_client: Optional[DockerExecutionClient] = None
+        self.k8s_client: Optional[Any] = None
+        self.vm_client: Optional[VMExecutionClient] = None
         logger.info("ExecutionManager initialized")
 
     def execute_node(

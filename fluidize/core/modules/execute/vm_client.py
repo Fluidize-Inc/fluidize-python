@@ -9,7 +9,7 @@ import logging
 import shlex
 import subprocess
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
     pass
@@ -17,6 +17,10 @@ if TYPE_CHECKING:
 from fluidize.core.types.execution_models import ContainerSpec, Volume
 
 logger = logging.getLogger(__name__)
+
+
+class SSHClientError(RuntimeError):
+    """SSH client is not properly configured."""
 
 
 @dataclass
@@ -29,7 +33,7 @@ class VMExecutionResult:
     success: bool = False
     command: str = ""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.success = self.exit_code == 0
 
 
@@ -41,7 +45,7 @@ class VMExecutionClient:
     proper shell escaping, then executes them via SSH.
     """
 
-    def __init__(self, ssh_client=None):
+    def __init__(self, ssh_client: Optional[Any] = None) -> None:
         """
         Initialize VM execution client.
 
@@ -52,7 +56,7 @@ class VMExecutionClient:
         logger.info("VM execution client initialized")
 
     def run_container(
-        self, container_spec: ContainerSpec, volumes: list[Volume], platform: str = "linux/amd64", **kwargs
+        self, container_spec: ContainerSpec, volumes: list[Volume], platform: str = "linux/amd64", **kwargs: Any
     ) -> VMExecutionResult:
         """
         Run container on VM using safely constructed Docker command.
@@ -88,7 +92,7 @@ class VMExecutionClient:
             return VMExecutionResult(exit_code=-1, stderr=str(e), command=command if "command" in locals() else "")
 
     def run_container_async(
-        self, container_spec: ContainerSpec, volumes: list[Volume], platform: str = "linux/amd64", **kwargs
+        self, container_spec: ContainerSpec, volumes: list[Volume], platform: str = "linux/amd64", **kwargs: Any
     ) -> str:
         """
         Run container on VM in detached mode.
@@ -113,7 +117,7 @@ class VMExecutionClient:
             # Execute detached command via SSH using Fabric
             result = self.ssh_client.run(command, hide=True, warn=True)
             container_id = result.stdout.strip()
-            return container_id
+            return str(container_id)
         else:
             # Local execution
             result = subprocess.run(docker_args, capture_output=True, text=True)  # noqa: S603
@@ -125,7 +129,7 @@ class VMExecutionClient:
         volumes: list[Volume],
         platform: str = "linux/amd64",
         detach: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> list[str]:
         """
         Build Docker command arguments safely.
@@ -162,7 +166,7 @@ class VMExecutionClient:
             args.extend(["--platform", platform])
 
     def _add_container_config(
-        self, args: list[str], container_spec: ContainerSpec, volumes: list[Volume], **kwargs
+        self, args: list[str], container_spec: ContainerSpec, volumes: list[Volume], **kwargs: Any
     ) -> None:
         """Add container configuration to Docker args."""
         # Environment variables
@@ -242,7 +246,9 @@ class VMExecutionClient:
         """Execute command via SSH connection using Fabric."""
         try:
             # Execute command using Fabric SSH client
-            result = self.ssh_client.run(command, hide=False, warn=True, timeout=3600)
+            self._ensure_ssh_client()
+            # Type checker knows ssh_client is not None after _ensure_ssh_client()
+            result = self.ssh_client.run(command, hide=False, warn=True, timeout=3600)  # type: ignore[union-attr]
 
             logger.info(f"SSH command completed with exit code: {result.return_code}")
 
@@ -311,11 +317,16 @@ class VMExecutionClient:
         else:
             return self._execute_locally(stop_args)
 
-    def set_ssh_client(self, ssh_client):
+    def _ensure_ssh_client(self) -> None:
+        """Ensure SSH client is configured."""
+        if not self.ssh_client:
+            raise SSHClientError
+
+    def set_ssh_client(self, ssh_client: Any) -> None:
         """Set SSH client for remote execution."""
         self.ssh_client = ssh_client
 
-    def close(self):
+    def close(self) -> None:
         """Close SSH connection if open."""
         if self.ssh_client and hasattr(self.ssh_client, "close"):
             self.ssh_client.close()

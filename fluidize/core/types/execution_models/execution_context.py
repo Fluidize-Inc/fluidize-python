@@ -3,7 +3,7 @@ Enhanced execution context that extends beyond node + prev_node pattern.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Any, Optional
 
 from fluidize.core.types.node import nodeProperties_simulation
 from fluidize.core.types.project import ProjectSummary
@@ -48,12 +48,12 @@ class ExecutionContext:
     custom_env_vars: dict[str, str] = field(default_factory=dict)
     custom_labels: dict[str, str] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize derived fields and validate context."""
 
         # Auto-populate dependencies from prev_node for backwards compatibility
         if self.prev_node and not self.dependencies:
-            self.dependencies = [self.prev_node.node_id]
+            self.dependencies = [str(self.prev_node.node_id)]
             self.dependency_nodes = [self.prev_node]
 
         # Set default resource requirements if not provided
@@ -113,9 +113,9 @@ class ExecutionContext:
         """Get all labels for this execution context."""
         labels = {
             "app": "fluidize",
-            "node-id": self.node.node_id,
-            "project-id": self.project.id,
-            "execution-mode": self.execution_mode.value,
+            "node-id": str(self.node.node_id),
+            "project-id": str(self.project.id),
+            "execution-mode": str(self.execution_mode.value),
         }
 
         # Add workflow labels if available
@@ -135,9 +135,9 @@ class ExecutionContext:
     def get_standard_env_vars(self) -> dict[str, str]:
         """Get standard Fluidize environment variables."""
         env_vars = {
-            "FLUIDIZE_NODE_ID": self.node.node_id,
-            "FLUIDIZE_PROJECT_ID": self.project.id,
-            "FLUIDIZE_EXECUTION_MODE": self.execution_mode.value,
+            "FLUIDIZE_NODE_ID": str(self.node.node_id),
+            "FLUIDIZE_PROJECT_ID": str(self.project.id),
+            "FLUIDIZE_EXECUTION_MODE": str(self.execution_mode.value),
         }
 
         # Add run context if available
@@ -163,7 +163,7 @@ def create_execution_context(
     node: nodeProperties_simulation,
     project: ProjectSummary,
     prev_node: Optional[nodeProperties_simulation] = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> ExecutionContext:
     """
     Factory function to create ExecutionContext with backwards compatibility.

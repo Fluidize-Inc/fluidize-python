@@ -5,6 +5,8 @@ This module provides the core business logic for graph operations using
 the local filesystem, without any cloud or Firebase dependencies.
 """
 
+from upath import UPath
+
 from fluidize.core.constants import FileConstants
 from fluidize.core.modules.graph.model import Graph
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
@@ -220,7 +222,7 @@ class GraphProcessor:
         properties_path = node_path / FileConstants.PROPERTIES_SUFFIX
         DataWriter.write_yaml(properties_path, empty_properties)
 
-    def _raise_simulation_not_found_error(self, simulation_id: str, simulation_path) -> None:
+    def _raise_simulation_not_found_error(self, simulation_id: str, simulation_path: UPath) -> None:
         """Raise error when simulation is not found."""
         msg = (
             f"Simulation '{simulation_id}' not found at {simulation_path}. "

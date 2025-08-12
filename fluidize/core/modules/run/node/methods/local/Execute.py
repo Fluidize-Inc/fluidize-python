@@ -3,10 +3,19 @@ from typing import Optional
 
 from fluidize.core.modules.logging.process_executor import ProcessExecutor
 from fluidize.core.modules.run.node.methods.base.Execute import BaseExecutionManager
+from fluidize.core.types.node import nodeProperties_simulation
+from fluidize.core.types.project import ProjectSummary
+from fluidize.core.types.runs import ContainerPaths, NodePaths
 
 
 class LocalExecutionManager(BaseExecutionManager):
-    def __init__(self, node, prev_node, project, run_id: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        node: nodeProperties_simulation,
+        prev_node: Optional[nodeProperties_simulation],
+        project: ProjectSummary,
+        run_id: Optional[str] = None,
+    ) -> None:
         super().__init__(node, prev_node, project)
         self.run_id = run_id
 
@@ -24,16 +33,16 @@ class LocalExecutionManager(BaseExecutionManager):
             return False
         return True
 
-    def _set_input_mount_args(self, node_paths, container_paths) -> str:
+    def _set_input_mount_args(self, node_paths: NodePaths, container_paths: ContainerPaths) -> str:
         """Set the input mount arguments for the Docker run command"""
         if node_paths.input_path:
             return f"-v {node_paths.input_path}:{container_paths.input_path}"
         return ""
 
-    def _build_environment_vars(self, node_paths, container_paths) -> dict[str, str]:
+    def _build_environment_vars(self, node_paths: NodePaths, container_paths: ContainerPaths) -> dict[str, str]:
         """Build environment variables for consistent path handling across local and cloud"""
         env_vars = {
-            "FLUIDIZE_NODE_ID": self.node.node_id,
+            "FLUIDIZE_NODE_ID": str(self.node.node_id),
             "FLUIDIZE_NODE_PATH": str(container_paths.node_path),
             "FLUIDIZE_SIMULATION_PATH": str(container_paths.simulation_path),
             "FLUIDIZE_OUTPUT_PATH": str(container_paths.output_path),
@@ -46,7 +55,7 @@ class LocalExecutionManager(BaseExecutionManager):
 
         return env_vars
 
-    def run_container(self, node_paths, container_paths) -> tuple[str, bool]:
+    def run_container(self, node_paths: NodePaths, container_paths: ContainerPaths) -> tuple[str, bool]:
         """Run the Docker container with the simulation"""
 
         self.input_mount_args = self._set_input_mount_args(node_paths, container_paths)
@@ -72,7 +81,7 @@ class LocalExecutionManager(BaseExecutionManager):
         )
 
         # Use ProcessExecutor for clean command execution with logging
-        executor = ProcessExecutor(self.run_id, self.node.node_id)
+        executor = ProcessExecutor(self.run_id, str(self.node.node_id))
         return executor.execute_with_logging(docker_cmd, f"Docker execution: {self.node.container_image}")
 
     def _execute_node(self) -> str:
