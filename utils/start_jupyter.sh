@@ -16,16 +16,23 @@ if ! command -v uv &> /dev/null; then
     exit 1
 fi
 
-# Sync dependencies and install package in development mode
-uv sync
-echo "📦 Installing package in development mode..."
-uv run pip install -e .
+# Check if environment exists and is up to date
+if [ ! -d ".venv" ] || [ "pyproject.toml" -nt ".venv/pyvenv.cfg" ]; then
+    echo "📦 Setting up/updating uv environment..."
+    uv sync
+    echo "📦 Installing package in development mode..."
+    uv run pip install -e .
+else
+    echo "📦 Using existing uv environment (up to date)"
+fi
 
 # Check if jupyter is installed in the uv environment
 echo "📚 Ensuring Jupyter is available..."
 if ! uv run jupyter --version &> /dev/null; then
     echo "📚 Adding Jupyter to uv environment..."
     uv add --dev jupyter
+else
+    echo "📚 Jupyter already available"
 fi
 
 # Show environment info
