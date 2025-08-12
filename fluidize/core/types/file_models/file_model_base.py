@@ -73,7 +73,7 @@ class FileModelBase(BaseModel):
 
         return {key: self.model_dump(mode="json")}
 
-    def save(self, directory: UPath) -> None:
+    def save(self, directory: UPath | None = None) -> None:
         from fluidize.core.utils.dataloader.data_loader import DataLoader
         from fluidize.core.utils.dataloader.data_writer import DataWriter
 
