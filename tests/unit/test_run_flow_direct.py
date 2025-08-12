@@ -6,7 +6,6 @@ and loading ProjectSummary from actual project directories.
 
 import shutil
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
@@ -47,11 +46,28 @@ def docker_project_path(test_config) -> Path:
 @pytest.fixture
 def project_from_file(docker_project_path, test_config):
     """Load ProjectSummary from the actual project directory using from_file."""
-    with (
-        patch("fluidize.config.config", test_config),
-        patch("fluidize.core.utils.pathfinder.methods.local.config", test_config),
-    ):
+    from fluidize.config import config
+
+    # Store original values
+    original_mode = config.mode
+    original_base_path = config.local_base_path
+    original_projects_path = config.local_projects_path
+    original_simulations_path = config.local_simulations_path
+
+    # Configure global config
+    config.mode = test_config.mode
+    config.local_base_path = test_config.local_base_path
+    config.local_projects_path = test_config.local_projects_path
+    config.local_simulations_path = test_config.local_simulations_path
+
+    try:
         return ProjectSummary.from_file(docker_project_path)
+    finally:
+        # Restore original values
+        config.mode = original_mode
+        config.local_base_path = original_base_path
+        config.local_projects_path = original_projects_path
+        config.local_simulations_path = original_simulations_path
 
 
 @pytest.fixture
@@ -72,11 +88,22 @@ class TestRunFlowDirect:
     def test_run_flow_basic_functionality(self, project_manager, test_config):
         """Test basic run_flow functionality using proper managers."""
 
-        # Patch the config to make DataLoader work
-        with (
-            patch("fluidize.config.config", test_config),
-            patch("fluidize.core.utils.pathfinder.methods.local.config", test_config),
-        ):
+        # Configure global config for DataLoader
+        from fluidize.config import config
+
+        # Store original values
+        original_mode = config.mode
+        original_base_path = config.local_base_path
+        original_projects_path = config.local_projects_path
+        original_simulations_path = config.local_simulations_path
+
+        # Configure global config
+        config.mode = test_config.mode
+        config.local_base_path = test_config.local_base_path
+        config.local_projects_path = test_config.local_projects_path
+        config.local_simulations_path = test_config.local_simulations_path
+
+        try:
             # Create run payload
             payload = RunFlowPayload(
                 name="test_run",
@@ -133,15 +160,32 @@ class TestRunFlowDirect:
 
             assert node1_content == "CANDY", f"Node 1 should output 'CANDY', got '{node1_content}'"
             assert node2_content == "CANDYCANDY", f"Node 2 should output 'CANDYCANDY', got '{node2_content}'"
+        finally:
+            # Restore original values
+            config.mode = original_mode
+            config.local_base_path = original_base_path
+            config.local_projects_path = original_projects_path
+            config.local_simulations_path = original_simulations_path
 
     def test_run_flow_payload_variations(self, project_manager, test_config):
         """Test run_flow with different payload configurations."""
 
-        # Patch the config to make DataLoader work
-        with (
-            patch("fluidize.config.config", test_config),
-            patch("fluidize.core.utils.pathfinder.methods.local.config", test_config),
-        ):
+        # Configure global config for DataLoader
+        from fluidize.config import config
+
+        # Store original values
+        original_mode = config.mode
+        original_base_path = config.local_base_path
+        original_projects_path = config.local_projects_path
+        original_simulations_path = config.local_simulations_path
+
+        # Configure global config
+        config.mode = test_config.mode
+        config.local_base_path = test_config.local_base_path
+        config.local_projects_path = test_config.local_projects_path
+        config.local_simulations_path = test_config.local_simulations_path
+
+        try:
             # Test minimal payload
             minimal_payload = RunFlowPayload()
             result = project_manager.runs.run_flow(minimal_payload)
@@ -155,15 +199,32 @@ class TestRunFlowDirect:
             )
             result = project_manager.runs.run_flow(full_payload)
             assert result["flow_status"] == "running"
+        finally:
+            # Restore original values
+            config.mode = original_mode
+            config.local_base_path = original_base_path
+            config.local_projects_path = original_projects_path
+            config.local_simulations_path = original_simulations_path
 
     def test_run_flow_empty_graph(self, local_backend, test_config):
         """Test run_flow with a project that has an empty graph."""
 
-        # Patch the config to make DataLoader work
-        with (
-            patch("fluidize.config.config", test_config),
-            patch("fluidize.core.utils.pathfinder.methods.local.config", test_config),
-        ):
+        # Configure global config for DataLoader
+        from fluidize.config import config
+
+        # Store original values
+        original_mode = config.mode
+        original_base_path = config.local_base_path
+        original_projects_path = config.local_projects_path
+        original_simulations_path = config.local_simulations_path
+
+        # Configure global config
+        config.mode = test_config.mode
+        config.local_base_path = test_config.local_base_path
+        config.local_projects_path = test_config.local_projects_path
+        config.local_simulations_path = test_config.local_simulations_path
+
+        try:
             # Create a project with empty graph
             empty_project_id = "empty-graph-project"
             empty_project_dir = test_config.local_projects_path / empty_project_id
@@ -196,3 +257,9 @@ class TestRunFlowDirect:
             # Should raise ValueError for no nodes to run
             with pytest.raises(ValueError, match="No nodes to run"):
                 project_manager.runs.run_flow(payload)
+        finally:
+            # Restore original values
+            config.mode = original_mode
+            config.local_base_path = original_base_path
+            config.local_projects_path = original_projects_path
+            config.local_simulations_path = original_simulations_path

@@ -3,7 +3,6 @@
 import tempfile
 from collections.abc import Generator
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
@@ -39,32 +38,32 @@ def integration_config(integration_temp_dir: Path) -> FluidizeConfig:
 @pytest.fixture(autouse=True)
 def setup_integration_config(integration_temp_dir: Path):
     """Set up configuration paths for integration tests."""
-    # Create a real test config
-    test_config = FluidizeConfig(mode="local")
-    test_config.local_base_path = integration_temp_dir
-    test_config.local_projects_path = integration_temp_dir / "projects"
-    test_config.local_simulations_path = integration_temp_dir / "simulations"
+    from fluidize.config import config
+
+    # Store original values to restore later
+    original_mode = config.mode
+    original_base_path = config.local_base_path
+    original_projects_path = config.local_projects_path
+    original_simulations_path = config.local_simulations_path
+
+    # Configure the global config instance for testing
+    config.mode = "local"
+    config.local_base_path = integration_temp_dir
+    config.local_projects_path = integration_temp_dir / "projects"
+    config.local_simulations_path = integration_temp_dir / "simulations"
 
     # Create directories
-    test_config.local_projects_path.mkdir(parents=True, exist_ok=True)
-    test_config.local_simulations_path.mkdir(parents=True, exist_ok=True)
-
-    # Patch all the places where config is used
-    patches = [
-        patch("fluidize.config.config", test_config),
-        patch("fluidize.core.utils.pathfinder.methods.local.config", test_config),
-    ]
-
-    # Start all patches
-    for p in patches:
-        p.start()
+    config.local_projects_path.mkdir(parents=True, exist_ok=True)
+    config.local_simulations_path.mkdir(parents=True, exist_ok=True)
 
     try:
-        yield test_config
+        yield config
     finally:
-        # Stop all patches
-        for p in patches:
-            p.stop()
+        # Restore original values
+        config.mode = original_mode
+        config.local_base_path = original_base_path
+        config.local_projects_path = original_projects_path
+        config.local_simulations_path = original_simulations_path
 
 
 @pytest.fixture
