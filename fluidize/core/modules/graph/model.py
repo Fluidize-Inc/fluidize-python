@@ -7,6 +7,7 @@ with filesystem-based I/O capabilities.
 
 import json
 from pathlib import Path
+from typing import Union
 
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
 
@@ -25,7 +26,7 @@ class Graph:
     and handling file-based I/O.
     """
 
-    def __init__(self, nodes: list[GraphNode] | None = None, edges: list[GraphEdge] | None = None):
+    def __init__(self, nodes: Union[list[GraphNode], None] = None, edges: Union[list[GraphEdge], None] = None):
         self._nodes: dict[str, GraphNode] = {node.id: node for node in (nodes or [])}
         self._edges: dict[str, GraphEdge] = {edge.id: edge for edge in (edges or [])}
 

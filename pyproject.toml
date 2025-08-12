@@ -111,6 +111,8 @@ ignore = [
     "E501",
     # DoNotAssignLambda
     "E731",
+    # Use `X | Y` for type annotations (not compatible with Python 3.9)
+    "UP007",
 ]
 
 [tool.ruff.lint.per-file-ignores]

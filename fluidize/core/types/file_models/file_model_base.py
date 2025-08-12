@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Union
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr, ValidationError
 from upath import UPath
@@ -9,7 +9,7 @@ T = TypeVar("T", bound="FileModelBase")
 
 
 class FileModelBase(BaseModel):
-    _filepath: UPath | None = PrivateAttr(default=None)
+    _filepath: Union[UPath, None] = PrivateAttr(default=None)
 
     @property
     def filepath(self) -> UPath:
@@ -25,7 +25,7 @@ class FileModelBase(BaseModel):
         return fp.parent
 
     @classmethod
-    def from_file(cls: type[T], directory: str | UPath) -> T:
+    def from_file(cls: type[T], directory: Union[str, UPath]) -> T:
         from fluidize.core.utils.dataloader.data_loader import DataLoader
 
         filename = getattr(cls, "_filename", None)
@@ -73,7 +73,7 @@ class FileModelBase(BaseModel):
 
         return {key: self.model_dump(mode="json")}
 
-    def save(self, directory: str | UPath | None = None) -> None:
+    def save(self, directory: UPath) -> None:
         from fluidize.core.utils.dataloader.data_loader import DataLoader
         from fluidize.core.utils.dataloader.data_writer import DataWriter
 
