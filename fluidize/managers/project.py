@@ -7,6 +7,7 @@ from typing import Any, Optional
 from fluidize.core.types.project import ProjectSummary
 
 from .project_graph import ProjectGraph
+from .project_runs import ProjectRuns
 
 
 class Project:
@@ -28,6 +29,7 @@ class Project:
         self._backend = backend
         self._project_summary = project_summary
         self._graph: Optional[ProjectGraph] = None
+        self._runs: Optional[ProjectRuns] = None
 
     @property
     def graph(self) -> ProjectGraph:
@@ -40,6 +42,18 @@ class Project:
         if self._graph is None:
             self._graph = ProjectGraph(self._backend, self._project_summary)
         return self._graph
+
+    @property
+    def runs(self) -> ProjectRuns:
+        """
+        Get the runs manager for this project.
+
+        Returns:
+            ProjectRuns manager scoped to this project
+        """
+        if self._runs is None:
+            self._runs = ProjectRuns(self._backend, self._project_summary)
+        return self._runs
 
     # Delegate all ProjectSummary attributes
     @property

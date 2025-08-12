@@ -12,12 +12,10 @@ import fluidize.core.utils.dataloader.loader.writer_local
 # Ensure handlers are registered (redundant safety check)
 import fluidize.core.utils.pathfinder.methods.local  # noqa: F401
 
-# from .managers.runs import Runs
 from .backends.local import LocalBackend
 from .config import FluidizeConfig
-
-# TODO: Import these when implemented
 from .managers.projects import Projects
+from .managers.runs import Runs
 
 
 class FluidizeClient:
@@ -50,8 +48,7 @@ class FluidizeClient:
 
         # Initialize resource managers
         self.projects = Projects(self._backend)
-        # TODO: Add when implemented
-        # self.runs = Runs(self._backend)
+        self.runs = Runs(self._backend)
 
     def _initialize_backend(self) -> Any:
         """Initialize the appropriate backend based on the mode."""

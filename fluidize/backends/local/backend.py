@@ -6,6 +6,7 @@ from typing import Any
 
 from .graph import GraphHandler
 from .projects import ProjectsHandler
+from .runs import RunsHandler
 
 
 class LocalBackend:
@@ -31,4 +32,4 @@ class LocalBackend:
         self.projects = ProjectsHandler(config)
 
         self.graph = GraphHandler()
-        # self.runs = RunsHandler(config)
+        self.runs = RunsHandler(config)

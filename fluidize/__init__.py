@@ -1,5 +1,10 @@
 """Fluidize Python library for scientific computing pipeline automation."""
 
+import fluidize.core.modules.run.node.node_runner
+import fluidize.core.modules.run.project.methods.local
+
+# Auto-register run modules to ensure they are loaded
+import fluidize.core.modules.run.project.project_runner
 import fluidize.core.utils.dataloader.loader.loader_local
 import fluidize.core.utils.dataloader.loader.writer_local
 

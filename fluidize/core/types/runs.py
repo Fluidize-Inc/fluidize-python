@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict
 from upath import UPath
 
 from .file_models.metadata_model import MetadataModel
+from .project import ProjectSummary
 
 
 class RunStatus(str, Enum):
@@ -58,3 +59,23 @@ class ContainerPaths(BaseModel):
     simulation_path: PurePosixPath
     input_path: Optional[PurePosixPath] = None
     output_path: Optional[PurePosixPath] = None
+
+
+class RunFlowPayload(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[list[str]] = None
+
+
+class RunFlowRequest(BaseModel):
+    """Request model for run_flow API calls."""
+
+    project: ProjectSummary
+    payload: RunFlowPayload
+
+
+class RunFlowResponse(BaseModel):
+    """Response model for run_flow API calls."""
+
+    flow_status: str
+    run_number: int
