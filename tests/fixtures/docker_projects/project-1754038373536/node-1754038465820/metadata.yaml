@@ -1,0 +1,18 @@
+simulation:
+  metadata_version: "1.0"
+  name: test2-duplicate
+  id: test2-duplicate
+  description: Takes input from Test1 and duplicates the content (CANDY -> CANDYCANDY)
+  version: "1.0"
+  date: "2025-08-01"
+  code_url: null
+  paper_url: null
+  authors:
+    - name: Henry Bae
+      institution: Harvard University
+      email: henry@fluidize.ai
+  tags:
+    - name: testing
+    - name: simple
+    - name: local
+    - name: duplicate
