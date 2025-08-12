@@ -1,1 +1,1 @@
-::: fluidize.foo
+::: fluidize

@@ -7,6 +7,7 @@ across local, VM, and Kubernetes execution methods.
 """
 
 from pathlib import PurePosixPath
+from typing import Union
 
 from upath import UPath
 
@@ -126,7 +127,7 @@ class PathConverter:
         return {"errors": errors, "warnings": warnings, "info": info}
 
     @staticmethod
-    def _validate_required_paths(required_paths: dict[str, PurePosixPath | None]) -> list[str]:
+    def _validate_required_paths(required_paths: dict[str, Union[PurePosixPath, None]]) -> list[str]:
         """Validate required paths exist and are absolute."""
         errors = []
         for name, path in required_paths.items():
@@ -144,7 +145,7 @@ class PathConverter:
         return errors
 
     @staticmethod
-    def _validate_path_safety(required_paths: dict[str, PurePosixPath | None]) -> list[str]:
+    def _validate_path_safety(required_paths: dict[str, Union[PurePosixPath, None]]) -> list[str]:
         """Validate paths for shell safety."""
         warnings = []
         for name, path in required_paths.items():
@@ -164,7 +165,7 @@ class PathConverter:
         return warnings
 
     @staticmethod
-    def _validate_input_path(input_path: PurePosixPath | None) -> list[str]:
+    def _validate_input_path(input_path: Union[PurePosixPath, None]) -> list[str]:
         """Validate input path if present."""
         errors = []
         if input_path:
@@ -177,7 +178,7 @@ class PathConverter:
 
     @staticmethod
     def _collect_path_info(
-        required_paths: dict[str, PurePosixPath | None], input_path: PurePosixPath | None
+        required_paths: dict[str, Union[PurePosixPath, None]], input_path: Union[PurePosixPath, None]
     ) -> list[str]:
         """Collect informational messages about paths."""
         info = []
