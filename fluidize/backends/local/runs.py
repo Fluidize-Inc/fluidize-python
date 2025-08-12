@@ -55,8 +55,16 @@ class RunsHandler:
         # Load graph data from the project's graph.json file
         data = DataLoader.load_for_project(project, FileConstants.GRAPH_SUFFIX)
 
-        # Create NetworkX graph from the data
-        graph = nx.node_link_graph(data, directed=True, multigraph=False, link="edges")
+        # Create a directed graph manually from the React Flow format
+        graph = nx.DiGraph()
+
+        # Add nodes with their data
+        for node in data.get("nodes", []):
+            graph.add_node(node["id"], **node.get("data", {}))
+
+        # Add edges
+        for edge in data.get("edges", []):
+            graph.add_edge(edge["source"], edge["target"])
 
         # Process the graph to get execution order using BFS
         process = ProcessGraph()
