@@ -18,56 +18,60 @@ class DataLoader:
 
     @classmethod
     def list_directories(cls, path: UPath) -> list[UPath]:
-        return cls._get_handler().list_directories(path)
+        return list(cls._get_handler().list_directories(path))
 
     @classmethod
     def copy_directory(cls, source: UPath, destination: UPath) -> None:
-        return cls._get_handler().copy_directory(source, destination)
+        cls._get_handler().copy_directory(source, destination)
+        return None
 
     @classmethod
     def load_json(cls, filepath: UPath) -> dict:
-        return cls._get_handler().load_json(filepath)
+        return dict(cls._get_handler().load_json(filepath))
 
     @classmethod
     def load_yaml(cls, filepath: UPath) -> dict:
-        return cls._get_handler().load_yaml(filepath)
+        return dict(cls._get_handler().load_yaml(filepath))
 
     @classmethod
     def load_for_project(cls, project: ProjectSummary, suffix: str) -> dict:
-        return cls._get_handler().load_for_project(project, suffix)
+        return dict(cls._get_handler().load_for_project(project, suffix))
 
     @classmethod
     def delete_directory_for_project(cls, project: ProjectSummary, folder_name: str) -> None:
-        return cls._get_handler().delete_directory_for_project(project, folder_name)
+        cls._get_handler().delete_directory_for_project(project, folder_name)
+        return None
 
     @classmethod
     def delete_entire_project_folder(cls, project: ProjectSummary) -> None:
-        return cls._get_handler().delete_entire_project_folder(project)
+        cls._get_handler().delete_entire_project_folder(project)
+        return None
 
     @classmethod
     def load_node_parameters(cls, path: UPath) -> dict:
-        return cls._get_handler().load_node_parameters(path)
+        return dict(cls._get_handler().load_node_parameters(path))
 
     @classmethod
     def list_runs(cls, project: ProjectSummary) -> list[str]:
-        return cls._get_handler().list_runs(project)
+        return list(cls._get_handler().list_runs(project))
 
     @classmethod
     def list_metadatas(cls, path: UPath, objectType: type) -> list[MetadataModel]:
-        return cls._get_handler().list_metadatas(path, objectType)
+        return list(cls._get_handler().list_metadatas(path, objectType))
 
     @classmethod
     def list_properties(cls, path: UPath, objectType: type) -> list[PropertiesModel]:
-        return cls._get_handler().list_properties(path, objectType)
+        return list(cls._get_handler().list_properties(path, objectType))
 
     @classmethod
     def list_simulations(cls, sim_global: bool = True) -> list[Any]:
-        return cls._get_handler().list_simulations(sim_global)
+        return list(cls._get_handler().list_simulations(sim_global))
 
     @classmethod
     def check_file_exists(cls, filepath: UPath) -> bool:
-        return cls._get_handler().check_file_exists(filepath)
+        return bool(cls._get_handler().check_file_exists(filepath))
 
     @classmethod
     def remove_directory(cls, dirpath: UPath) -> None:
-        return cls._get_handler().remove_directory(dirpath)
+        cls._get_handler().remove_directory(dirpath)
+        return None

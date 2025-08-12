@@ -8,7 +8,7 @@ log broadcasting support.
 import subprocess
 from typing import Optional
 
-from .log_broadcaster import log_broadcaster
+from .log_broadcaster import log_broadcaster  # type: ignore[import-untyped]
 
 
 class ProcessExecutor:

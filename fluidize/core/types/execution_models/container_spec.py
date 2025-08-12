@@ -64,7 +64,7 @@ class ContainerSpec:
 
     def to_kubernetes_container(self) -> dict[str, Any]:
         """Convert to Kubernetes container specification."""
-        container = {
+        container: dict[str, Any] = {
             "name": self.name,
             "image": self.image,
             "env": [{"name": k, "value": v} for k, v in self.env_vars.items()],
@@ -132,7 +132,7 @@ class PodSpec:
 
     def to_kubernetes_pod_spec(self) -> dict[str, Any]:
         """Convert to Kubernetes Pod specification."""
-        pod_spec = {
+        pod_spec: dict[str, Any] = {
             "restartPolicy": self.restart_policy,
             "containers": [container.to_kubernetes_container() for container in self.containers],
             "volumes": [{"name": volume.name, volume.volume_type: volume.source} for volume in self.volumes],

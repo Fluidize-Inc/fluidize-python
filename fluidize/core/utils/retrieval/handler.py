@@ -29,7 +29,7 @@ def register_handler(handler_type: str, mode: str, handler_class: type) -> None:
     _handlers[handler_type][mode] = handler_class
 
 
-def get_handler(handler_type: str, *args, **kwargs) -> Any:
+def get_handler(handler_type: str, *args: Any, **kwargs: Any) -> Any:
     """
     Get a handler instance for the specified type and current retrieval mode.
 

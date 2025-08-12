@@ -1,5 +1,8 @@
+from typing import Any, Optional
+
+
 class ProcessGraph:
-    def print_bfs_nodes(self, G, start_node=None):
+    def print_bfs_nodes(self, G: Any, start_node: Optional[Any] = None) -> tuple[list, list]:
         """
         Print nodes in BFS order starting from a specific node.
         Returns two lists: one with node IDs and one with previous node IDs.
@@ -33,7 +36,7 @@ class ProcessGraph:
         visited = []
         queue = [(start_node, None)]  # (node, prev_node)
         nodes = []
-        prev_nodes = []
+        prev_nodes: list = []
 
         while queue:
             node, prev_node = queue.pop(0)  # Dequeue a vertex and its previous node from queue

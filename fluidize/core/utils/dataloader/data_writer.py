@@ -19,7 +19,7 @@ class DataWriter:
         """
         Writes the given `data` to JSON for the given `project`.
         """
-        return cls._get_handler().write_json_for_project(project, suffix, data)
+        return bool(cls._get_handler().write_json_for_project(project, suffix, data))
 
     @classmethod
     def write_json(cls, filepath: UPath, data: dict) -> bool:
@@ -29,7 +29,7 @@ class DataWriter:
 
         Note that the mode parameter is legacy and needs to be removed.
         """
-        return cls._get_handler().write_json(filepath, data)
+        return bool(cls._get_handler().write_json(filepath, data))
 
     @classmethod
     def write_yaml(cls, filepath: UPath, data: dict) -> bool:
@@ -43,7 +43,7 @@ class DataWriter:
         Returns:
             bool: True if successful, False otherwise
         """
-        return cls._get_handler().write_yaml(filepath, data)
+        return bool(cls._get_handler().write_yaml(filepath, data))
 
     @classmethod
     def create_directory(cls, directory_path: UPath) -> bool:
@@ -57,10 +57,10 @@ class DataWriter:
         Returns:
             bool: True if successful, False otherwise
         """
-        return cls._get_handler().create_directory(directory_path)
+        return bool(cls._get_handler().create_directory(directory_path))
 
     @classmethod
-    def save_simulation(cls, simulation, sim_global: bool = True) -> dict:
+    def save_simulation(cls, simulation: Any, sim_global: bool = True) -> dict[Any, Any]:
         """
         Saves a new simulation with the given simulation object.
 
@@ -70,4 +70,4 @@ class DataWriter:
         Returns:
             Dict with status and simulation name
         """
-        return cls._get_handler().save_simulation(simulation, sim_global)
+        return dict(cls._get_handler().save_simulation(simulation, sim_global))

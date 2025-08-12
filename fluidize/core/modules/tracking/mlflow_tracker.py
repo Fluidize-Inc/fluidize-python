@@ -88,9 +88,9 @@ class MLFlowTracker:
             logger.exception("Error starting MLFlow run")
             raise
 
-        return self.current_run_id
+        return self.current_run_id or ""
 
-    def log_parameters(self, params: dict[str, Any]):
+    def log_parameters(self, params: dict[str, Any]) -> None:
         """
         Log parameters to the current MLFlow run.
 
@@ -109,7 +109,7 @@ class MLFlowTracker:
         except Exception:
             logger.exception("Error logging parameters")
 
-    def log_metrics(self, metrics: dict[str, float]):
+    def log_metrics(self, metrics: dict[str, float]) -> None:
         """
         Log metrics to the current MLFlow run.
 
@@ -127,7 +127,7 @@ class MLFlowTracker:
         except Exception:
             logger.exception("Error logging metrics")
 
-    def log_tag(self, key: str, value: str):
+    def log_tag(self, key: str, value: str) -> None:
         """
         Log a tag to the current MLFlow run.
 
@@ -144,7 +144,7 @@ class MLFlowTracker:
         except Exception:
             logger.exception("Error logging tag %s", key)
 
-    def log_artifact(self, local_path: str, artifact_path: Optional[str] = None):
+    def log_artifact(self, local_path: str, artifact_path: Optional[str] = None) -> None:
         """
         Log an artifact file to the current MLFlow run.
 
@@ -162,7 +162,7 @@ class MLFlowTracker:
         except Exception:
             logger.exception("Error logging artifact")
 
-    def end_run(self, status: Optional[str] = None):
+    def end_run(self, status: Optional[str] = None) -> None:
         """
         End the current MLFlow run.
 
@@ -170,7 +170,10 @@ class MLFlowTracker:
             status: Optional status (FINISHED, FAILED, KILLED)
         """
         try:
-            mlflow.end_run(status=status)
+            if status:
+                mlflow.end_run(status=status)
+            else:
+                mlflow.end_run()
             logger.info(f"Ended MLFlow run: {self.current_run_id}")
             self.current_run_id = None
         except Exception:

@@ -30,7 +30,7 @@ class LocalExecutionManagerNew(BaseExecutionManager):
     def __init__(self, node, prev_node, project, run_id: Optional[str] = None) -> None:
         super().__init__(node, prev_node, project)
         self.run_id = run_id
-        self.docker_client = None
+        self.docker_client: Optional[DockerExecutionClient] = None
         logger.info(f"LocalExecutionManagerNew initialized for node: {node.node_id}")
 
     def print_job_info(self) -> None:
@@ -92,7 +92,9 @@ class LocalExecutionManagerNew(BaseExecutionManager):
 
             # Step 5: Execute container using Docker SDK
             logger.info("Executing container...")
-            result = self.docker_client.run_container(spec.container_spec, spec.volume_spec.volumes)
+            result = self.docker_client.run_container(
+                spec.container_spec, spec.volume_spec.volumes if spec.volume_spec else []
+            )
 
             # Step 6: Handle results
             if result.success:
@@ -139,7 +141,7 @@ class LocalExecutionManagerNew(BaseExecutionManager):
         try:
             if not self.docker_client:
                 self.docker_client = DockerExecutionClient()
-            return self.docker_client.pull_image(self.node.container_image)
+            return bool(self.docker_client.pull_image(self.node.container_image))
         except Exception:
             logger.exception("Failed to pull image")
             return False

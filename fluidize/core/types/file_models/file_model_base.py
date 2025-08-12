@@ -95,7 +95,7 @@ class FileModelBase(BaseModel):
 
         DataWriter.write_yaml(self._filepath, existing_data)
 
-    def edit(self, **kwargs) -> None:
+    def edit(self, **kwargs: Any) -> None:
         for key, value in kwargs.items():
             if hasattr(self, key):
                 setattr(self, key, value)

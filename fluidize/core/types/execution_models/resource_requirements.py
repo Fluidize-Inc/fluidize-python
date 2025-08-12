@@ -60,7 +60,7 @@ class ResourceRequirements:
                 return NodePoolType.MEDIUM_CPU.value
             else:
                 return NodePoolType.SMALL_CPU.value
-        return self.node_pool_preference.value
+        return str(self.node_pool_preference.value)
 
     def _is_high_cpu(self) -> bool:
         """Determine if this is a high CPU workload."""

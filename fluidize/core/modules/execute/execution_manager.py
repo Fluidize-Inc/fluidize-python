@@ -44,7 +44,7 @@ class ExecutionManager:
         execution_mode: ExecutionMode = ExecutionMode.LOCAL_DOCKER,
         run_number: Optional[int] = None,
         run_id: Optional[str] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> dict[str, Any]:
         """
         Execute a node using the new universal utilities.
@@ -102,7 +102,7 @@ class ExecutionManager:
         else:
             return result
 
-    def _execute_with_mode(self, execution_mode: ExecutionMode, spec, **kwargs) -> dict[str, Any]:
+    def _execute_with_mode(self, execution_mode: ExecutionMode, spec: Any, **kwargs: Any) -> dict[str, Any]:
         """Execute using the appropriate client based on execution mode."""
 
         if execution_mode == ExecutionMode.LOCAL_DOCKER:
@@ -112,7 +112,8 @@ class ExecutionManager:
             return self._execute_vm(spec, **kwargs)
 
         elif execution_mode == ExecutionMode.KUBERNETES:
-            return self._execute_kubernetes(spec, **kwargs)
+            # Kubernetes execution not implemented yet
+            return {"success": False, "error": "Kubernetes execution not yet implemented"}
 
         elif execution_mode == ExecutionMode.CLOUD_BATCH:
             # Could integrate with existing batch execution
@@ -122,7 +123,7 @@ class ExecutionManager:
         else:
             return {"success": False, "error": f"Unsupported execution mode: {execution_mode.value}"}
 
-    def _execute_docker(self, spec, **kwargs) -> dict[str, Any]:
+    def _execute_docker(self, spec: Any, **kwargs: Any) -> dict[str, Any]:
         """Execute using Docker client."""
         try:
             if not self.docker_client:
@@ -147,7 +148,7 @@ class ExecutionManager:
                 "execution_mode": "local_docker",
             }
 
-    def _execute_vm(self, spec, **kwargs) -> dict[str, Any]:
+    def _execute_vm(self, spec: Any, **kwargs: Any) -> dict[str, Any]:
         """Execute using VM client."""
         try:
             if not self.vm_client:
@@ -197,7 +198,7 @@ class ExecutionManager:
     #             "execution_mode": "kubernetes",
     #         }
 
-    def close(self):
+    def close(self) -> None:
         """Clean up resources."""
         if self.docker_client:
             self.docker_client.close()
