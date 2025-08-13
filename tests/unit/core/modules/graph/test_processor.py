@@ -1,5 +1,6 @@
 """Unit tests for GraphProcessor - core graph business logic."""
 
+import datetime
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -7,6 +8,8 @@ import pytest
 
 from fluidize.core.modules.graph.processor import GraphProcessor
 from fluidize.core.types.graph import GraphData
+from fluidize.core.types.node import author, nodeMetadata_simulation, nodeProperties_simulation, tag
+from fluidize.core.types.runs import RunStatus
 from tests.fixtures.sample_graphs import SampleGraphs
 from tests.fixtures.sample_projects import SampleProjects
 
@@ -661,3 +664,358 @@ class TestGraphProcessor:
         assert len(call_args_list) == 2
         assert call_args_list[0][0][0] == project1
         assert call_args_list[1][0][0] == project2
+
+    # Sample data for insert_node_from_scratch tests
+    @pytest.fixture
+    def sample_node_properties(self):
+        """Sample nodeProperties_simulation for testing."""
+        return nodeProperties_simulation(
+            container_image="test/container:latest",
+            image_name="test-image",
+            simulation_mount_path="/app/simulation",
+            source_output_folder="output",
+            should_run=True,
+            last_run=None,
+            run_status=RunStatus.NOT_RUN,
+            version="1.0",
+        )
+
+    @pytest.fixture
+    def sample_node_metadata(self):
+        """Sample nodeMetadata_simulation for testing."""
+        return nodeMetadata_simulation(
+            name="Test Simulation",
+            id="test-sim-123",
+            description="A test simulation for unit testing",
+            date=datetime.date(2024, 1, 15),
+            version="1.0.0",
+            authors=[author(name="Test Author", institution="Test University", email="test@example.com")],
+            tags=[tag(name="test", description="Test tag", color="#FF0000")],
+            code_url="https://github.com/test/repo",
+            paper_url="https://example.com/paper",
+            mlflow_run_id=None,
+        )
+
+    @pytest.fixture
+    def minimal_node_properties(self):
+        """Minimal nodeProperties_simulation with only required fields."""
+        return nodeProperties_simulation(container_image="minimal/container:latest", simulation_mount_path="/app")
+
+    @pytest.fixture
+    def minimal_node_metadata(self):
+        """Minimal nodeMetadata_simulation with only required fields."""
+        return nodeMetadata_simulation(
+            name="Minimal Test",
+            id="minimal-sim",
+            description="Minimal test simulation",
+            date=None,
+            version="1.0",
+            authors=[author(name="Minimal Author", institution="Test")],
+            tags=[],
+            code_url=None,
+            paper_url=None,
+        )
+
+    def test_insert_node_from_scratch_success(
+        self,
+        graph_processor,
+        mock_path_finder,
+        mock_graph_model,
+        sample_project,
+        sample_node_properties,
+        sample_node_metadata,
+    ):
+        """Test successful node insertion from scratch."""
+        # Setup mocks
+        mock_project_path = Path("/test/project")
+        mock_graph_path = mock_project_path / "graph.json"
+        mock_node_path = Path("/test/project/test-node")
+
+        mock_path_finder.get_project_path.return_value = mock_project_path
+        mock_path_finder.get_node_path.return_value = mock_node_path
+
+        mock_graph_instance = Mock()
+        mock_graph_model.from_file.return_value = mock_graph_instance
+
+        node = SampleGraphs.sample_nodes()[0]
+
+        with patch.object(graph_processor, "_create_node_from_scratch") as mock_create:
+            result = graph_processor.insert_node_from_scratch(node, sample_node_properties, sample_node_metadata, None)
+
+            assert result == node
+            mock_graph_model.from_file.assert_called_once_with(mock_graph_path)
+            mock_graph_instance.add_node.assert_called_once_with(node)
+            mock_graph_instance.save_to_file.assert_called_once_with(mock_graph_path)
+            mock_create.assert_called_once_with(mock_node_path, sample_node_properties, sample_node_metadata, None)
+
+    def test_insert_node_from_scratch_with_repo_link(
+        self,
+        graph_processor,
+        mock_path_finder,
+        mock_graph_model,
+        sample_project,
+        sample_node_properties,
+        sample_node_metadata,
+    ):
+        """Test node insertion from scratch with repository link."""
+        mock_project_path = Path("/test/project")
+        mock_node_path = Path("/test/project/test-node")
+
+        mock_path_finder.get_project_path.return_value = mock_project_path
+        mock_path_finder.get_node_path.return_value = mock_node_path
+
+        mock_graph_instance = Mock()
+        mock_graph_model.from_file.return_value = mock_graph_instance
+
+        node = SampleGraphs.sample_nodes()[0]
+        repo_link = "https://github.com/test/repo.git"
+
+        with patch.object(graph_processor, "_create_node_from_scratch") as mock_create:
+            result = graph_processor.insert_node_from_scratch(
+                node, sample_node_properties, sample_node_metadata, repo_link
+            )
+
+            assert result == node
+            mock_create.assert_called_once_with(mock_node_path, sample_node_properties, sample_node_metadata, repo_link)
+
+    def test_insert_node_from_scratch_creation_failure_cleanup(
+        self,
+        graph_processor,
+        mock_path_finder,
+        mock_graph_model,
+        mock_data_loader,
+        sample_project,
+        sample_node_properties,
+        sample_node_metadata,
+    ):
+        """Test cleanup when node creation fails."""
+        mock_project_path = Path("/test/project")
+        mock_node_path = Path("/test/project/test-node")
+
+        mock_path_finder.get_project_path.return_value = mock_project_path
+        mock_path_finder.get_node_path.return_value = mock_node_path
+
+        mock_graph_instance = Mock()
+        mock_graph_model.from_file.return_value = mock_graph_instance
+
+        node = SampleGraphs.sample_nodes()[0]
+
+        with patch.object(graph_processor, "_create_node_from_scratch") as mock_create:
+            mock_create.side_effect = Exception("Creation failed")
+
+            with pytest.raises(ValueError, match="Failed to create node from scratch"):
+                graph_processor.insert_node_from_scratch(node, sample_node_properties, sample_node_metadata, None)
+
+            # Verify cleanup was attempted
+            mock_data_loader.remove_directory.assert_called_once_with(mock_node_path)
+
+    def test_create_node_from_scratch_success(self, graph_processor, sample_node_properties, sample_node_metadata):
+        """Test _create_node_from_scratch creates all necessary files and directories."""
+        mock_node_path = Path("/test/project/test-node")
+
+        with (
+            patch("fluidize.core.modules.graph.processor.DataWriter") as mock_data_writer,
+            patch.object(graph_processor, "_validate_and_warn_missing_fields") as mock_validate,
+            patch.object(graph_processor, "_clone_repository") as mock_clone,
+            # Mock the DataLoader and DataWriter used inside the save() method
+            patch("fluidize.core.utils.dataloader.data_loader.DataLoader") as mock_data_loader,
+            patch("fluidize.core.utils.dataloader.data_writer.DataWriter") as mock_save_data_writer,
+        ):
+            # Mock DataLoader.load_yaml to return empty dict (simulating no existing file)
+            mock_data_loader.load_yaml.return_value = {}
+
+            graph_processor._create_node_from_scratch(
+                mock_node_path, sample_node_properties, sample_node_metadata, None
+            )
+
+            # Verify directory creation
+            mock_data_writer.create_directory.assert_any_call(mock_node_path)
+            mock_data_writer.create_directory.assert_any_call(mock_node_path / "source")
+
+            # Verify validation was called
+            mock_validate.assert_called_once_with(sample_node_properties, sample_node_metadata)
+
+            # Verify file models were configured and saved
+            assert sample_node_properties._filepath == mock_node_path / "properties.yaml"
+            assert sample_node_metadata._filepath == mock_node_path / "metadata.yaml"
+
+            # Verify yaml files were written (save() method calls DataWriter.write_yaml)
+            assert mock_save_data_writer.write_yaml.call_count == 2
+
+            # Verify clone was not called (no repo link)
+            mock_clone.assert_not_called()
+
+    def test_create_node_from_scratch_with_repo_clone(
+        self, graph_processor, sample_node_properties, sample_node_metadata
+    ):
+        """Test _create_node_from_scratch with repository cloning."""
+        mock_node_path = Path("/test/project/test-node")
+        repo_link = "https://github.com/test/repo.git"
+
+        with (
+            patch("fluidize.core.modules.graph.processor.DataWriter"),
+            patch.object(graph_processor, "_validate_and_warn_missing_fields"),
+            patch.object(graph_processor, "_clone_repository") as mock_clone,
+            patch("fluidize.core.utils.dataloader.data_loader.DataLoader") as mock_data_loader,
+            patch("fluidize.core.utils.dataloader.data_writer.DataWriter"),
+        ):
+            mock_data_loader.load_yaml.return_value = {}
+
+            graph_processor._create_node_from_scratch(
+                mock_node_path, sample_node_properties, sample_node_metadata, repo_link
+            )
+
+            # Verify clone was called with correct parameters
+            mock_clone.assert_called_once_with(repo_link, mock_node_path / "source")
+
+    def test_validate_and_warn_missing_fields_complete_data(
+        self, graph_processor, sample_node_properties, sample_node_metadata, capsys
+    ):
+        """Test validation with complete data produces only info messages."""
+        graph_processor._validate_and_warn_missing_fields(sample_node_properties, sample_node_metadata)
+
+        captured = capsys.readouterr()
+        # Should not have any warning messages for complete data
+        assert "Warning:" not in captured.out
+
+    def test_validate_and_warn_missing_fields_missing_required(
+        self, graph_processor, minimal_node_properties, minimal_node_metadata, capsys
+    ):
+        """Test validation warns about missing optional fields."""
+        # Remove a required field
+        minimal_node_properties.container_image = ""
+        minimal_node_metadata.authors = []
+
+        graph_processor._validate_and_warn_missing_fields(minimal_node_properties, minimal_node_metadata)
+
+        captured = capsys.readouterr()
+        assert "Warning: Required field 'container_image' is missing" in captured.out
+        assert "Warning: Required field 'authors' is missing" in captured.out
+
+    def test_validate_and_warn_missing_fields_missing_optional(
+        self, graph_processor, minimal_node_properties, minimal_node_metadata, capsys
+    ):
+        """Test validation provides info about missing optional fields."""
+        graph_processor._validate_and_warn_missing_fields(minimal_node_properties, minimal_node_metadata)
+
+        captured = capsys.readouterr()
+        assert "Info: Optional field 'image_name' not provided" in captured.out
+        assert "Info: Optional field 'date' not provided" in captured.out
+
+    def test_clone_repository_success(self, graph_processor, capsys):
+        """Test successful repository cloning."""
+        repo_link = "https://github.com/test/repo.git"
+        source_path = Path("/test/source")
+
+        with (
+            patch("fluidize.core.modules.graph.processor.shutil.which", return_value="/usr/bin/git"),
+            patch("fluidize.core.modules.graph.processor.subprocess.run") as mock_run,
+        ):
+            graph_processor._clone_repository(repo_link, source_path)
+
+            mock_run.assert_called_once_with(
+                ["/usr/bin/git", "clone", repo_link, str(source_path)],
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=300,
+            )
+
+            captured = capsys.readouterr()
+            assert "Successfully cloned repository" in captured.out
+
+    def test_clone_repository_invalid_url(self, graph_processor, capsys):
+        """Test repository cloning with invalid URL."""
+        repo_link = "invalid-url"
+        source_path = Path("/test/source")
+
+        graph_processor._clone_repository(repo_link, source_path)
+
+        captured = capsys.readouterr()
+        assert "Warning: Invalid repository URL scheme" in captured.out
+
+    def test_clone_repository_empty_url(self, graph_processor, capsys):
+        """Test repository cloning with empty URL."""
+        repo_link = "   "
+        source_path = Path("/test/source")
+
+        graph_processor._clone_repository(repo_link, source_path)
+
+        captured = capsys.readouterr()
+        assert "Warning: Empty repository link provided" in captured.out
+
+    def test_clone_repository_git_not_found(self, graph_processor, capsys):
+        """Test repository cloning when git is not available."""
+        repo_link = "https://github.com/test/repo.git"
+        source_path = Path("/test/source")
+
+        with patch("fluidize.core.modules.graph.processor.shutil.which", return_value=None):
+            graph_processor._clone_repository(repo_link, source_path)
+
+            captured = capsys.readouterr()
+            assert "Warning: git command not found" in captured.out
+
+    def test_clone_repository_timeout(self, graph_processor, capsys):
+        """Test repository cloning timeout."""
+        import subprocess
+
+        repo_link = "https://github.com/test/repo.git"
+        source_path = Path("/test/source")
+
+        with (
+            patch("fluidize.core.modules.graph.processor.shutil.which", return_value="/usr/bin/git"),
+            patch("fluidize.core.modules.graph.processor.subprocess.run") as mock_run,
+        ):
+            mock_run.side_effect = subprocess.TimeoutExpired("git", 300)
+
+            graph_processor._clone_repository(repo_link, source_path)
+
+            captured = capsys.readouterr()
+            assert "Warning: Repository clone timed out" in captured.out
+
+    def test_clone_repository_command_failure(self, graph_processor, capsys):
+        """Test repository cloning command failure."""
+        import subprocess
+
+        repo_link = "https://github.com/test/nonexistent.git"
+        source_path = Path("/test/source")
+
+        with (
+            patch("fluidize.core.modules.graph.processor.shutil.which", return_value="/usr/bin/git"),
+            patch("fluidize.core.modules.graph.processor.subprocess.run") as mock_run,
+        ):
+            mock_run.side_effect = subprocess.CalledProcessError(128, "git", stderr="Repository not found")
+
+            graph_processor._clone_repository(repo_link, source_path)
+
+            captured = capsys.readouterr()
+            assert "Warning: Failed to clone repository" in captured.out
+            assert "Repository not found" in captured.out
+
+    def test_insert_node_from_scratch_minimal_data(
+        self,
+        graph_processor,
+        mock_path_finder,
+        mock_graph_model,
+        sample_project,
+        minimal_node_properties,
+        minimal_node_metadata,
+    ):
+        """Test insert_node_from_scratch with minimal required data."""
+        mock_project_path = Path("/test/project")
+        mock_node_path = Path("/test/project/minimal-node")
+
+        mock_path_finder.get_project_path.return_value = mock_project_path
+        mock_path_finder.get_node_path.return_value = mock_node_path
+
+        mock_graph_instance = Mock()
+        mock_graph_model.from_file.return_value = mock_graph_instance
+
+        node = SampleGraphs.sample_nodes()[0]
+        node.id = "minimal-node"
+
+        with patch.object(graph_processor, "_create_node_from_scratch") as mock_create:
+            result = graph_processor.insert_node_from_scratch(node, minimal_node_properties, minimal_node_metadata)
+
+            assert result == node
+            mock_create.assert_called_once_with(mock_node_path, minimal_node_properties, minimal_node_metadata, None)

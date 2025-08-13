@@ -5,8 +5,11 @@ This module provides the local backend interface for graph operations,
 wrapping the core GraphProcessor with backend-specific functionality.
 """
 
+from typing import Optional
+
 from fluidize.core.modules.graph.processor import GraphProcessor
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
+from fluidize.core.types.node import nodeMetadata_simulation, nodeProperties_simulation
 from fluidize.core.types.project import ProjectSummary
 
 
@@ -49,6 +52,28 @@ class GraphHandler:
         """
         processor = GraphProcessor(project)
         return processor.insert_node(node, sim_global)
+
+    def insert_node_from_scratch(
+        self,
+        project: ProjectSummary,
+        GraphNode: GraphNode,
+        nodeProperties: nodeProperties_simulation,
+        nodeMetadata: nodeMetadata_simulation,
+        repo_link: Optional[str] = None,
+    ) -> GraphNode:
+        """
+        Insert a new node into the project graph from scratch.
+
+        Args:
+            project: The project to add the node to
+            nodeProperties: The properties of the node to insert
+            sim_global: Whether to use global simulations (placeholder for future)
+
+        Returns:
+            The inserted node
+        """
+        processor = GraphProcessor(project)
+        return processor.insert_node_from_scratch(GraphNode, nodeProperties, nodeMetadata, repo_link)
 
     def update_node_position(self, project: ProjectSummary, node: GraphNode) -> GraphNode:
         """
