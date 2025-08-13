@@ -76,6 +76,7 @@ line-length = 120
 fix = true
 exclude = [
     "tests/fixtures/",
+    "utils/fluidize_demo.ipynb",
 ]
 
 [tool.ruff.lint]

@@ -4,6 +4,8 @@ Data Structure for graph.json file within projects.
 
 """
 
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -14,7 +16,7 @@ class Position(BaseModel):
 
 class graphNodeData(BaseModel):
     label: str
-    simulation_id: str
+    simulation_id: Optional[str] = None
 
 
 # Default Node Type in Graph

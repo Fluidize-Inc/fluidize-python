@@ -22,7 +22,6 @@ class nodeProperties_simulation(PropertiesModel):
     properties_version: str = "1.0"
     # node_id is now a computed field based on folder name (see below)
     container_image: str
-    image_name: Optional[str] = None
     simulation_mount_path: str
     source_output_folder: str = "output"  # Where simulation creates files
     should_run: bool = True  # Add default value
@@ -89,8 +88,8 @@ class nodeMetadata_simulation(MetadataModel):
     version: str
     authors: list[author]
     tags: list[tag]
-    code_url: Optional[str]
-    paper_url: Optional[str]
+    code_url: Optional[str] = None
+    paper_url: Optional[str] = None
     mlflow_run_id: Optional[str] = None
 
     class Key:
