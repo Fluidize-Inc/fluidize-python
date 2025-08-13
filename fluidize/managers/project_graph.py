@@ -2,9 +2,10 @@
 Project-scoped graph manager for user-friendly graph operations.
 """
 
-from typing import Any
+from typing import Any, Optional
 
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
+from fluidize.core.types.node import nodeMetadata_simulation, nodeProperties_simulation
 from fluidize.core.types.project import ProjectSummary
 
 
@@ -52,6 +53,29 @@ class ProjectGraph:
             The inserted node
         """
         return self.backend.graph.insert_node(self.project, node, sim_global)  # type: ignore[no-any-return]
+
+    def add_node_from_scratch(
+        self,
+        node: GraphNode,
+        node_properties: nodeProperties_simulation,
+        node_metadata: nodeMetadata_simulation,
+        repo_link: Optional[str] = None,
+    ) -> GraphNode:
+        """
+        Add a new node to this project's graph from scratch, creating all necessary files and directories.
+
+        Args:
+            node: The graph node to insert
+            node_properties: Properties configuration for the node
+            node_metadata: Metadata configuration for the node
+            repo_link: Optional repository URL to clone into the source directory
+
+        Returns:
+            The inserted node
+        """
+        return self.backend.graph.insert_node_from_scratch(  # type: ignore[no-any-return]
+            self.project, node, node_properties, node_metadata, repo_link
+        )
 
     def update_node_position(self, node: GraphNode) -> GraphNode:
         """

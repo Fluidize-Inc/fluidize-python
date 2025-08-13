@@ -1,9 +1,12 @@
 """Unit tests for ProjectGraph manager - project-scoped graph operations."""
 
+import datetime
 from unittest.mock import Mock
 
 import pytest
 
+from fluidize.core.types.node import author, nodeMetadata_simulation, nodeProperties_simulation, tag
+from fluidize.core.types.runs import RunStatus
 from fluidize.managers.project_graph import ProjectGraph
 from tests.fixtures.sample_graphs import SampleGraphs
 from tests.fixtures.sample_projects import SampleProjects
@@ -106,6 +109,98 @@ class TestProjectGraph:
 
         assert result == node
         mock_backend.graph.insert_node.assert_called_once_with(project_graph.project, node, False)
+
+    def test_add_node_from_scratch_success(self, project_graph, mock_backend):
+        """Test successful node creation from scratch."""
+        node = SampleGraphs.sample_nodes()[0]
+
+        # Create sample node properties
+        node_properties = nodeProperties_simulation(
+            container_image="python:3.9",
+            simulation_mount_path="/app",
+            source_output_folder="output",
+            should_run=True,
+            run_status=RunStatus.NOT_RUN,
+            version="1.0",
+        )
+
+        # Create sample node metadata
+        node_metadata = nodeMetadata_simulation(
+            name="Test Simulation",
+            id="test-sim-001",
+            description="A test simulation node",
+            date=datetime.date.today(),
+            version="1.0",
+            authors=[author(name="Test Author", institution="Test University")],
+            tags=[tag(name="test", description="Test tag")],
+            code_url="https://github.com/test/repo",
+            paper_url="https://doi.org/10.1000/example.paper",
+        )
+
+        mock_backend.graph.insert_node_from_scratch.return_value = node
+
+        result = project_graph.add_node_from_scratch(node, node_properties, node_metadata)
+
+        assert result == node
+        mock_backend.graph.insert_node_from_scratch.assert_called_once_with(
+            project_graph.project,
+            node,
+            node_properties,
+            node_metadata,
+            None,  # Default repo_link=None
+        )
+
+    def test_add_node_from_scratch_with_repo_link(self, project_graph, mock_backend):
+        """Test node creation from scratch with repository link."""
+        node = SampleGraphs.sample_nodes()[0]
+
+        # Create minimal required properties and metadata
+        node_properties = nodeProperties_simulation(container_image="python:3.9", simulation_mount_path="/app")
+
+        node_metadata = nodeMetadata_simulation(
+            name="Test Simulation",
+            id="test-sim-002",
+            description="A test simulation with repo",
+            date=datetime.date.today(),
+            version="1.0",
+            authors=[author(name="Test Author", institution="Test University")],
+            tags=[],
+            code_url="https://github.com/test/repo",
+            paper_url="https://doi.org/10.1000/example.paper",
+        )
+
+        repo_link = "https://github.com/test/example-repo.git"
+        mock_backend.graph.insert_node_from_scratch.return_value = node
+
+        result = project_graph.add_node_from_scratch(node, node_properties, node_metadata, repo_link)
+
+        assert result == node
+        mock_backend.graph.insert_node_from_scratch.assert_called_once_with(
+            project_graph.project, node, node_properties, node_metadata, repo_link
+        )
+
+    def test_add_node_from_scratch_error_propagation(self, project_graph, mock_backend):
+        """Test that backend errors are propagated for add_node_from_scratch operations."""
+        node = SampleGraphs.sample_nodes()[0]
+
+        node_properties = nodeProperties_simulation(container_image="python:3.9", simulation_mount_path="/app")
+
+        node_metadata = nodeMetadata_simulation(
+            name="Test Simulation",
+            id="test-sim-003",
+            description="A test simulation that will fail",
+            date=datetime.date.today(),
+            version="1.0",
+            authors=[author(name="Test Author", institution="Test University")],
+            tags=[],
+            code_url="https://github.com/test/repo",
+            paper_url="https://doi.org/10.1000/example.paper",
+        )
+
+        mock_backend.graph.insert_node_from_scratch.side_effect = ValueError("Failed to create node from scratch")
+
+        with pytest.raises(ValueError, match="Failed to create node from scratch"):
+            project_graph.add_node_from_scratch(node, node_properties, node_metadata)
 
     def test_update_node_position_success(self, project_graph, mock_backend):
         """Test successful node position update."""
@@ -225,6 +320,33 @@ class TestProjectGraph:
         mock_backend.graph.delete_node.assert_called_once()
         mock_backend.graph.upsert_edge.assert_called_once()
         mock_backend.graph.delete_edge.assert_called_once()
+
+    def test_add_node_from_scratch_delegates_to_backend(self, project_graph, mock_backend):
+        """Test that add_node_from_scratch properly delegates to backend."""
+        node = SampleGraphs.sample_nodes()[0]
+
+        node_properties = nodeProperties_simulation(container_image="python:3.9", simulation_mount_path="/app")
+
+        node_metadata = nodeMetadata_simulation(
+            name="Delegation Test",
+            id="delegation-test",
+            description="Test backend delegation",
+            date=datetime.date.today(),
+            version="1.0",
+            authors=[author(name="Test Author", institution="Test University")],
+            tags=[],
+            code_url="https://github.com/test/repo",
+            paper_url="https://doi.org/10.1000/example.paper",
+        )
+
+        mock_backend.graph.insert_node_from_scratch.return_value = node
+
+        result = project_graph.add_node_from_scratch(node, node_properties, node_metadata)
+
+        assert result == node
+        mock_backend.graph.insert_node_from_scratch.assert_called_once_with(
+            project_graph.project, node, node_properties, node_metadata, None
+        )
 
     def test_project_context_consistency(self, project_graph, mock_backend):
         """Test that the same project context is used for all operations."""
