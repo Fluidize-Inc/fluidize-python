@@ -134,3 +134,6 @@ skip_empty = true
 [tool.coverage.run]
 branch = true
 source = ["fluidize"]
+
+[tool.deptry]
+extend_exclude = ["utils"]
