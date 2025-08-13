@@ -194,6 +194,14 @@ class GraphHandler:
         # Check if parameter with same name exists
         for p in params:
             if p.name == parameter.name:
+                # Update the existing parameter with new values
+                p.value = parameter.value
+                p.description = parameter.description
+                p.type = parameter.type
+                p.label = parameter.label
+                p.latex = parameter.latex
+                p.options = parameter.options
+                p.scope = parameter.scope
                 # Extend the location if it exists
                 if parameter.location:
                     if p.location:

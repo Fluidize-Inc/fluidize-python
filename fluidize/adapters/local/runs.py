@@ -6,6 +6,7 @@ import asyncio
 from typing import Any
 
 import networkx as nx
+from upath import UPath
 
 from fluidize.core.constants import FileConstants
 from fluidize.core.modules.graph.process import ProcessGraph
@@ -13,6 +14,7 @@ from fluidize.core.modules.run.project.project_runner import ProjectRunner
 from fluidize.core.types.project import ProjectSummary
 from fluidize.core.types.runs import RunFlowPayload
 from fluidize.core.utils.dataloader.data_loader import DataLoader
+from fluidize.core.utils.pathfinder.path_finder import PathFinder
 
 
 class RunsHandler:
@@ -122,3 +124,49 @@ class RunsHandler:
         # This would load run metadata and return status
         # Implementation depends on how run status is stored
         return {"run_number": run_number, "status": "unknown"}
+
+    def list_node_outputs(self, project: ProjectSummary, run_number: int, node_id: str) -> list[str]:
+        """
+        List all output files for a specific node in a run, including files in subdirectories (1 level deep).
+
+        Args:
+            project: The project containing the run
+            run_number: The run number
+            node_id: The node ID to list outputs for
+
+        Returns:
+            List of relative file paths within the node's output directory (including subdirectories)
+        """
+        output_path = PathFinder.get_node_output_path(project, run_number, node_id)
+
+        if not DataLoader.check_file_exists(output_path) and not output_path.exists():
+            return []
+
+        all_files = []
+
+        # Get files in the root output directory
+        files = DataLoader.list_files(output_path)
+        all_files.extend([file.name for file in files])
+
+        # Get files in subdirectories (1 level deep)
+        subdirs = DataLoader.list_directories(output_path)
+        for subdir in subdirs:
+            subdir_files = DataLoader.list_files(subdir)
+            # Include the subdirectory name in the relative path
+            all_files.extend([f"{subdir.name}/{file.name}" for file in subdir_files])
+
+        return all_files
+
+    def get_output_path(self, project: ProjectSummary, run_number: int, node_id: str) -> UPath:
+        """
+        Get the full path to a node's output directory.
+
+        Args:
+            project: The project containing the run
+            run_number: The run number
+            node_id: The node ID
+
+        Returns:
+            UPath to the node's output directory
+        """
+        return PathFinder.get_node_output_path(project, run_number, node_id)
