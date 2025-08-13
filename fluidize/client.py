@@ -43,6 +43,10 @@ class FluidizeClient:
         # Config handles all configuration logic
         self.config = FluidizeConfig(mode)
 
+        # Check Docker availability for local mode
+        if self.config.is_local_mode():
+            self.config.warn_if_docker_unavailable()
+
         # Initialize the appropriate backend based on mode
         self._backend = self._initialize_backend()
 

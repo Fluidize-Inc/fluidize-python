@@ -1,6 +1,9 @@
 """Configuration management for Fluidize Client"""
 
 import os
+import shutil
+import subprocess
+import warnings
 from pathlib import Path
 from typing import Literal
 
@@ -60,6 +63,41 @@ class FluidizeConfig:
     def is_api_mode(self) -> bool:
         """Check if running in API mode."""
         return self.mode == "api"
+
+    def check_docker_available(self) -> bool:
+        """Check if Docker is available and running.
+
+        Returns:
+            True if Docker is available, False otherwise
+        """
+        # First check if docker executable exists
+        docker_path = shutil.which("docker")
+        if not docker_path:
+            return False
+
+        try:
+            # Run 'docker --version' to check if Docker is installed and accessible
+            result = subprocess.run(  # noqa: S603
+                [docker_path, "--version"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=False,
+            )
+        except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+            return False
+        else:
+            return result.returncode == 0
+
+    def warn_if_docker_unavailable(self) -> None:
+        """Issue a warning if Docker is not available for local runs."""
+        if not self.check_docker_available():
+            warnings.warn(
+                "Docker is not available. Local simulation runs will not be possible. "
+                "Please install and start Docker to enable local execution.",
+                UserWarning,
+                stacklevel=2,
+            )
 
 
 # Default global config instance
