@@ -499,3 +499,15 @@ class TestProjectGraph:
         assert len(set_calls) == 2
         assert set_calls[0][0][0] == project1
         assert set_calls[1][0][0] == project2
+
+    def test_show_parameters_success(self, project_graph, mock_adapter):
+        """Test successful parameter display through ProjectGraph."""
+        node_id = "test-node-id"
+        expected_output = "Parameters for node 'test-node-id':\n\nParameter 1:\n  Name: test_param\n  Value: test_value"
+
+        mock_adapter.graph.show_parameters.return_value = expected_output
+
+        result = project_graph.show_parameters(node_id)
+
+        assert result == expected_output
+        mock_adapter.graph.show_parameters.assert_called_once_with(project_graph.project, node_id)

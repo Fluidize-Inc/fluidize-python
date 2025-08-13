@@ -450,3 +450,52 @@ class TestGraphHandler:
 
         # Verify result
         assert result == parameters
+
+    @patch("fluidize.adapters.local.graph.DataLoader")
+    @patch("fluidize.adapters.local.graph.PathFinder")
+    def test_show_parameters_success(self, mock_pathfinder, mock_dataloader, sample_project):
+        """Test showing parameters in nice format."""
+        # Mock setup
+        mock_parameters_path = Mock()
+        mock_pathfinder.get_node_parameters_path.return_value = mock_parameters_path
+        mock_dataloader.load_json.return_value = {
+            "parameters": [
+                {
+                    "name": "motor_strength",
+                    "value": "20.0",
+                    "type": "text",
+                    "label": "Motor Strength",
+                    "description": "Control signal strength for bat motor",
+                    "scope": "simulation",
+                    "location": ["source/pinata_simulation.py"],
+                }
+            ]
+        }
+
+        handler = GraphHandler()
+        result = handler.show_parameters(sample_project, "test-node-id")
+
+        # Verify the formatted output contains expected content
+        assert "Parameters for node 'test-node-id':" in result
+        assert "Name: motor_strength" in result
+        assert "Value: 20.0" in result
+        assert "Description: Control signal strength for bat motor" in result
+        assert "Type: text" in result
+        assert "Label: Motor Strength" in result
+        assert "Scope: simulation" in result
+        assert "Location: source/pinata_simulation.py" in result
+
+    @patch("fluidize.adapters.local.graph.DataLoader")
+    @patch("fluidize.adapters.local.graph.PathFinder")
+    def test_show_parameters_no_parameters(self, mock_pathfinder, mock_dataloader, sample_project):
+        """Test showing parameters when none exist."""
+        # Mock setup for empty parameters
+        mock_parameters_path = Mock()
+        mock_pathfinder.get_node_parameters_path.return_value = mock_parameters_path
+        mock_dataloader.load_json.return_value = {"parameters": []}
+
+        handler = GraphHandler()
+        result = handler.show_parameters(sample_project, "empty-node-id")
+
+        # Verify the no parameters message
+        assert result == "No parameters found for node 'empty-node-id'"

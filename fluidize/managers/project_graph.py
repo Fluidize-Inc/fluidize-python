@@ -166,3 +166,15 @@ class ProjectGraph:
             The list of parameters that were set
         """
         return self.adapter.graph.set_parameters(self.project, node_id, parameters)  # type: ignore[no-any-return]
+
+    def show_parameters(self, node_id: str) -> str:
+        """
+        Get a nicely formatted string display of parameters for a specific node in this project's graph.
+
+        Args:
+            node_id: ID of the node to retrieve parameters for
+
+        Returns:
+            A formatted string displaying the parameters
+        """
+        return self.adapter.graph.show_parameters(self.project, node_id)  # type: ignore[no-any-return]

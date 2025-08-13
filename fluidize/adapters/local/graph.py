@@ -229,3 +229,45 @@ class GraphHandler:
 
         DataWriter.write_json(filepath=parameters_path, data=data)
         return parameters
+
+    def show_parameters(self, project: ProjectSummary, node_id: str) -> str:
+        """
+        Get a nicely formatted string display of parameters for a specific node.
+
+        Args:
+            project: The project containing the graph
+            node_id: ID of the node to retrieve parameters for
+
+        Returns:
+            A formatted string displaying the parameters
+        """
+        parameters = self.get_parameters(project, node_id)
+
+        if not parameters:
+            return f"No parameters found for node '{node_id}'"
+
+        output = f"Parameters for node '{node_id}':\n\n"
+
+        for i, param in enumerate(parameters, 1):
+            output += f"Parameter {i}:\n"
+            output += f"  Name: {param.name}\n"
+            output += f"  Value: {param.value}\n"
+            output += f"  Description: {param.description}\n"
+            output += f"  Type: {param.type}\n"
+            output += f"  Label: {param.label}\n"
+
+            if param.scope:
+                output += f"  Scope: {param.scope}\n"
+
+            if param.location:
+                output += f"  Location: {', '.join(param.location)}\n"
+
+            if param.latex:
+                output += f"  LaTeX: {param.latex}\n"
+
+            if param.options:
+                output += f"  Options: {[f'{opt.label} ({opt.value})' for opt in param.options]}\n"
+
+            output += "\n"
+
+        return output.rstrip()
