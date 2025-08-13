@@ -5,7 +5,7 @@ import shutil
 import subprocess
 import warnings
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional
 
 
 class FluidizeConfig:
@@ -15,16 +15,17 @@ class FluidizeConfig:
     and manages paths and settings for both modes.
     """
 
-    def __init__(self, mode: Literal["local", "api", "auto"] = "auto"):
+    def __init__(self, mode: Literal["local", "api", "auto"] = "auto", base_path: Optional[Path] = None):
         """Initialize configuration with specified mode.
 
         Args:
             mode: Operation mode - "local", "api", or "auto" for environment detection
+            base_path: Optional custom base path for local mode. If None, uses ~/.fluidize
         """
         self.mode = self._resolve_mode(mode)
 
         # Local paths (when mode="local")
-        self.local_base_path = Path.home() / ".fluidize"
+        self.local_base_path = base_path if base_path is not None else Path.home() / ".fluidize"
         self.local_projects_path = self.local_base_path / "projects"
         self.local_simulations_path = self.local_base_path / "simulations"
 

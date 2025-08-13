@@ -2,7 +2,8 @@
 Fluidize Python Client - High-level interface for the Fluidize Engine and API.
 """
 
-from typing import Any, Literal
+from pathlib import Path
+from typing import Any, Literal, Optional
 
 from fluidize_sdk import FluidizeSDK
 
@@ -32,16 +33,17 @@ class FluidizeClient:
     and the FluidizeConfig class.
     """
 
-    def __init__(self, mode: Literal["local", "api", "auto"] = "auto"):
+    def __init__(self, mode: Literal["local", "api", "auto"] = "auto", base_path: Optional[Path] = None):
         """
         Initialize the Fluidize client.
 
         Args:
             mode: Operation mode - "local", "api", or "auto" for environment detection
+            base_path: Optional custom base path for local mode. If None, uses ~/.fluidize
                  Config will handle all other settings via environment variables
         """
         # Config handles all configuration logic
-        self.config = FluidizeConfig(mode)
+        self.config = FluidizeConfig(mode, base_path)
 
         # Check Docker availability for local mode
         if self.config.is_local_mode():
