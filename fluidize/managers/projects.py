@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from .project import Project
+from .project_manager import Project
 
 
 class Projects:

@@ -16,7 +16,6 @@ import fluidize.core.utils.pathfinder.methods.local  # noqa: F401
 from .backends.local import LocalBackend
 from .config import FluidizeConfig
 from .managers.projects import Projects
-from .managers.runs import Runs
 
 
 class FluidizeClient:
@@ -54,7 +53,6 @@ class FluidizeClient:
 
         # Initialize resource managers
         self.projects = Projects(self._backend)
-        self.runs = Runs(self._backend)
 
     def _initialize_backend(self) -> Any:
         """Initialize the appropriate backend based on the mode."""

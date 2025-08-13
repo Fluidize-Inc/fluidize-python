@@ -7,7 +7,7 @@ import pytest
 
 from fluidize import FluidizeClient
 from fluidize.core.types.graph import GraphNode, Position, graphNodeData
-from fluidize.managers.project import Project
+from fluidize.managers.project_manager import Project
 from tests.fixtures.sample_graphs import SampleGraphs
 
 

@@ -31,7 +31,7 @@ class TestProjectsManager:
 
     def test_create_project_with_all_fields(self, projects_manager, mock_backend):
         """Test create method with all optional fields."""
-        from fluidize.managers.project import Project
+        from fluidize.managers.project_manager import Project
 
         sample_project = SampleProjects.standard_project()
         mock_backend.projects.upsert.return_value = sample_project
@@ -60,7 +60,7 @@ class TestProjectsManager:
 
     def test_create_project_minimal(self, projects_manager, mock_backend):
         """Test create method with minimal required fields."""
-        from fluidize.managers.project import Project
+        from fluidize.managers.project_manager import Project
 
         project_id = "minimal-create"
         minimal_project = SampleProjects.minimal_project()
@@ -77,7 +77,7 @@ class TestProjectsManager:
 
     def test_create_project_partial_fields(self, projects_manager, mock_backend):
         """Test create method with some optional fields."""
-        from fluidize.managers.project import Project
+        from fluidize.managers.project_manager import Project
 
         sample_project = SampleProjects.standard_project()
         mock_backend.projects.upsert.return_value = sample_project
@@ -98,7 +98,7 @@ class TestProjectsManager:
 
     def test_get_project(self, projects_manager, mock_backend):
         """Test get method retrieves project by ID."""
-        from fluidize.managers.project import Project
+        from fluidize.managers.project_manager import Project
 
         sample_project = SampleProjects.standard_project()
         project_id = sample_project.id
@@ -131,7 +131,7 @@ class TestProjectsManager:
 
     def test_list_projects_with_data(self, projects_manager, mock_backend):
         """Test list method with multiple projects."""
-        from fluidize.managers.project import Project
+        from fluidize.managers.project_manager import Project
 
         sample_projects = SampleProjects.projects_for_listing()
         mock_backend.projects.list.return_value = sample_projects
@@ -146,7 +146,7 @@ class TestProjectsManager:
 
     def test_update_project_with_all_fields(self, projects_manager, mock_backend):
         """Test update method with all optional fields."""
-        from fluidize.managers.project import Project
+        from fluidize.managers.project_manager import Project
 
         sample_project = SampleProjects.standard_project()
         project_id = sample_project.id
@@ -174,7 +174,7 @@ class TestProjectsManager:
 
     def test_update_project_partial_fields(self, projects_manager, mock_backend):
         """Test update method with only some fields."""
-        from fluidize.managers.project import Project
+        from fluidize.managers.project_manager import Project
 
         sample_project = SampleProjects.standard_project()
         project_id = "update-partial"
@@ -192,7 +192,7 @@ class TestProjectsManager:
 
     def test_update_project_no_optional_fields(self, projects_manager, mock_backend):
         """Test update method with only project_id."""
-        from fluidize.managers.project import Project
+        from fluidize.managers.project_manager import Project
 
         sample_project = SampleProjects.standard_project()
         project_id = "update-id-only"
@@ -215,7 +215,7 @@ class TestProjectsManager:
     )
     def test_update_project_single_field(self, projects_manager, mock_backend, field_name, field_value):
         """Test update method with individual fields."""
-        from fluidize.managers.project import Project
+        from fluidize.managers.project_manager import Project
 
         sample_project = SampleProjects.standard_project()
         project_id = "single-field-update"
@@ -233,7 +233,7 @@ class TestProjectsManager:
 
     def test_update_filters_none_values(self, projects_manager, mock_backend):
         """Test update method only includes non-None values in update data."""
-        from fluidize.managers.project import Project
+        from fluidize.managers.project_manager import Project
 
         sample_project = SampleProjects.standard_project()
         project_id = "filter-none-test"
@@ -318,7 +318,7 @@ class TestProjectsManager:
 
     def test_project_wrapper_return_types(self, mock_backend):
         """Test that manager methods return Project wrapper instances."""
-        from fluidize.managers.project import Project
+        from fluidize.managers.project_manager import Project
 
         manager = Projects(mock_backend)
         sample_project = SampleProjects.standard_project()

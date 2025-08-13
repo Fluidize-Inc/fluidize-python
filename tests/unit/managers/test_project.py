@@ -4,8 +4,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from fluidize.managers.project import Project
 from fluidize.managers.project_graph import ProjectGraph
+from fluidize.managers.project_manager import Project
 from tests.fixtures.sample_projects import SampleProjects
 
 

@@ -13,7 +13,7 @@ from fluidize.backends.local.backend import LocalBackend
 from fluidize.config import FluidizeConfig
 from fluidize.core.types.project import ProjectSummary
 from fluidize.core.types.runs import RunFlowPayload
-from fluidize.managers.project import Project
+from fluidize.managers.project_manager import Project
 
 
 @pytest.fixture

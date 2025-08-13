@@ -106,7 +106,6 @@ class TestFluidizeClient:
             client = FluidizeClient(mode="local", base_path=custom_path)
 
             assert hasattr(client, "projects")
-            assert hasattr(client, "runs")
 
     @patch("fluidize.client.FluidizeSDK")
     @patch.dict("os.environ", {"FLUIDIZE_API_KEY": "test-api-key"})
