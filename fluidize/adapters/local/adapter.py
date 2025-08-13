@@ -1,5 +1,5 @@
 """
-Local backend implementation - aggregates all local handlers.
+Local adapter implementation - aggregates all local handlers.
 """
 
 from typing import Any
@@ -9,15 +9,14 @@ from .projects import ProjectsHandler
 from .runs import RunsHandler
 
 
-class LocalBackend:
+class LocalAdapter:
     """
-    Local backend that provides SDK-compatible interface using local handlers.
-
+    Local adapter that provides SDK-compatible interface using local handlers.
     """
 
     def __init__(self, config: Any) -> None:
         """
-        Initialize the local backend with all handlers.
+        Initialize the local adapter with all handlers.
 
         Args:
             config: FluidizeConfig instance

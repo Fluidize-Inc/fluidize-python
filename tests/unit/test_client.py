@@ -71,16 +71,16 @@ class TestFluidizeConfig:
 class TestFluidizeClient:
     """Test suite for FluidizeClient class."""
 
-    @patch("fluidize.client.LocalBackend")
-    def test_default_initialization(self, mock_local_backend):
+    @patch("fluidize.client.LocalAdapter")
+    def test_default_initialization(self, mock_local_adapter):
         """Test FluidizeClient default initialization."""
         client = FluidizeClient()
 
         assert client.config.local_base_path == Path.home() / ".fluidize"
         assert client.mode in ["local", "api"]
 
-    @patch("fluidize.client.LocalBackend")
-    def test_custom_base_path_initialization(self, mock_local_backend):
+    @patch("fluidize.client.LocalAdapter")
+    def test_custom_base_path_initialization(self, mock_local_adapter):
         """Test FluidizeClient with custom base path."""
         with tempfile.TemporaryDirectory() as tmpdir:
             custom_path = Path(tmpdir) / "custom" / "client" / "path"
@@ -91,15 +91,15 @@ class TestFluidizeClient:
             assert client.config.local_simulations_path == custom_path / "simulations"
             assert client.mode == "local"
 
-    @patch("fluidize.client.LocalBackend")
-    def test_base_path_none_uses_default(self, mock_local_backend):
+    @patch("fluidize.client.LocalAdapter")
+    def test_base_path_none_uses_default(self, mock_local_adapter):
         """Test that passing None for base_path uses the default."""
         client = FluidizeClient(mode="local", base_path=None)
 
         assert client.config.local_base_path == Path.home() / ".fluidize"
 
-    @patch("fluidize.client.LocalBackend")
-    def test_projects_manager_initialized(self, mock_local_backend):
+    @patch("fluidize.client.LocalAdapter")
+    def test_projects_manager_initialized(self, mock_local_adapter):
         """Test that projects manager is properly initialized."""
         with tempfile.TemporaryDirectory() as tmpdir:
             custom_path = Path(tmpdir) / "test" / "projects" / "path"
@@ -119,16 +119,16 @@ class TestFluidizeClient:
             # base_path should still be set in config even for API mode
             assert client.config.local_base_path == custom_path
 
-    @patch("fluidize.client.LocalBackend")
-    def test_backend_receives_config(self, mock_local_backend):
-        """Test that backend receives the config with custom base path."""
+    @patch("fluidize.client.LocalAdapter")
+    def test_adapter_receives_config(self, mock_local_adapter):
+        """Test that adapter receives the config with custom base path."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            custom_path = Path(tmpdir) / "backend" / "config" / "path"
+            custom_path = Path(tmpdir) / "adapter" / "config" / "path"
             client = FluidizeClient(mode="local", base_path=custom_path)
 
-            # Verify LocalBackend was called with the config
-            mock_local_backend.assert_called_once_with(client.config)
+            # Verify LocalAdapter was called with the config
+            mock_local_adapter.assert_called_once_with(client.config)
 
             # Verify the config has the right base path
-            passed_config = mock_local_backend.call_args[0][0]
+            passed_config = mock_local_adapter.call_args[0][0]
             assert passed_config.local_base_path == custom_path

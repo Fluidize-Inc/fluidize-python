@@ -1,4 +1,4 @@
-"""Integration tests for complete graph workflow - client to backend."""
+"""Integration tests for complete graph workflow - client to adapter."""
 
 import tempfile
 from pathlib import Path
@@ -394,7 +394,7 @@ class TestGraphWorkflow:
         assert len(project.graph.get().nodes) == 0
 
         # This demonstrates the user-friendly design:
-        # - project.graph.operation() instead of backend.graph.operation(project, ...)
+        # - project.graph.operation() instead of adapter.graph.operation(project, ...)
         # - Automatic project scoping
         # - Intuitive method names
         # - No manual context passing

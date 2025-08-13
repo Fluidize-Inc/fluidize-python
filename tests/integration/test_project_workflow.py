@@ -62,8 +62,8 @@ class TestProjectWorkflowIntegration:
         project_ids = [p.id for p in all_projects]
         assert project_data["project_id"] in project_ids
 
-        # Delete the project (via backend since client doesn't have delete)
-        client.backend.projects.delete(project_data["project_id"])
+        # Delete the project (via adapter since client doesn't have delete)
+        client.adapter.projects.delete(project_data["project_id"])
 
         # Verify project is deleted from filesystem
         assert not project_dir.exists()
@@ -110,7 +110,7 @@ class TestProjectWorkflowIntegration:
             assert project.status == "batch-updated"
             assert "Updated Project" in project.label
 
-    def test_project_filesystem_consistency(self, local_backend, integration_temp_dir):
+    def test_project_filesystem_consistency(self, local_adapter, integration_temp_dir):
         """Test that filesystem operations maintain consistency."""
         project_data = {
             "id": "filesystem-test",
@@ -121,7 +121,7 @@ class TestProjectWorkflowIntegration:
         }
 
         # Create project
-        local_backend.projects.upsert(**project_data)
+        local_adapter.projects.upsert(**project_data)
         project_dir = integration_temp_dir / "projects" / project_data["id"]
 
         # Verify all required files exist
@@ -157,7 +157,7 @@ class TestProjectWorkflowIntegration:
             assert "parameters" in params_content
 
         # Update project and verify metadata file changes
-        local_backend.projects.upsert(id=project_data["id"], label="Updated Filesystem Test", status="updated")
+        local_adapter.projects.upsert(id=project_data["id"], label="Updated Filesystem Test", status="updated")
 
         with open(metadata_file) as f:
             updated_metadata = yaml.safe_load(f)
@@ -185,7 +185,7 @@ class TestProjectWorkflowIntegration:
         except Exception as e:
             pytest.fail(f"System should handle empty strings gracefully: {e}")
 
-    def test_concurrent_operations_simulation(self, local_backend, integration_temp_dir):
+    def test_concurrent_operations_simulation(self, local_adapter, integration_temp_dir):
         """Test operations that might happen concurrently."""
         base_project_data = {
             "id": "concurrent-test",
@@ -195,17 +195,17 @@ class TestProjectWorkflowIntegration:
         }
 
         # Create initial project
-        local_backend.projects.upsert(**base_project_data)
+        local_adapter.projects.upsert(**base_project_data)
 
         # Simulate concurrent updates (sequential but rapid)
-        local_backend.projects.upsert(id="concurrent-test", label="Updated by Process 1", description="First update")
+        local_adapter.projects.upsert(id="concurrent-test", label="Updated by Process 1", description="First update")
 
-        local_backend.projects.upsert(
+        local_adapter.projects.upsert(
             id="concurrent-test", label="Updated by Process 2", description="Second update", status="processing"
         )
 
         # Verify final state
-        final_project = local_backend.projects.retrieve("concurrent-test")
+        final_project = local_adapter.projects.retrieve("concurrent-test")
         assert final_project.label == "Updated by Process 2"
         assert final_project.description == "Second update"
         assert final_project.status == "processing"
@@ -252,39 +252,39 @@ class TestProjectWorkflowIntegration:
         project_dir = integration_temp_dir / "projects" / project_data["project_id"]
         assert project_dir.exists()
 
-    def test_backend_integration_compatibility(self, local_backend):
-        """Test that backend provides expected interface for integration."""
-        # Test that backend has expected structure
-        assert hasattr(local_backend, "projects")
-        assert hasattr(local_backend.projects, "list")
-        assert hasattr(local_backend.projects, "retrieve")
-        assert hasattr(local_backend.projects, "upsert")
-        assert hasattr(local_backend.projects, "delete")
+    def test_adapter_integration_compatibility(self, local_adapter):
+        """Test that adapter provides expected interface for integration."""
+        # Test that adapter has expected structure
+        assert hasattr(local_adapter, "projects")
+        assert hasattr(local_adapter.projects, "list")
+        assert hasattr(local_adapter.projects, "retrieve")
+        assert hasattr(local_adapter.projects, "upsert")
+        assert hasattr(local_adapter.projects, "delete")
 
         # Test basic operations work
         project_data = {
-            "id": "backend-integration-test",
-            "label": "Backend Integration Test",
-            "description": "Testing backend integration",
+            "id": "adapter-integration-test",
+            "label": "adapter Integration Test",
+            "description": "Testing adapter integration",
         }
 
         # Create
-        created = local_backend.projects.upsert(**project_data)
+        created = local_adapter.projects.upsert(**project_data)
         assert created.id == project_data["id"]
 
         # List
-        projects = local_backend.projects.list()
+        projects = local_adapter.projects.list()
 
         assert any(p.id == project_data["id"] for p in projects)
 
         # Retrieve
-        retrieved = local_backend.projects.retrieve(project_data["id"])
+        retrieved = local_adapter.projects.retrieve(project_data["id"])
         assert retrieved.id == created.id
 
         # Delete
-        result = local_backend.projects.delete(project_data["id"])
+        result = local_adapter.projects.delete(project_data["id"])
         assert result["success"] is True
 
         # Verify deletion
         with pytest.raises(FileNotFoundError):
-            local_backend.projects.retrieve(project_data["id"])
+            local_adapter.projects.retrieve(project_data["id"])

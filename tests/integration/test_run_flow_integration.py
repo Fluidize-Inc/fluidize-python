@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from fluidize.backends.local.runs import RunsHandler
+from fluidize.adapters.local.runs import RunsHandler
 from fluidize.core.types.project import ProjectSummary
 from fluidize.core.types.runs import RunFlowPayload
 
@@ -40,9 +40,9 @@ def docker_project_path(integration_temp_dir) -> Path:
 
 
 @pytest.fixture
-def runs_handler(local_backend):
+def runs_handler(local_adapter):
     """Create a RunsHandler instance for testing."""
-    return RunsHandler(local_backend.config)
+    return RunsHandler(local_adapter.config)
 
 
 class TestRunFlowIntegration:

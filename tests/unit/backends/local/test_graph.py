@@ -1,10 +1,10 @@
-"""Unit tests for GraphHandler - local backend graph interface."""
+"""Unit tests for GraphHandler - local adapter graph interface."""
 
 from unittest.mock import Mock, patch
 
 import pytest
 
-from fluidize.backends.local.graph import GraphHandler
+from fluidize.adapters.local.graph import GraphHandler
 from fluidize.core.types.graph import GraphData
 from tests.fixtures.sample_graphs import SampleGraphs
 from tests.fixtures.sample_projects import SampleProjects
@@ -16,7 +16,7 @@ class TestGraphHandler:
     @pytest.fixture
     def mock_processor(self):
         """Create a mock GraphProcessor for testing."""
-        with patch("fluidize.backends.local.graph.GraphProcessor") as mock_processor_class:
+        with patch("fluidize.adapters.local.graph.GraphProcessor") as mock_processor_class:
             mock_processor = Mock()
             mock_processor_class.return_value = mock_processor
             yield mock_processor
@@ -60,7 +60,7 @@ class TestGraphHandler:
 
     def test_get_graph_processor_creation(self, sample_project):
         """Test that GraphProcessor is created with correct project."""
-        with patch("fluidize.backends.local.graph.GraphProcessor") as mock_processor_class:
+        with patch("fluidize.adapters.local.graph.GraphProcessor") as mock_processor_class:
             mock_processor = Mock()
             mock_processor_class.return_value = mock_processor
             mock_processor.get_graph.return_value = SampleGraphs.empty_graph()
@@ -185,7 +185,7 @@ class TestGraphHandler:
 
     def test_processor_creation_per_operation(self, sample_project):
         """Test that a new GraphProcessor is created for each operation."""
-        with patch("fluidize.backends.local.graph.GraphProcessor") as mock_processor_class:
+        with patch("fluidize.adapters.local.graph.GraphProcessor") as mock_processor_class:
             mock_processor = Mock()
             mock_processor_class.return_value = mock_processor
             mock_processor.get_graph.return_value = SampleGraphs.empty_graph()
@@ -209,7 +209,7 @@ class TestGraphHandler:
         project1 = SampleProjects.standard_project()
         project2 = SampleProjects.minimal_project()
 
-        with patch("fluidize.backends.local.graph.GraphProcessor") as mock_processor_class:
+        with patch("fluidize.adapters.local.graph.GraphProcessor") as mock_processor_class:
             mock_processor = Mock()
             mock_processor_class.return_value = mock_processor
             mock_processor.get_graph.return_value = SampleGraphs.empty_graph()
@@ -228,7 +228,7 @@ class TestGraphHandler:
 
     def test_all_crud_operations_flow(self, sample_project):
         """Test complete CRUD flow for graph operations."""
-        with patch("fluidize.backends.local.graph.GraphProcessor") as mock_processor_class:
+        with patch("fluidize.adapters.local.graph.GraphProcessor") as mock_processor_class:
             mock_processor = Mock()
             mock_processor_class.return_value = mock_processor
 
@@ -280,7 +280,7 @@ class TestGraphHandler:
     )
     def test_individual_operations(self, sample_project, operation, method_name, args):
         """Test each graph operation individually."""
-        with patch("fluidize.backends.local.graph.GraphProcessor") as mock_processor_class:
+        with patch("fluidize.adapters.local.graph.GraphProcessor") as mock_processor_class:
             mock_processor = Mock()
             mock_processor_class.return_value = mock_processor
 

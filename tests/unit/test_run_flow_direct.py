@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from fluidize.backends.local.backend import LocalBackend
+from fluidize.adapters.local.adapter import LocalAdapter
 from fluidize.config import FluidizeConfig
 from fluidize.core.types.project import ProjectSummary
 from fluidize.core.types.runs import RunFlowPayload
@@ -71,15 +71,15 @@ def project_from_file(docker_project_path, test_config):
 
 
 @pytest.fixture
-def local_backend(test_config):
-    """Create a LocalBackend instance for testing."""
-    return LocalBackend(test_config)
+def local_adapter(test_config):
+    """Create a LocalAdapter instance for testing."""
+    return LocalAdapter(test_config)
 
 
 @pytest.fixture
-def project_manager(local_backend, project_from_file):
+def project_manager(local_adapter, project_from_file):
     """Create a Project manager instance for testing."""
-    return Project(local_backend, project_from_file)
+    return Project(local_adapter, project_from_file)
 
 
 class TestRunFlowDirect:
@@ -206,7 +206,7 @@ class TestRunFlowDirect:
             config.local_projects_path = original_projects_path
             config.local_simulations_path = original_simulations_path
 
-    def test_run_flow_empty_graph(self, local_backend, test_config):
+    def test_run_flow_empty_graph(self, local_adapter, test_config):
         """Test run_flow with a project that has an empty graph."""
 
         # Configure global config for DataLoader
@@ -250,7 +250,7 @@ class TestRunFlowDirect:
 
             # Load project using from_file like the other tests
             project_summary = ProjectSummary.from_file(empty_project_dir)
-            project_manager = Project(local_backend, project_summary)
+            project_manager = Project(local_adapter, project_summary)
 
             payload = RunFlowPayload(name="empty_graph_test")
 

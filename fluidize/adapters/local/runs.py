@@ -1,5 +1,5 @@
 """
-Local runs handler - implements run_flow functionality for local backend.
+Local runs handler - implements run_flow functionality for local adapter.
 """
 
 import asyncio

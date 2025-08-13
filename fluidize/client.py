@@ -13,7 +13,7 @@ import fluidize.core.utils.dataloader.loader.writer_local
 # Ensure handlers are registered (redundant safety check)
 import fluidize.core.utils.pathfinder.methods.local  # noqa: F401
 
-from .backends.local import LocalBackend
+from .adapters.local import LocalAdapter
 from .config import FluidizeConfig
 from .managers.projects import Projects
 
@@ -48,21 +48,21 @@ class FluidizeClient:
         if self.config.is_local_mode():
             self.config.warn_if_docker_unavailable()
 
-        # Initialize the appropriate backend based on mode
-        self._backend = self._initialize_backend()
+        # Initialize the appropriate adapter based on mode
+        self._adapter = self._initialize_adapter()
 
         # Initialize resource managers
-        self.projects = Projects(self._backend)
+        self.projects = Projects(self._adapter)
 
-    def _initialize_backend(self) -> Any:
-        """Initialize the appropriate backend based on the mode."""
+    def _initialize_adapter(self) -> Any:
+        """Initialize the appropriate adapter based on the mode."""
         if self.config.is_api_mode():
-            return self._initialize_api_backend()
+            return self._initialize_api_adapter()
         else:
-            return self._initialize_local_backend()
+            return self._initialize_local_adapter()
 
-    def _initialize_api_backend(self) -> FluidizeSDK:
-        """Initialize the API backend using FluidizeSDK."""
+    def _initialize_api_adapter(self) -> FluidizeSDK:
+        """Initialize the API adapter using FluidizeSDK."""
         if not self.config.api_key:
             msg = "API mode requires an API key. Set the FLUIDIZE_API_KEY environment variable."
             raise ValueError(msg)
@@ -71,9 +71,9 @@ class FluidizeClient:
             api_token=self.config.api_key,
         )
 
-    def _initialize_local_backend(self) -> LocalBackend:
-        """Initialize the local backend."""
-        return LocalBackend(self.config)
+    def _initialize_local_adapter(self) -> LocalAdapter:
+        """Initialize the local adapter."""
+        return LocalAdapter(self.config)
 
     @property
     def mode(self) -> str:
@@ -81,9 +81,9 @@ class FluidizeClient:
         return self.config.mode
 
     @property
-    def backend(self) -> Any:
-        """Access the underlying backend for advanced operations."""
-        return self._backend
+    def adapter(self) -> Any:
+        """Access the underlying adapter for advanced operations."""
+        return self._adapter
 
     def __repr__(self) -> str:
         return f"FluidizeClient(mode='{self.mode}')"

@@ -1,1 +1,1 @@
-"""Backend unit tests."""
+"""Adapter unit tests."""

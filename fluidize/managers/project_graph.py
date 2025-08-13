@@ -17,20 +17,20 @@ class ProjectGraph:
     project context on each method call.
     """
 
-    def __init__(self, backend: Any, project: ProjectSummary) -> None:
+    def __init__(self, adapter: Any, project: ProjectSummary) -> None:
         """
         Initialize project-scoped graph manager.
 
         Args:
-            backend: Backend adapter (FluidizeSDK or LocalBackend)
+            adapter: adapter adapter (FluidizeSDK or Localadapter)
             project: The project this graph manager is bound to
         """
-        self.backend = backend
+        self.adapter = adapter
         self.project = project
 
         # Ensure graph is initialized for this project
-        if hasattr(self.backend, "graph") and hasattr(self.backend.graph, "ensure_graph_initialized"):
-            self.backend.graph.ensure_graph_initialized(self.project)
+        if hasattr(self.adapter, "graph") and hasattr(self.adapter.graph, "ensure_graph_initialized"):
+            self.adapter.graph.ensure_graph_initialized(self.project)
 
     def get(self) -> GraphData:
         """
@@ -39,7 +39,7 @@ class ProjectGraph:
         Returns:
             GraphData containing all nodes and edges for this project
         """
-        return self.backend.graph.get_graph(self.project)  # type: ignore[no-any-return]
+        return self.adapter.graph.get_graph(self.project)  # type: ignore[no-any-return]
 
     def add_node(self, node: GraphNode, sim_global: bool = True) -> GraphNode:
         """
@@ -52,7 +52,7 @@ class ProjectGraph:
         Returns:
             The inserted node
         """
-        return self.backend.graph.insert_node(self.project, node, sim_global)  # type: ignore[no-any-return]
+        return self.adapter.graph.insert_node(self.project, node, sim_global)  # type: ignore[no-any-return]
 
     def add_node_from_scratch(
         self,
@@ -73,7 +73,7 @@ class ProjectGraph:
         Returns:
             The inserted node
         """
-        return self.backend.graph.insert_node_from_scratch(  # type: ignore[no-any-return]
+        return self.adapter.graph.insert_node_from_scratch(  # type: ignore[no-any-return]
             self.project, node, node_properties, node_metadata, repo_link
         )
 
@@ -87,7 +87,7 @@ class ProjectGraph:
         Returns:
             The updated node
         """
-        return self.backend.graph.update_node_position(self.project, node)  # type: ignore[no-any-return]
+        return self.adapter.graph.update_node_position(self.project, node)  # type: ignore[no-any-return]
 
     def delete_node(self, node_id: str) -> None:
         """
@@ -96,7 +96,7 @@ class ProjectGraph:
         Args:
             node_id: ID of the node to delete
         """
-        self.backend.graph.delete_node(self.project, node_id)
+        self.adapter.graph.delete_node(self.project, node_id)
 
     def add_edge(self, edge: GraphEdge) -> GraphEdge:
         """
@@ -108,7 +108,7 @@ class ProjectGraph:
         Returns:
             The upserted edge
         """
-        return self.backend.graph.upsert_edge(self.project, edge)  # type: ignore[no-any-return]
+        return self.adapter.graph.upsert_edge(self.project, edge)  # type: ignore[no-any-return]
 
     def delete_edge(self, edge_id: str) -> None:
         """
@@ -117,7 +117,7 @@ class ProjectGraph:
         Args:
             edge_id: ID of the edge to delete
         """
-        self.backend.graph.delete_edge(self.project, edge_id)
+        self.adapter.graph.delete_edge(self.project, edge_id)
 
     def show(self) -> str:
         """
@@ -126,4 +126,4 @@ class ProjectGraph:
         Returns:
             ASCII string representation of the graph structure
         """
-        return self.backend.graph.show_graph_ascii(self.project)  # type: ignore[no-any-return]
+        return self.adapter.graph.show_graph_ascii(self.project)  # type: ignore[no-any-return]

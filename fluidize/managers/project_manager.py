@@ -17,15 +17,15 @@ class Project:
     Provides convenient access to graph and runs operations for this specific project.
     """
 
-    def __init__(self, backend: Any, project_summary: ProjectSummary) -> None:
+    def __init__(self, adapter: Any, project_summary: ProjectSummary) -> None:
         """
         Initialize project wrapper.
 
         Args:
-            backend: Backend adapter (FluidizeSDK or LocalBackend)
+            adapter: adapter adapter (FluidizeSDK or Localadapter)
             project_summary: The underlying project data
         """
-        self._backend = backend
+        self._adapter = adapter
         self._project_summary = project_summary
         self._graph: Optional[ProjectGraph] = None
         self._runs: Optional[ProjectRuns] = None
@@ -39,7 +39,7 @@ class Project:
             ProjectGraph manager scoped to this project
         """
         if self._graph is None:
-            self._graph = ProjectGraph(self._backend, self._project_summary)
+            self._graph = ProjectGraph(self._adapter, self._project_summary)
         return self._graph
 
     @property
@@ -51,7 +51,7 @@ class Project:
             ProjectRuns manager scoped to this project
         """
         if self._runs is None:
-            self._runs = ProjectRuns(self._backend, self._project_summary)
+            self._runs = ProjectRuns(self._adapter, self._project_summary)
         return self._runs
 
     # Delegate all ProjectSummary attributes

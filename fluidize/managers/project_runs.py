@@ -16,15 +16,15 @@ class ProjectRuns:
     project context on each method call.
     """
 
-    def __init__(self, backend: Any, project: ProjectSummary) -> None:
+    def __init__(self, adapter: Any, project: ProjectSummary) -> None:
         """
         Initialize project-scoped runs manager.
 
         Args:
-            backend: Backend adapter (FluidizeSDK or LocalBackend)
+            adapter: adapter adapter (FluidizeSDK or Localadapter)
             project: The project this runs manager is bound to
         """
-        self.backend = backend
+        self.adapter = adapter
         self.project = project
 
     def run_flow(self, payload: RunFlowPayload) -> dict[str, Any]:
@@ -37,7 +37,7 @@ class ProjectRuns:
         Returns:
             Dictionary with flow_status and run_number
         """
-        return self.backend.runs.run_flow(self.project, payload)  # type: ignore[no-any-return]
+        return self.adapter.runs.run_flow(self.project, payload)  # type: ignore[no-any-return]
 
     def list(self) -> list[str]:
         """
@@ -46,7 +46,7 @@ class ProjectRuns:
         Returns:
             List of run identifiers for this project
         """
-        return self.backend.runs.list_runs(self.project)  # type: ignore[no-any-return]
+        return self.adapter.runs.list_runs(self.project)  # type: ignore[no-any-return]
 
     def get_status(self, run_number: int) -> dict[str, Any]:
         """
@@ -58,4 +58,4 @@ class ProjectRuns:
         Returns:
             Dictionary with run status information
         """
-        return self.backend.runs.get_run_status(self.project, run_number)  # type: ignore[no-any-return]
+        return self.adapter.runs.get_run_status(self.project, run_number)  # type: ignore[no-any-return]

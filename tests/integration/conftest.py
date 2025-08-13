@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 # Import local handlers to ensure they auto-register
-from fluidize.backends.local.backend import LocalBackend
+from fluidize.adapters.local.adapter import LocalAdapter
 from fluidize.client import FluidizeClient
 from fluidize.config import FluidizeConfig
 from fluidize.managers.projects import Projects
@@ -67,9 +67,9 @@ def setup_integration_config(integration_temp_dir: Path):
 
 
 @pytest.fixture
-def local_backend(integration_config: FluidizeConfig) -> LocalBackend:
-    """Create a LocalBackend for integration testing."""
-    return LocalBackend(integration_config)
+def local_adapter(integration_config: FluidizeConfig) -> LocalAdapter:
+    """Create a LocalAdapter for integration testing."""
+    return LocalAdapter(integration_config)
 
 
 @pytest.fixture
@@ -79,9 +79,9 @@ def client() -> FluidizeClient:
 
 
 @pytest.fixture
-def projects_manager(local_backend: LocalBackend) -> Projects:
+def projects_manager(local_adapter: LocalAdapter) -> Projects:
     """Create a Projects manager for integration testing."""
-    return Projects(local_backend)
+    return Projects(local_adapter)
 
 
 @pytest.fixture

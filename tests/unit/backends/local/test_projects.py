@@ -1,10 +1,10 @@
-"""Unit tests for ProjectsHandler - local backend projects interface."""
+"""Unit tests for ProjectsHandler - local adapter projects interface."""
 
 from unittest.mock import Mock, patch
 
 import pytest
 
-from fluidize.backends.local.projects import ProjectsHandler
+from fluidize.adapters.local.projects import ProjectsHandler
 from fluidize.core.types.project import ProjectSummary
 from tests.fixtures.sample_projects import SampleProjects
 
@@ -15,7 +15,7 @@ class TestProjectsHandler:
     @pytest.fixture
     def mock_processor(self):
         """Create a mock ProjectProcessor for testing."""
-        with patch("fluidize.backends.local.projects.ProjectProcessor") as mock_processor_class:
+        with patch("fluidize.adapters.local.projects.ProjectProcessor") as mock_processor_class:
             mock_processor = Mock()
             mock_processor_class.return_value = mock_processor
             yield mock_processor

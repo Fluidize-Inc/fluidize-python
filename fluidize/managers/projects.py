@@ -11,14 +11,14 @@ class Projects:
     All methods return Project entities that give access to project-scoped operations.
     """
 
-    def __init__(self, backend: Any) -> None:
+    def __init__(self, adapter: Any) -> None:
         """
         Initialize the Projects manager.
 
         Args:
-            backend: Backend adapter (FluidizeSDK or LocalBackend)
+            adapter: adapter adapter (FluidizeSDK or Localadapter)
         """
-        self.backend = backend
+        self.adapter = adapter
 
     def create(
         self,
@@ -41,14 +41,14 @@ class Projects:
         Returns:
             Created project wrapped in Project class
         """
-        project_summary = self.backend.projects.upsert(
+        project_summary = self.adapter.projects.upsert(
             id=project_id,
             label=label,
             description=description,
             location=location,
             status=status,
         )
-        return Project(self.backend, project_summary)
+        return Project(self.adapter, project_summary)
 
     def get(self, project_id: str) -> Project:
         """
@@ -60,8 +60,8 @@ class Projects:
         Returns:
             Project wrapped in Project class
         """
-        project_summary = self.backend.projects.retrieve(project_id)
-        return Project(self.backend, project_summary)
+        project_summary = self.adapter.projects.retrieve(project_id)
+        return Project(self.adapter, project_summary)
 
     def list(self) -> list[Project]:
         """
@@ -70,8 +70,8 @@ class Projects:
         Returns:
             List of projects wrapped in Project class
         """
-        project_summaries = self.backend.projects.list()
-        return [Project(self.backend, summary) for summary in project_summaries]
+        project_summaries = self.adapter.projects.list()
+        return [Project(self.adapter, summary) for summary in project_summaries]
 
     def update(
         self,
@@ -105,5 +105,5 @@ class Projects:
         if status is not None:
             update_data["status"] = status
 
-        project_summary = self.backend.projects.upsert(**update_data)
-        return Project(self.backend, project_summary)
+        project_summary = self.adapter.projects.upsert(**update_data)
+        return Project(self.adapter, project_summary)

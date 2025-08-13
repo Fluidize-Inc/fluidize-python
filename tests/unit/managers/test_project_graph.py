@@ -16,11 +16,11 @@ class TestProjectGraph:
     """Test suite for ProjectGraph manager class."""
 
     @pytest.fixture
-    def mock_backend(self):
-        """Create a mock backend with graph handler."""
-        backend = Mock()
-        backend.graph = Mock()
-        return backend
+    def mock_adapter(self):
+        """Create a mock adapter with graph handler."""
+        adapter = Mock()
+        adapter.graph = Mock()
+        return adapter
 
     @pytest.fixture
     def sample_project(self):
@@ -28,57 +28,57 @@ class TestProjectGraph:
         return SampleProjects.standard_project()
 
     @pytest.fixture
-    def project_graph(self, mock_backend, sample_project):
+    def project_graph(self, mock_adapter, sample_project):
         """Create a ProjectGraph instance for testing."""
-        return ProjectGraph(mock_backend, sample_project)
+        return ProjectGraph(mock_adapter, sample_project)
 
-    def test_init_with_graph_initialization(self, mock_backend, sample_project):
+    def test_init_with_graph_initialization(self, mock_adapter, sample_project):
         """Test ProjectGraph initialization triggers graph initialization."""
-        mock_backend.graph.ensure_graph_initialized = Mock()
+        mock_adapter.graph.ensure_graph_initialized = Mock()
 
-        project_graph = ProjectGraph(mock_backend, sample_project)
+        project_graph = ProjectGraph(mock_adapter, sample_project)
 
-        assert project_graph.backend is mock_backend
+        assert project_graph.adapter is mock_adapter
         assert project_graph.project is sample_project
-        mock_backend.graph.ensure_graph_initialized.assert_called_once_with(sample_project)
+        mock_adapter.graph.ensure_graph_initialized.assert_called_once_with(sample_project)
 
     def test_init_without_graph_handler(self, sample_project):
-        """Test initialization when backend doesn't have graph handler."""
-        backend_without_graph = Mock()
-        del backend_without_graph.graph  # Remove graph attribute
+        """Test initialization when adapter doesn't have graph handler."""
+        adapter_without_graph = Mock()
+        del adapter_without_graph.graph  # Remove graph attribute
 
         # Should not raise error
-        project_graph = ProjectGraph(backend_without_graph, sample_project)
+        project_graph = ProjectGraph(adapter_without_graph, sample_project)
 
-        assert project_graph.backend is backend_without_graph
+        assert project_graph.adapter is adapter_without_graph
         assert project_graph.project is sample_project
 
     def test_init_without_ensure_method(self, sample_project):
         """Test initialization when graph handler doesn't have ensure method."""
-        backend = Mock()
-        backend.graph = Mock()
-        del backend.graph.ensure_graph_initialized  # Remove ensure method
+        adapter = Mock()
+        adapter.graph = Mock()
+        del adapter.graph.ensure_graph_initialized  # Remove ensure method
 
         # Should not raise error
-        project_graph = ProjectGraph(backend, sample_project)
+        project_graph = ProjectGraph(adapter, sample_project)
 
-        assert project_graph.backend is backend
+        assert project_graph.adapter is adapter
         assert project_graph.project is sample_project
 
-    def test_get_graph_success(self, project_graph, mock_backend):
+    def test_get_graph_success(self, project_graph, mock_adapter):
         """Test successful graph retrieval."""
         expected_graph = SampleGraphs.complex_graph()
-        mock_backend.graph.get_graph.return_value = expected_graph
+        mock_adapter.graph.get_graph.return_value = expected_graph
 
         result = project_graph.get()
 
         assert result == expected_graph
-        mock_backend.graph.get_graph.assert_called_once_with(project_graph.project)
+        mock_adapter.graph.get_graph.assert_called_once_with(project_graph.project)
 
-    def test_get_empty_graph(self, project_graph, mock_backend):
+    def test_get_empty_graph(self, project_graph, mock_adapter):
         """Test retrieving empty graph."""
         empty_graph = SampleGraphs.empty_graph()
-        mock_backend.graph.get_graph.return_value = empty_graph
+        mock_adapter.graph.get_graph.return_value = empty_graph
 
         result = project_graph.get()
 
@@ -86,31 +86,31 @@ class TestProjectGraph:
         assert len(result.nodes) == 0
         assert len(result.edges) == 0
 
-    def test_add_node_success(self, project_graph, mock_backend):
+    def test_add_node_success(self, project_graph, mock_adapter):
         """Test successful node addition."""
         node = SampleGraphs.sample_nodes()[0]
-        mock_backend.graph.insert_node.return_value = node
+        mock_adapter.graph.insert_node.return_value = node
 
         result = project_graph.add_node(node)
 
         assert result == node
-        mock_backend.graph.insert_node.assert_called_once_with(
+        mock_adapter.graph.insert_node.assert_called_once_with(
             project_graph.project,
             node,
             True,  # Default sim_global=True
         )
 
-    def test_add_node_with_sim_global_false(self, project_graph, mock_backend):
+    def test_add_node_with_sim_global_false(self, project_graph, mock_adapter):
         """Test node addition with sim_global=False."""
         node = SampleGraphs.sample_nodes()[1]
-        mock_backend.graph.insert_node.return_value = node
+        mock_adapter.graph.insert_node.return_value = node
 
         result = project_graph.add_node(node, sim_global=False)
 
         assert result == node
-        mock_backend.graph.insert_node.assert_called_once_with(project_graph.project, node, False)
+        mock_adapter.graph.insert_node.assert_called_once_with(project_graph.project, node, False)
 
-    def test_add_node_from_scratch_success(self, project_graph, mock_backend):
+    def test_add_node_from_scratch_success(self, project_graph, mock_adapter):
         """Test successful node creation from scratch."""
         node = SampleGraphs.sample_nodes()[0]
 
@@ -137,12 +137,12 @@ class TestProjectGraph:
             paper_url="https://doi.org/10.1000/example.paper",
         )
 
-        mock_backend.graph.insert_node_from_scratch.return_value = node
+        mock_adapter.graph.insert_node_from_scratch.return_value = node
 
         result = project_graph.add_node_from_scratch(node, node_properties, node_metadata)
 
         assert result == node
-        mock_backend.graph.insert_node_from_scratch.assert_called_once_with(
+        mock_adapter.graph.insert_node_from_scratch.assert_called_once_with(
             project_graph.project,
             node,
             node_properties,
@@ -150,7 +150,7 @@ class TestProjectGraph:
             None,  # Default repo_link=None
         )
 
-    def test_add_node_from_scratch_with_repo_link(self, project_graph, mock_backend):
+    def test_add_node_from_scratch_with_repo_link(self, project_graph, mock_adapter):
         """Test node creation from scratch with repository link."""
         node = SampleGraphs.sample_nodes()[0]
 
@@ -170,17 +170,17 @@ class TestProjectGraph:
         )
 
         repo_link = "https://github.com/test/example-repo.git"
-        mock_backend.graph.insert_node_from_scratch.return_value = node
+        mock_adapter.graph.insert_node_from_scratch.return_value = node
 
         result = project_graph.add_node_from_scratch(node, node_properties, node_metadata, repo_link)
 
         assert result == node
-        mock_backend.graph.insert_node_from_scratch.assert_called_once_with(
+        mock_adapter.graph.insert_node_from_scratch.assert_called_once_with(
             project_graph.project, node, node_properties, node_metadata, repo_link
         )
 
-    def test_add_node_from_scratch_error_propagation(self, project_graph, mock_backend):
-        """Test that backend errors are propagated for add_node_from_scratch operations."""
+    def test_add_node_from_scratch_error_propagation(self, project_graph, mock_adapter):
+        """Test that adapter errors are propagated for add_node_from_scratch operations."""
         node = SampleGraphs.sample_nodes()[0]
 
         node_properties = nodeProperties_simulation(container_image="python:3.9", simulation_mount_path="/app")
@@ -197,87 +197,87 @@ class TestProjectGraph:
             paper_url="https://doi.org/10.1000/example.paper",
         )
 
-        mock_backend.graph.insert_node_from_scratch.side_effect = ValueError("Failed to create node from scratch")
+        mock_adapter.graph.insert_node_from_scratch.side_effect = ValueError("Failed to create node from scratch")
 
         with pytest.raises(ValueError, match="Failed to create node from scratch"):
             project_graph.add_node_from_scratch(node, node_properties, node_metadata)
 
-    def test_update_node_position_success(self, project_graph, mock_backend):
+    def test_update_node_position_success(self, project_graph, mock_adapter):
         """Test successful node position update."""
         node = SampleGraphs.sample_nodes()[0]
         # Modify position for update test
         node.position.x = 500.0
         node.position.y = 600.0
-        mock_backend.graph.update_node_position.return_value = node
+        mock_adapter.graph.update_node_position.return_value = node
 
         result = project_graph.update_node_position(node)
 
         assert result == node
-        mock_backend.graph.update_node_position.assert_called_once_with(project_graph.project, node)
+        mock_adapter.graph.update_node_position.assert_called_once_with(project_graph.project, node)
 
-    def test_delete_node_success(self, project_graph, mock_backend):
+    def test_delete_node_success(self, project_graph, mock_adapter):
         """Test successful node deletion."""
         node_id = "test-node-to-delete"
 
         project_graph.delete_node(node_id)
 
-        mock_backend.graph.delete_node.assert_called_once_with(project_graph.project, node_id)
+        mock_adapter.graph.delete_node.assert_called_once_with(project_graph.project, node_id)
 
-    def test_add_edge_success(self, project_graph, mock_backend):
+    def test_add_edge_success(self, project_graph, mock_adapter):
         """Test successful edge addition."""
         edge = SampleGraphs.sample_edges()[0]
-        mock_backend.graph.upsert_edge.return_value = edge
+        mock_adapter.graph.upsert_edge.return_value = edge
 
         result = project_graph.add_edge(edge)
 
         assert result == edge
-        mock_backend.graph.upsert_edge.assert_called_once_with(project_graph.project, edge)
+        mock_adapter.graph.upsert_edge.assert_called_once_with(project_graph.project, edge)
 
-    def test_delete_edge_success(self, project_graph, mock_backend):
+    def test_delete_edge_success(self, project_graph, mock_adapter):
         """Test successful edge deletion."""
         edge_id = "test-edge-to-delete"
 
         project_graph.delete_edge(edge_id)
 
-        mock_backend.graph.delete_edge.assert_called_once_with(project_graph.project, edge_id)
+        mock_adapter.graph.delete_edge.assert_called_once_with(project_graph.project, edge_id)
 
-    def test_backend_error_propagation_get(self, project_graph, mock_backend):
-        """Test that backend errors are propagated for get operations."""
-        mock_backend.graph.get_graph.side_effect = FileNotFoundError("Graph file not found")
+    def test_adapter_error_propagation_get(self, project_graph, mock_adapter):
+        """Test that adapter errors are propagated for get operations."""
+        mock_adapter.graph.get_graph.side_effect = FileNotFoundError("Graph file not found")
 
         with pytest.raises(FileNotFoundError, match="Graph file not found"):
             project_graph.get()
 
-    def test_backend_error_propagation_add_node(self, project_graph, mock_backend):
-        """Test that backend errors are propagated for add node operations."""
+    def test_adapter_error_propagation_add_node(self, project_graph, mock_adapter):
+        """Test that adapter errors are propagated for add node operations."""
         node = SampleGraphs.sample_nodes()[0]
-        mock_backend.graph.insert_node.side_effect = ValueError("Invalid node data")
+        mock_adapter.graph.insert_node.side_effect = ValueError("Invalid node data")
 
         with pytest.raises(ValueError, match="Invalid node data"):
             project_graph.add_node(node)
 
-    def test_backend_error_propagation_delete_node(self, project_graph, mock_backend):
-        """Test that backend errors are propagated for delete node operations."""
-        mock_backend.graph.delete_node.side_effect = FileNotFoundError("Node not found")
+    def test_adapter_error_propagation_delete_node(self, project_graph, mock_adapter):
+        """Test that adapter errors are propagated for delete node operations."""
+        mock_adapter.graph.delete_node.side_effect = FileNotFoundError("Node not found")
 
         with pytest.raises(FileNotFoundError, match="Node not found"):
             project_graph.delete_node("non-existent-node")
 
-    def test_backend_error_propagation_add_edge(self, project_graph, mock_backend):
-        """Test that backend errors are propagated for add edge operations."""
+    def test_adapter_error_propagation_add_edge(self, project_graph, mock_adapter):
+        """Test that adapter errors are propagated for add edge operations."""
         edge = SampleGraphs.sample_edges()[0]
-        mock_backend.graph.upsert_edge.side_effect = ValueError("Invalid edge")
+        mock_adapter.graph.upsert_edge.side_effect = ValueError("Invalid edge")
 
         with pytest.raises(ValueError, match="Invalid edge"):
             project_graph.add_edge(edge)
 
-    def test_project_scoping(self, mock_backend):
+    def test_project_scoping(self, mock_adapter):
         """Test that different ProjectGraph instances are properly scoped to their projects."""
         project1 = SampleProjects.standard_project()
         project2 = SampleProjects.minimal_project()
 
-        graph1 = ProjectGraph(mock_backend, project1)
-        graph2 = ProjectGraph(mock_backend, project2)
+        graph1 = ProjectGraph(mock_adapter, project1)
+        graph2 = ProjectGraph(mock_adapter, project2)
 
         node = SampleGraphs.sample_nodes()[0]
 
@@ -288,22 +288,22 @@ class TestProjectGraph:
         graph2.add_node(node)
 
         # Verify each call was made with correct project context
-        calls = mock_backend.graph.insert_node.call_args_list
+        calls = mock_adapter.graph.insert_node.call_args_list
         assert len(calls) == 2
         assert calls[0][0][0] == project1  # First call with project1
         assert calls[1][0][0] == project2  # Second call with project2
 
-    def test_all_methods_delegate_to_backend(self, project_graph, mock_backend):
-        """Test that all ProjectGraph methods properly delegate to backend."""
+    def test_all_methods_delegate_to_adapter(self, project_graph, mock_adapter):
+        """Test that all ProjectGraph methods properly delegate to adapter."""
         # Setup return values
         mock_graph_data = SampleGraphs.single_node_graph()
         mock_node = SampleGraphs.sample_nodes()[0]
         mock_edge = SampleGraphs.sample_edges()[0]
 
-        mock_backend.graph.get_graph.return_value = mock_graph_data
-        mock_backend.graph.insert_node.return_value = mock_node
-        mock_backend.graph.update_node_position.return_value = mock_node
-        mock_backend.graph.upsert_edge.return_value = mock_edge
+        mock_adapter.graph.get_graph.return_value = mock_graph_data
+        mock_adapter.graph.insert_node.return_value = mock_node
+        mock_adapter.graph.update_node_position.return_value = mock_node
+        mock_adapter.graph.upsert_edge.return_value = mock_edge
 
         # Call all methods
         project_graph.get()
@@ -313,16 +313,16 @@ class TestProjectGraph:
         project_graph.add_edge(mock_edge)
         project_graph.delete_edge("test-edge-id")
 
-        # Verify all backend methods were called
-        mock_backend.graph.get_graph.assert_called_once()
-        mock_backend.graph.insert_node.assert_called_once()
-        mock_backend.graph.update_node_position.assert_called_once()
-        mock_backend.graph.delete_node.assert_called_once()
-        mock_backend.graph.upsert_edge.assert_called_once()
-        mock_backend.graph.delete_edge.assert_called_once()
+        # Verify all adapter methods were called
+        mock_adapter.graph.get_graph.assert_called_once()
+        mock_adapter.graph.insert_node.assert_called_once()
+        mock_adapter.graph.update_node_position.assert_called_once()
+        mock_adapter.graph.delete_node.assert_called_once()
+        mock_adapter.graph.upsert_edge.assert_called_once()
+        mock_adapter.graph.delete_edge.assert_called_once()
 
-    def test_add_node_from_scratch_delegates_to_backend(self, project_graph, mock_backend):
-        """Test that add_node_from_scratch properly delegates to backend."""
+    def test_add_node_from_scratch_delegates_to_adapter(self, project_graph, mock_adapter):
+        """Test that add_node_from_scratch properly delegates to adapter."""
         node = SampleGraphs.sample_nodes()[0]
 
         node_properties = nodeProperties_simulation(container_image="python:3.9", simulation_mount_path="/app")
@@ -330,7 +330,7 @@ class TestProjectGraph:
         node_metadata = nodeMetadata_simulation(
             name="Delegation Test",
             id="delegation-test",
-            description="Test backend delegation",
+            description="Test adapter delegation",
             date=datetime.date.today(),
             version="1.0",
             authors=[author(name="Test Author", institution="Test University")],
@@ -339,26 +339,26 @@ class TestProjectGraph:
             paper_url="https://doi.org/10.1000/example.paper",
         )
 
-        mock_backend.graph.insert_node_from_scratch.return_value = node
+        mock_adapter.graph.insert_node_from_scratch.return_value = node
 
         result = project_graph.add_node_from_scratch(node, node_properties, node_metadata)
 
         assert result == node
-        mock_backend.graph.insert_node_from_scratch.assert_called_once_with(
+        mock_adapter.graph.insert_node_from_scratch.assert_called_once_with(
             project_graph.project, node, node_properties, node_metadata, None
         )
 
-    def test_project_context_consistency(self, project_graph, mock_backend):
+    def test_project_context_consistency(self, project_graph, mock_adapter):
         """Test that the same project context is used for all operations."""
         project = project_graph.project
         node = SampleGraphs.sample_nodes()[0]
         edge = SampleGraphs.sample_edges()[0]
 
         # Setup return values
-        mock_backend.graph.get_graph.return_value = SampleGraphs.empty_graph()
-        mock_backend.graph.insert_node.return_value = node
-        mock_backend.graph.update_node_position.return_value = node
-        mock_backend.graph.upsert_edge.return_value = edge
+        mock_adapter.graph.get_graph.return_value = SampleGraphs.empty_graph()
+        mock_adapter.graph.insert_node.return_value = node
+        mock_adapter.graph.update_node_position.return_value = node
+        mock_adapter.graph.upsert_edge.return_value = edge
 
         # Perform various operations
         project_graph.get()
@@ -370,12 +370,12 @@ class TestProjectGraph:
 
         # Verify project context was passed consistently
         all_calls = [
-            mock_backend.graph.get_graph.call_args_list,
-            mock_backend.graph.insert_node.call_args_list,
-            mock_backend.graph.update_node_position.call_args_list,
-            mock_backend.graph.delete_node.call_args_list,
-            mock_backend.graph.upsert_edge.call_args_list,
-            mock_backend.graph.delete_edge.call_args_list,
+            mock_adapter.graph.get_graph.call_args_list,
+            mock_adapter.graph.insert_node.call_args_list,
+            mock_adapter.graph.update_node_position.call_args_list,
+            mock_adapter.graph.delete_node.call_args_list,
+            mock_adapter.graph.upsert_edge.call_args_list,
+            mock_adapter.graph.delete_edge.call_args_list,
         ]
 
         # All calls should include the same project as first argument

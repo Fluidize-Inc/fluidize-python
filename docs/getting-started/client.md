@@ -14,7 +14,7 @@ The Fluidize Client is the primary interface to create and edit projects. There 
       show_source: false
       members:
         - mode
-        - backend
+        - adapters
         - projects
         - runs
 

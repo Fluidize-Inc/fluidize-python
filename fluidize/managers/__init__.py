@@ -79,10 +79,10 @@ File Structure:
     - `project_graph.py`: Project-scoped graph operations (ProjectGraph class)
     - `project_runs.py`: Project-scoped run operations (ProjectRuns class)
 
-Threading and Backend Support:
+Threading and adapter Support:
     All managers are thread-safe and support both local filesystem and
-    cloud API backends through the underlying adapter pattern. The choice
-    of backend is transparent to the manager classes.
+    cloud API adapters through the underlying adapter pattern. The choice
+    of adapter is transparent to the manager classes.
 
 See Also:
     - :class:`~fluidize.managers.projects.Projects`: Global project manager

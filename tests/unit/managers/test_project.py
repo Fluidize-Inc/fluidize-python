@@ -13,11 +13,11 @@ class TestProject:
     """Test suite for Project wrapper class."""
 
     @pytest.fixture
-    def mock_backend(self):
-        """Create a mock backend for testing."""
-        backend = Mock()
-        backend.graph = Mock()
-        return backend
+    def mock_adapter(self):
+        """Create a mock adapter for testing."""
+        adapter = Mock()
+        adapter.graph = Mock()
+        return adapter
 
     @pytest.fixture
     def sample_project_summary(self):
@@ -25,19 +25,19 @@ class TestProject:
         return SampleProjects.standard_project()
 
     @pytest.fixture
-    def project_wrapper(self, mock_backend, sample_project_summary):
+    def project_wrapper(self, mock_adapter, sample_project_summary):
         """Create a Project wrapper instance for testing."""
-        return Project(mock_backend, sample_project_summary)
+        return Project(mock_adapter, sample_project_summary)
 
-    def test_init(self, mock_backend, sample_project_summary):
+    def test_init(self, mock_adapter, sample_project_summary):
         """Test Project wrapper initialization."""
-        project = Project(mock_backend, sample_project_summary)
+        project = Project(mock_adapter, sample_project_summary)
 
-        assert project._backend is mock_backend
+        assert project._adapter is mock_adapter
         assert project._project_summary is sample_project_summary
         assert project._graph is None  # Lazy loading
 
-    def test_graph_property_lazy_initialization(self, project_wrapper, mock_backend):
+    def test_graph_property_lazy_initialization(self, project_wrapper, mock_adapter):
         """Test that graph property is lazily initialized."""
         assert project_wrapper._graph is None
 
@@ -46,7 +46,7 @@ class TestProject:
 
         assert isinstance(graph, ProjectGraph)
         assert project_wrapper._graph is graph  # Cached
-        assert graph.backend is mock_backend
+        assert graph.adapter is mock_adapter
         assert graph.project is project_wrapper._project_summary
 
     def test_graph_property_caching(self, project_wrapper):
@@ -83,7 +83,7 @@ class TestProject:
         """Test that metadata_version property delegates to ProjectSummary."""
         assert project_wrapper.metadata_version == sample_project_summary.metadata_version
 
-    def test_created_at_property_with_attribute(self, mock_backend):
+    def test_created_at_property_with_attribute(self, mock_adapter):
         """Test created_at property when attribute exists."""
         # Create a mock object that has the timestamp attribute
         from unittest.mock import Mock
@@ -97,7 +97,7 @@ class TestProject:
         project_summary.status = "active"
         project_summary.created_at = "2024-01-01T00:00:00Z"
 
-        project = Project(mock_backend, project_summary)
+        project = Project(mock_adapter, project_summary)
 
         assert project.created_at == "2024-01-01T00:00:00Z"
 
@@ -106,7 +106,7 @@ class TestProject:
         # Standard project doesn't have created_at
         assert project_wrapper.created_at is None
 
-    def test_updated_at_property_with_attribute(self, mock_backend):
+    def test_updated_at_property_with_attribute(self, mock_adapter):
         """Test updated_at property when attribute exists."""
         # Create a mock object that has the timestamp attribute
         from unittest.mock import Mock
@@ -120,7 +120,7 @@ class TestProject:
         project_summary.status = "active"
         project_summary.updated_at = "2024-01-01T12:00:00Z"
 
-        project = Project(mock_backend, project_summary)
+        project = Project(mock_adapter, project_summary)
 
         assert project.updated_at == "2024-01-01T12:00:00Z"
 
@@ -146,10 +146,10 @@ class TestProject:
 
         assert result == expected
 
-    def test_to_dict_minimal_project(self, mock_backend):
+    def test_to_dict_minimal_project(self, mock_adapter):
         """Test to_dict with minimal project data."""
         minimal_summary = SampleProjects.minimal_project()
-        project = Project(mock_backend, minimal_summary)
+        project = Project(mock_adapter, minimal_summary)
 
         result = project.to_dict()
 
@@ -164,7 +164,7 @@ class TestProject:
         assert result["location"] is None or result["location"] == getattr(minimal_summary, "location", None)
         assert result["status"] is None or result["status"] == getattr(minimal_summary, "status", None)
 
-    def test_to_dict_with_timestamps(self, mock_backend):
+    def test_to_dict_with_timestamps(self, mock_adapter):
         """Test to_dict with timestamp attributes."""
         # Create a mock object that has timestamp attributes
         from unittest.mock import Mock
@@ -179,7 +179,7 @@ class TestProject:
         project_summary.created_at = "2024-01-01T00:00:00Z"
         project_summary.updated_at = "2024-01-01T12:00:00Z"
 
-        project = Project(mock_backend, project_summary)
+        project = Project(mock_adapter, project_summary)
 
         result = project.to_dict()
 
@@ -192,10 +192,10 @@ class TestProject:
         expected = f"Project(id='{sample_project_summary.id}', label='{sample_project_summary.label}')"
         assert result == expected
 
-    def test_repr_with_none_label(self, mock_backend):
+    def test_repr_with_none_label(self, mock_adapter):
         """Test __repr__ method when label is None."""
         minimal_summary = SampleProjects.minimal_project()
-        project = Project(mock_backend, minimal_summary)
+        project = Project(mock_adapter, minimal_summary)
 
         result = repr(project)
         # Handle case where minimal project might have label=None or no label attribute
@@ -209,10 +209,10 @@ class TestProject:
         expected = f"Project {sample_project_summary.id}: {sample_project_summary.label}"
         assert result == expected
 
-    def test_str_without_label(self, mock_backend):
+    def test_str_without_label(self, mock_adapter):
         """Test __str__ method without label."""
         minimal_summary = SampleProjects.minimal_project()
-        project = Project(mock_backend, minimal_summary)
+        project = Project(mock_adapter, minimal_summary)
 
         result = str(project)
         expected = f"Project {minimal_summary.id}: No label"
@@ -251,33 +251,33 @@ class TestProject:
         assert project_wrapper.status == sample_project_summary.status
         assert project_wrapper.metadata_version == sample_project_summary.metadata_version
 
-    def test_backend_preservation(self, project_wrapper, mock_backend):
-        """Test that backend reference is preserved for graph operations."""
-        assert project_wrapper._backend is mock_backend
+    def test_adapter_preservation(self, project_wrapper, mock_adapter):
+        """Test that adapter reference is preserved for graph operations."""
+        assert project_wrapper._adapter is mock_adapter
 
-        # Graph property should use the same backend
+        # Graph property should use the same adapter
         graph = project_wrapper.graph
-        assert graph.backend is mock_backend
+        assert graph.adapter is mock_adapter
 
-    def test_graph_integration(self, project_wrapper, mock_backend, sample_project_summary):
+    def test_graph_integration(self, project_wrapper, mock_adapter, sample_project_summary):
         """Test integration between Project wrapper and ProjectGraph."""
         # Access graph
         graph = project_wrapper.graph
 
         # Verify proper integration
         assert isinstance(graph, ProjectGraph)
-        assert graph.backend is mock_backend
+        assert graph.adapter is mock_adapter
         assert graph.project is sample_project_summary
 
         # Verify graph initialization was called
-        if hasattr(mock_backend.graph, "ensure_graph_initialized"):
-            mock_backend.graph.ensure_graph_initialized.assert_called_with(sample_project_summary)
+        if hasattr(mock_adapter.graph, "ensure_graph_initialized"):
+            mock_adapter.graph.ensure_graph_initialized.assert_called_with(sample_project_summary)
 
     @pytest.mark.parametrize("project_fixture", ["standard_project", "minimal_project", "project_with_special_chars"])
-    def test_wrapper_with_different_project_types(self, mock_backend, project_fixture):
+    def test_wrapper_with_different_project_types(self, mock_adapter, project_fixture):
         """Test Project wrapper with different types of ProjectSummary objects."""
         project_summary = getattr(SampleProjects, project_fixture)()
-        project = Project(mock_backend, project_summary)
+        project = Project(mock_adapter, project_summary)
 
         # Basic functionality should work for all project types
         assert project.id == project_summary.id

@@ -1,8 +1,8 @@
 """
-Local filesystem-based graph backend interface.
+Local filesystem-based graph adapter interface.
 
-This module provides the local backend interface for graph operations,
-wrapping the core GraphProcessor with backend-specific functionality.
+This module provides the local adapter interface for graph operations,
+wrapping the core GraphProcessor with adapter-specific functionality.
 """
 
 from typing import Optional
@@ -15,9 +15,9 @@ from fluidize.core.types.project import ProjectSummary
 
 class GraphHandler:
     """
-    Local filesystem-based graph processor backend.
+    Local filesystem-based graph processor adapter.
 
-    This class provides a clean interface for graph operations using the local backend,
+    This class provides a clean interface for graph operations using the local adapter,
     wrapping the core GraphProcessor functionality.
     """
 
