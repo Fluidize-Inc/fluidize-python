@@ -134,3 +134,23 @@ class GraphHandler:
         """
         processor = GraphProcessor(project)
         processor._ensure_graph_file_exists()
+
+    def show_graph_ascii(self, project: ProjectSummary) -> str:
+        """
+        Get ASCII representation of the project graph.
+
+        Args:
+            project: The project to visualize
+
+        Returns:
+            ASCII string representation of the graph
+        """
+        processor = GraphProcessor(project)
+        graph_data = processor.get_graph()
+
+        # Create Graph model from the data to use ASCII visualization
+        from fluidize.core.modules.graph.model import Graph
+
+        graph = Graph(nodes=graph_data.nodes, edges=graph_data.edges)
+
+        return graph.to_ascii()

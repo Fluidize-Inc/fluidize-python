@@ -94,3 +94,12 @@ class ProjectGraph:
             edge_id: ID of the edge to delete
         """
         self.backend.graph.delete_edge(self.project, edge_id)
+
+    def show(self) -> str:
+        """
+        Get ASCII visualization of this project's graph.
+
+        Returns:
+            ASCII string representation of the graph structure
+        """
+        return self.backend.graph.show_graph_ascii(self.project)  # type: ignore[no-any-return]

@@ -6,8 +6,11 @@ with filesystem-based I/O capabilities.
 """
 
 import json
+from collections import OrderedDict
 from pathlib import Path
 from typing import Union
+
+from asciitree import LeftAligned  # type: ignore[import-untyped]
 
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
 
@@ -103,3 +106,73 @@ class Graph:
         with open(path, "w") as f:
             # Use .model_dump(mode="json") for proper serialization of Pydantic models
             json.dump(graph_data.model_dump(mode="json"), f, indent=2)
+
+    def to_ascii(self) -> str:
+        """Generate an ASCII representation of the graph."""
+        if not self.nodes:
+            return "Empty graph - no nodes found."
+
+        # Build tree structure for asciitree
+        tree_data = self._build_tree_structure()
+
+        # Render with asciitree
+        tree_renderer = LeftAligned()
+        result = tree_renderer(tree_data)
+        return str(result)
+
+    def _build_tree_structure(self) -> dict:
+        """Build a tree structure suitable for asciitree rendering."""
+        # Create adjacency map
+        children_map: dict[str, list[str]] = {}
+        parent_map: dict[str, str] = {}
+
+        # Get node labels
+        node_labels = {}
+        for node in self.nodes:
+            label = getattr(node.data, "label", node.id)
+            node_labels[node.id] = label
+            children_map[node.id] = []
+
+        # Build parent-child relationships
+        for edge in self.edges:
+            children_map[edge.source].append(edge.target)
+            parent_map[edge.target] = edge.source
+
+        # Find root nodes (nodes with no parents)
+        root_nodes = [node_id for node_id in children_map if node_id not in parent_map]
+
+        # If no edges, show all nodes under a "Nodes" header
+        if not self.edges:
+            tree_data = OrderedDict()
+            nodes_section: OrderedDict[str, OrderedDict] = OrderedDict()
+            for node in self.nodes:
+                label = getattr(node.data, "label", node.id)
+                nodes_section[label] = OrderedDict()
+            tree_data["Nodes (no connections)"] = nodes_section
+            return tree_data
+
+        # If no clear roots (circular graph), pick the first node
+        if not root_nodes:
+            root_nodes = [self.nodes[0].id] if self.nodes else []
+
+        # Build tree recursively
+        def build_subtree(node_id: str, visited: set) -> OrderedDict:
+            if node_id in visited:
+                return OrderedDict({"(circular reference)": OrderedDict()})
+
+            visited.add(node_id)
+            subtree = OrderedDict()
+
+            for child_id in children_map.get(node_id, []):
+                child_label = node_labels[child_id]
+                subtree[child_label] = build_subtree(child_id, visited.copy())
+
+            return subtree
+
+        # Build the complete tree
+        tree_data = OrderedDict()
+        for root_id in root_nodes:
+            root_label = node_labels[root_id]
+            tree_data[root_label] = build_subtree(root_id, set())
+
+        return tree_data
