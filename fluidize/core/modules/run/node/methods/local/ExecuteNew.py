@@ -15,6 +15,8 @@ from fluidize.core.types.execution_models import ExecutionMode, create_execution
 from fluidize.core.types.node import nodeProperties_simulation
 from fluidize.core.types.project import ProjectSummary
 from fluidize.core.types.runs import ContainerPaths, NodePaths
+from fluidize.core.utils.dataloader.data_writer import DataWriter
+from fluidize.core.utils.pathfinder.path_finder import PathFinder
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +38,11 @@ class LocalExecutionManagerNew(BaseExecutionManager):
         prev_node: Optional[nodeProperties_simulation],
         project: ProjectSummary,
         run_id: Optional[str] = None,
+        run_metadata: Optional[object] = None,
     ) -> None:
         super().__init__(node, prev_node, project)
         self.run_id = run_id
+        self.run_metadata = run_metadata
         self.docker_client: Optional[DockerExecutionClient] = None
         logger.info(f"LocalExecutionManagerNew initialized for node: {node.node_id}")
 
@@ -49,6 +53,36 @@ class LocalExecutionManagerNew(BaseExecutionManager):
         logger.info(f"Project: {self.project.id}")
         if self.prev_node:
             logger.info(f"Previous node: {self.prev_node.node_id}")
+
+    def _save_execution_logs(self, stdout: str, stderr: str) -> None:
+        """Save Docker execution logs using PathFinder methods."""
+        if not self.run_metadata or not hasattr(self.run_metadata, "run_number"):
+            logger.warning("No run metadata available, skipping log file saving")
+            return
+
+        try:
+            # Create nodes log directory
+            nodes_log_dir = PathFinder.get_logs_path(self.project, self.run_metadata.run_number) / "nodes"
+            DataWriter.create_directory(nodes_log_dir)
+
+            # Save stdout
+            if stdout:
+                stdout_path = PathFinder.get_log_path(
+                    self.project, self.run_metadata.run_number, str(self.node.node_id), "stdout"
+                )
+                DataWriter.write_text(stdout_path, stdout)
+                logger.info(f"Saved stdout log to: {stdout_path}")
+
+            # Save stderr
+            if stderr:
+                stderr_path = PathFinder.get_log_path(
+                    self.project, self.run_metadata.run_number, str(self.node.node_id), "stderr"
+                )
+                DataWriter.write_text(stderr_path, stderr)
+                logger.info(f"Saved stderr log to: {stderr_path}")
+
+        except Exception as e:
+            logger.warning(f"Failed to save execution logs: {e}")
 
     def _execute_node(self) -> str:
         """
@@ -105,7 +139,10 @@ class LocalExecutionManagerNew(BaseExecutionManager):
                 spec.container_spec, spec.volume_spec.volumes if spec.volume_spec else []
             )
 
-            # Step 6: Handle results
+            # Step 6: Save execution logs
+            self._save_execution_logs(result.stdout, result.stderr)
+
+            # Step 7: Handle results
             if result.success:
                 logger.info("Container execution completed successfully")
                 logger.debug(f"Container stdout: {result.stdout}")

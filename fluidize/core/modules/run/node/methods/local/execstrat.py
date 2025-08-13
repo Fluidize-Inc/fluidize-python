@@ -30,6 +30,7 @@ class LocalExecutionStrategy(BaseExecutionStrategy):
             self.prev_node,
             self.project,
             self.run_id,
+            self.run_metadata,
         )
 
     def handle_files(self) -> None:

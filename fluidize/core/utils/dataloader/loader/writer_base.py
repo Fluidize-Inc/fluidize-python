@@ -50,6 +50,22 @@ class BaseDataWriter(ABC):
         self._ensure_directory_exists(dir_path)
         self._write_yaml(path, data)
 
+    def write_text(self, filepath: UPath, data: str) -> None:
+        """
+        Writes text data to the specified file path.
+
+        Args:
+            filepath: Path to the text file
+            data: Text data to write
+
+        Returns:
+            None
+        """
+        path = UPath(filepath) if not isinstance(filepath, UPath) else filepath
+        dir_path = path.parent
+        self._ensure_directory_exists(dir_path)
+        self._write_text_file(path, data)
+
     def create_directory(self, directory_path: UPath) -> bool:
         """
         Creates a directory along with any necessary parent directories.

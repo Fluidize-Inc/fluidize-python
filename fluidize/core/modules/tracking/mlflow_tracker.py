@@ -30,7 +30,8 @@ class MLFlowTracker:
         mlflow.set_tracking_uri(self.tracking_uri)
 
         self.client = MlflowClient()
-        self.current_run_id = None
+        self.current_run_id: Optional[str] = None
+        self.run_stack: list[str] = []  # Stack to track nested runs
 
         logger.info(f"MLFlow tracker initialized with URI: {self.tracking_uri}")
 
@@ -74,6 +75,10 @@ class MLFlowTracker:
             Run ID
         """
         try:
+            # Push current run to stack if starting a nested run
+            if parent_run_id and self.current_run_id:
+                self.run_stack.append(self.current_run_id)
+
             if parent_run_id:
                 # Create nested run
                 run = mlflow.start_run(run_name=run_name, nested=True, parent_run_id=parent_run_id)
@@ -164,18 +169,28 @@ class MLFlowTracker:
 
     def end_run(self, status: Optional[str] = None) -> None:
         """
-        End the current MLFlow run.
+        End the current MLFlow run and restore parent run context if nested.
 
         Args:
             status: Optional status (FINISHED, FAILED, KILLED)
         """
         try:
+            ended_run_id = self.current_run_id
+
             if status:
                 mlflow.end_run(status=status)
             else:
                 mlflow.end_run()
-            logger.info(f"Ended MLFlow run: {self.current_run_id}")
-            self.current_run_id = None
+
+            logger.info(f"Ended MLFlow run: {ended_run_id}")
+
+            # Restore parent run context if we have nested runs
+            if self.run_stack:
+                self.current_run_id = self.run_stack.pop()
+                logger.info(f"Restored parent MLFlow run: {self.current_run_id}")
+            else:
+                self.current_run_id = None
+
         except Exception:
             logger.exception("Error ending MLFlow run")
 

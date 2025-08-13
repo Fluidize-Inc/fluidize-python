@@ -178,19 +178,29 @@ class BaseProjectRunner(ABC):
                     parameters_path = PathFinder.get_node_parameters_path(self.project, node_id, self.run_number)
                     params_data = DataLoader.load_node_parameters(parameters_path)
 
-                    # Log all parameters
-                    for param in params_data.get("parameters", []):
-                        param_key = f"{param['scope']}_{param['name']}"
-                        self.mlflow_tracker.log_parameters({param_key: param["value"]})
+                    parameters = params_data.get("parameters", [])
+                    if not parameters:
+                        logger.info(
+                            f"No parameters found for node {node_id} - parameters.json has empty parameters array"
+                        )
+                    else:
+                        # Log all parameters
+                        for param in parameters:
+                            param_key = f"{param['scope']}_{param['name']}"
+                            self.mlflow_tracker.log_parameters({param_key: param["value"]})
 
-                        # Log parameter metadata as tags
-                        if param.get("description"):
-                            self.mlflow_tracker.log_tag(f"param_{param['name']}_desc", param["description"])
-                        if param.get("type"):
-                            self.mlflow_tracker.log_tag(f"param_{param['name']}_type", param["type"])
+                            # Log parameter metadata as tags
+                            if param.get("description"):
+                                self.mlflow_tracker.log_tag(f"param_{param['name']}_desc", param["description"])
+                            if param.get("type"):
+                                self.mlflow_tracker.log_tag(f"param_{param['name']}_type", param["type"])
 
+                        logger.info(f"Logged {len(parameters)} parameters for node {node_id}")
+
+                except FileNotFoundError:
+                    logger.warning(f"No parameters.json found for node {node_id}")
                 except Exception as e:
-                    logger.warning(f"Failed to log node parameters: {e}")
+                    logger.warning(f"Failed to log node parameters for {node_id}: {e}")
 
             except Exception:
                 logger.exception("Failed to start MLFlow tracking for node %s", node_id)
@@ -209,12 +219,12 @@ class BaseProjectRunner(ABC):
             job.run()
             job_result = "success"
 
-            # End the node MLFlow run
+            # End the node MLFlow run (this will restore parent run context)
             if self.mlflow_tracker and node_mlflow_id:
                 self.mlflow_tracker.end_run(status="FINISHED")
 
         except Exception:
-            # End the node MLFlow run with failure status
+            # End the node MLFlow run with failure status (this will restore parent run context)
             if self.mlflow_tracker and node_mlflow_id:
                 self.mlflow_tracker.end_run(status="FAILED")
             raise

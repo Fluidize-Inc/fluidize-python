@@ -86,3 +86,33 @@ class PathFinder:
             str: The MLflow tracking URI.
         """
         return cls._get_handler().get_mlflow_tracking_uri()  # type: ignore[no-any-return]
+
+    @classmethod
+    def get_logs_path(cls, project: ProjectSummary, run_number: int) -> UPath:
+        """
+        Get the logs directory path for a run.
+
+        Args:
+            project: Project summary
+            run_number: Run number
+
+        Returns:
+            UPath: Path to logs directory (runs/run_X/logs/)
+        """
+        return cls.get_run_path(project, run_number) / "logs"
+
+    @classmethod
+    def get_log_path(cls, project: ProjectSummary, run_number: int, node_id: str, log_type: str = "stdout") -> UPath:
+        """
+        Get specific node log file path.
+
+        Args:
+            project: Project summary
+            run_number: Run number
+            node_id: Node identifier
+            log_type: Type of log (stdout, stderr)
+
+        Returns:
+            UPath: Path to specific log file (runs/run_X/logs/nodes/{node_id}_{log_type}.log)
+        """
+        return cls.get_logs_path(project, run_number) / "nodes" / f"{node_id}_{log_type}.log"

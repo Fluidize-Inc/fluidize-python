@@ -46,6 +46,20 @@ class DataWriter:
         return bool(cls._get_handler().write_yaml(filepath, data))
 
     @classmethod
+    def write_text(cls, filepath: UPath, data: str) -> bool:
+        """
+        Writes text data to the specified path.
+
+        Args:
+            filepath: Path to the text file
+            data: Text data to write
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        return bool(cls._get_handler().write_text(filepath, data))
+
+    @classmethod
     def create_directory(cls, directory_path: UPath) -> bool:
         """
         Creates a directory along with any necessary parent directories.
