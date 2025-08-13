@@ -188,32 +188,12 @@ class TestRunFlowIntegration:
         # Check that log files have content
         for log_file in stdout_logs:
             content = log_file.read_text()
-            print(f"\n=== Content of {log_file.name} ===")
-            print(content)
-            print(f"=== End of {log_file.name} ===\n")
             assert len(content) > 0, f"Log file {log_file.name} should not be empty"
 
         # Look for specific node logs
         expected_nodes = ["node-1754038461760", "node-1754038465820"]
         for node_id in expected_nodes:
             stdout_log = nodes_log_dir / f"{node_id}_stdout.log"
-            stderr_log = nodes_log_dir / f"{node_id}_stderr.log"
-
             if stdout_log.exists():
                 content = stdout_log.read_text()
-                print(f"\n=== STDOUT for {node_id} ===")
-                print(content)
-                print(f"=== End STDOUT for {node_id} ===\n")
                 assert len(content.strip()) > 0, f"Node {node_id} stdout log should have content"
-
-            if stderr_log.exists():
-                content = stderr_log.read_text()
-                print(f"\n=== STDERR for {node_id} ===")
-                print(content)
-                print(f"=== End STDERR for {node_id} ===\n")
-
-        # Print all log files found
-        print("\n=== All log files found ===")
-        for log_file in nodes_log_dir.glob("*"):
-            print(f"  - {log_file.name} ({log_file.stat().st_size} bytes)")
-        print("=== End log files ===\n")

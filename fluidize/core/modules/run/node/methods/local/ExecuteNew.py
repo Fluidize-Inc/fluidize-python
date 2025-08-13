@@ -45,6 +45,11 @@ class LocalExecutionManagerNew(BaseExecutionManager):
         self.run_metadata = run_metadata
         self.docker_client: Optional[DockerExecutionClient] = None
         logger.info(f"LocalExecutionManagerNew initialized for node: {node.node_id}")
+        logger.info(f"run_metadata type: {type(self.run_metadata)}")
+        if hasattr(self.run_metadata, "run_number"):
+            logger.info(f"run_metadata.run_number: {self.run_metadata.run_number}")
+        else:
+            logger.info("run_metadata does not have run_number attribute")
 
     def print_job_info(self) -> None:
         """Log information about the job being executed"""
