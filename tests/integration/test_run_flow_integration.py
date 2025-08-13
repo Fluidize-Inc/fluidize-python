@@ -153,3 +153,67 @@ class TestRunFlowIntegration:
         runs_dir = docker_project_path / "runs"
         run_dirs = [d for d in runs_dir.iterdir() if d.is_dir() and d.name.startswith("run_")]
         assert len(run_dirs) >= 2
+
+    def test_docker_execution_log_saving(self, runs_handler, docker_project_fixture, docker_project_path):
+        """Test that Docker execution logs are properly saved to files."""
+
+        # Create run payload
+        payload = RunFlowPayload(name="log_saving_test", description="Test Docker log file saving")
+
+        # Execute run_flow - this will execute the Docker containers
+        result = runs_handler.run_flow(docker_project_fixture, payload)
+
+        # Verify run executed successfully
+        assert result["flow_status"] == "running"
+        run_number = result["run_number"]
+
+        # Check log directory structure
+        run_dir = docker_project_path / "runs" / f"run_{run_number}"
+        logs_dir = run_dir / "logs"
+        nodes_log_dir = logs_dir / "nodes"
+
+        # Verify log directories were created
+        assert logs_dir.exists(), "Logs directory should be created"
+        assert nodes_log_dir.exists(), "Nodes log directory should be created"
+
+        # Check for node log files
+        # The test project should have 2 nodes that execute
+        log_files = list(nodes_log_dir.glob("*.log"))
+        assert len(log_files) > 0, "At least one log file should be created"
+
+        # Verify stdout log files exist for executed nodes
+        stdout_logs = list(nodes_log_dir.glob("*_stdout.log"))
+        assert len(stdout_logs) > 0, "At least one stdout log should exist"
+
+        # Check that log files have content
+        for log_file in stdout_logs:
+            content = log_file.read_text()
+            print(f"\n=== Content of {log_file.name} ===")
+            print(content)
+            print(f"=== End of {log_file.name} ===\n")
+            assert len(content) > 0, f"Log file {log_file.name} should not be empty"
+
+        # Look for specific node logs
+        expected_nodes = ["node-1754038461760", "node-1754038465820"]
+        for node_id in expected_nodes:
+            stdout_log = nodes_log_dir / f"{node_id}_stdout.log"
+            stderr_log = nodes_log_dir / f"{node_id}_stderr.log"
+
+            if stdout_log.exists():
+                content = stdout_log.read_text()
+                print(f"\n=== STDOUT for {node_id} ===")
+                print(content)
+                print(f"=== End STDOUT for {node_id} ===\n")
+                assert len(content.strip()) > 0, f"Node {node_id} stdout log should have content"
+
+            if stderr_log.exists():
+                content = stderr_log.read_text()
+                print(f"\n=== STDERR for {node_id} ===")
+                print(content)
+                print(f"=== End STDERR for {node_id} ===\n")
+
+        # Print all log files found
+        print("\n=== All log files found ===")
+        for log_file in nodes_log_dir.glob("*"):
+            print(f"  - {log_file.name} ({log_file.stat().st_size} bytes)")
+        print("=== End log files ===\n")
