@@ -74,10 +74,19 @@ class DockerExecutionClient:
         Returns:
             True if successful, False otherwise
         """
+        # First check if image exists locally
+        try:
+            self.client.images.get(image)
+        except ImageNotFound:
+            pass  # Image not local, continue to pull
+        else:
+            logger.info(f"Image {image} already exists locally")
+            return True
+
+        # Image not local, try to pull it
         try:
             logger.info(f"Pulling Docker image: {image}")
             self.client.images.pull(image)
-            logger.info(f"Successfully pulled image: {image}")
         except ImageNotFound:
             logger.exception(f"Image not found: {image}")
             return False
@@ -85,6 +94,7 @@ class DockerExecutionClient:
             logger.exception(f"Failed to pull image {image}")
             return False
         else:
+            logger.info(f"Successfully pulled image: {image}")
             return True
 
     def run_container(self, container_spec: ContainerSpec, volumes: list[Volume], **kwargs: str) -> ContainerResult:
@@ -154,8 +164,8 @@ class DockerExecutionClient:
             logger.exception("Container execution failed")
             return ContainerResult(
                 exit_code=e.exit_status,
-                stdout=e.stdout.decode("utf-8") if e.stdout else "",
-                stderr=e.stderr.decode("utf-8") if e.stderr else str(e),
+                stdout="",  # ContainerError doesn't have stdout
+                stderr=e.stderr.decode("utf-8") if hasattr(e, "stderr") and e.stderr else str(e),
                 success=False,
             )
         except DockerException as e:

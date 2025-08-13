@@ -6,6 +6,7 @@ from typing import Any, Optional
 
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
 from fluidize.core.types.node import nodeMetadata_simulation, nodeProperties_simulation
+from fluidize.core.types.parameters import Parameter
 from fluidize.core.types.project import ProjectSummary
 
 
@@ -127,3 +128,41 @@ class ProjectGraph:
             ASCII string representation of the graph structure
         """
         return self.adapter.graph.show_graph_ascii(self.project)  # type: ignore[no-any-return]
+
+    def get_parameters(self, node_id: str) -> list[Parameter]:
+        """
+        Get the parameters for a specific node in this project's graph.
+
+        Args:
+            node_id: ID of the node to retrieve parameters for
+
+        Returns:
+            A list of Parameter objects for the node
+        """
+        return self.adapter.graph.get_parameters(self.project, node_id)  # type: ignore[no-any-return]
+
+    def upsert_parameter(self, node_id: str, parameter: Parameter) -> Parameter:
+        """
+        Upsert a parameter for a specific node in this project's graph.
+
+        Args:
+            node_id: ID of the node to update parameters for
+            parameter: The parameter to upsert
+
+        Returns:
+            The upserted parameter
+        """
+        return self.adapter.graph.upsert_parameter(self.project, node_id, parameter)  # type: ignore[no-any-return]
+
+    def set_parameters(self, node_id: str, parameters: list[Parameter]) -> list[Parameter]:
+        """
+        Set all parameters for a specific node in this project's graph, replacing existing ones.
+
+        Args:
+            node_id: ID of the node to set parameters for
+            parameters: List of parameters to set
+
+        Returns:
+            The list of parameters that were set
+        """
+        return self.adapter.graph.set_parameters(self.project, node_id, parameters)  # type: ignore[no-any-return]

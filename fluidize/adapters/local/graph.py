@@ -7,10 +7,15 @@ wrapping the core GraphProcessor with adapter-specific functionality.
 
 from typing import Optional
 
+from fluidize.core.modules.graph.parameters import parse_parameters_from_json
 from fluidize.core.modules.graph.processor import GraphProcessor
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
 from fluidize.core.types.node import nodeMetadata_simulation, nodeProperties_simulation
+from fluidize.core.types.parameters import Parameter
 from fluidize.core.types.project import ProjectSummary
+from fluidize.core.utils.dataloader.data_loader import DataLoader
+from fluidize.core.utils.dataloader.data_writer import DataWriter
+from fluidize.core.utils.pathfinder.path_finder import PathFinder
 
 
 class GraphHandler:
@@ -154,3 +159,73 @@ class GraphHandler:
         graph = Graph(nodes=graph_data.nodes, edges=graph_data.edges)
 
         return graph.to_ascii()
+
+    def get_parameters(self, project: ProjectSummary, node_id: str) -> list[Parameter]:
+        """
+        Get the parameters for a specific node in the project graph.
+
+        Args:
+            project: The project containing the graph
+            node_id: ID of the node to retrieve parameters for
+
+        Returns:
+            A list of Parameter objects for the node
+        """
+        parameters_path = PathFinder.get_node_parameters_path(project, node_id)
+        data = DataLoader.load_json(parameters_path)
+        return parse_parameters_from_json(data)
+
+    def upsert_parameter(self, project: ProjectSummary, node_id: str, parameter: Parameter) -> Parameter:
+        """
+        Upsert a parameter for a specific node in the project graph.
+
+        Args:
+            project: The project containing the graph
+            node_id: ID of the node to update parameters for
+            parameter: The parameter to upsert
+
+        Returns:
+            The upserted parameter
+        """
+        parameters_path = PathFinder.get_node_parameters_path(project, node_id)
+        data = DataLoader.load_json(parameters_path)
+        params = parse_parameters_from_json(data)
+
+        # Check if parameter with same name exists
+        for p in params:
+            if p.name == parameter.name:
+                # Extend the location if it exists
+                if parameter.location:
+                    if p.location:
+                        p.location.extend(parameter.location)
+                    else:
+                        p.location = parameter.location
+                break
+        else:
+            # Parameter doesn't exist, add it
+            params.append(parameter)
+
+        # Write updated parameters back
+        DataWriter.write_json(
+            filepath=parameters_path,
+            data={"parameters": [p.model_dump() for p in params]},
+        )
+        return parameter
+
+    def set_parameters(self, project: ProjectSummary, node_id: str, parameters: list[Parameter]) -> list[Parameter]:
+        """
+        Set all parameters for a specific node in the project graph, replacing existing ones.
+
+        Args:
+            project: The project containing the graph
+            node_id: ID of the node to set parameters for
+            parameters: List of parameters to set
+
+        Returns:
+            The list of parameters that were set
+        """
+        parameters_path = PathFinder.get_node_parameters_path(project, node_id)
+        data = {"parameters": [p.model_dump() for p in parameters]}
+
+        DataWriter.write_json(filepath=parameters_path, data=data)
+        return parameters

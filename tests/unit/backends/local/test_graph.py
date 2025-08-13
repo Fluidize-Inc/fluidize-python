@@ -6,6 +6,7 @@ import pytest
 
 from fluidize.adapters.local.graph import GraphHandler
 from fluidize.core.types.graph import GraphData
+from fluidize.core.types.parameters import Parameter
 from tests.fixtures.sample_graphs import SampleGraphs
 from tests.fixtures.sample_projects import SampleProjects
 
@@ -308,3 +309,144 @@ class TestGraphHandler:
                 processor_method.assert_called_once_with(*args)
             else:
                 processor_method.assert_called_once()
+
+    @patch("fluidize.adapters.local.graph.DataLoader")
+    @patch("fluidize.adapters.local.graph.PathFinder")
+    def test_get_parameters_success(self, mock_pathfinder, mock_dataloader, sample_project):
+        """Test successful parameter retrieval."""
+        # Mock setup
+        mock_parameters_path = Mock()
+        mock_pathfinder.get_node_parameters_path.return_value = mock_parameters_path
+        mock_dataloader.load_json.return_value = {
+            "parameters": [
+                {
+                    "name": "test_param",
+                    "value": "test_value",
+                    "type": "text",
+                    "label": "Test Parameter",
+                    "description": "A test parameter",
+                }
+            ]
+        }
+
+        handler = GraphHandler()
+        result = handler.get_parameters(sample_project, "test-node-id")
+
+        # Verify calls
+        mock_pathfinder.get_node_parameters_path.assert_called_once_with(sample_project, "test-node-id")
+        mock_dataloader.load_json.assert_called_once_with(mock_parameters_path)
+
+        # Verify result
+        assert len(result) == 1
+        assert isinstance(result[0], Parameter)
+        assert result[0].name == "test_param"
+        assert result[0].value == "test_value"
+
+    @patch("fluidize.adapters.local.graph.DataWriter")
+    @patch("fluidize.adapters.local.graph.DataLoader")
+    @patch("fluidize.adapters.local.graph.PathFinder")
+    def test_upsert_parameter_new_parameter(self, mock_pathfinder, mock_dataloader, mock_datawriter, sample_project):
+        """Test upserting a new parameter."""
+        # Mock setup
+        mock_parameters_path = Mock()
+        mock_pathfinder.get_node_parameters_path.return_value = mock_parameters_path
+        mock_dataloader.load_json.return_value = {"parameters": []}
+        mock_datawriter.write_json.return_value = True
+
+        new_parameter = Parameter(
+            name="new_param", value="new_value", type="text", label="New Parameter", description="A new parameter"
+        )
+
+        handler = GraphHandler()
+        result = handler.upsert_parameter(sample_project, "test-node-id", new_parameter)
+
+        # Verify calls
+        mock_pathfinder.get_node_parameters_path.assert_called_once_with(sample_project, "test-node-id")
+        mock_dataloader.load_json.assert_called_once_with(mock_parameters_path)
+        mock_datawriter.write_json.assert_called_once()
+
+        # Verify the written data contains the new parameter
+        written_data = mock_datawriter.write_json.call_args[1]["data"]
+        assert len(written_data["parameters"]) == 1
+        assert written_data["parameters"][0]["name"] == "new_param"
+
+        # Verify result
+        assert result == new_parameter
+
+    @patch("fluidize.adapters.local.graph.DataWriter")
+    @patch("fluidize.adapters.local.graph.DataLoader")
+    @patch("fluidize.adapters.local.graph.PathFinder")
+    def test_upsert_parameter_existing_parameter(
+        self, mock_pathfinder, mock_dataloader, mock_datawriter, sample_project
+    ):
+        """Test upserting an existing parameter extends locations."""
+        # Mock setup with existing parameter
+        mock_parameters_path = Mock()
+        mock_pathfinder.get_node_parameters_path.return_value = mock_parameters_path
+        mock_dataloader.load_json.return_value = {
+            "parameters": [
+                {
+                    "name": "existing_param",
+                    "value": "existing_value",
+                    "type": "text",
+                    "label": "Existing Parameter",
+                    "description": "An existing parameter",
+                    "location": ["file1.py"],
+                }
+            ]
+        }
+        mock_datawriter.write_json.return_value = True
+
+        update_parameter = Parameter(
+            name="existing_param",
+            value="updated_value",
+            type="text",
+            label="Updated Parameter",
+            description="An updated parameter",
+            location=["file2.py"],
+        )
+
+        handler = GraphHandler()
+        result = handler.upsert_parameter(sample_project, "test-node-id", update_parameter)
+
+        # Verify the written data extends the location
+        written_data = mock_datawriter.write_json.call_args[1]["data"]
+        assert len(written_data["parameters"]) == 1
+        param_data = written_data["parameters"][0]
+        assert param_data["name"] == "existing_param"
+        assert param_data["location"] == ["file1.py", "file2.py"]
+
+        # Verify result
+        assert result == update_parameter
+
+    @patch("fluidize.adapters.local.graph.DataWriter")
+    @patch("fluidize.adapters.local.graph.PathFinder")
+    def test_set_parameters_success(self, mock_pathfinder, mock_datawriter, sample_project):
+        """Test setting parameters replaces all existing parameters."""
+        # Mock setup
+        mock_parameters_path = Mock()
+        mock_pathfinder.get_node_parameters_path.return_value = mock_parameters_path
+        mock_datawriter.write_json.return_value = True
+
+        parameters = [
+            Parameter(name="param1", value="value1", type="text", label="Parameter 1", description="First parameter"),
+            Parameter(
+                name="param2", value="value2", type="number", label="Parameter 2", description="Second parameter"
+            ),
+        ]
+
+        handler = GraphHandler()
+        result = handler.set_parameters(sample_project, "test-node-id", parameters)
+
+        # Verify calls
+        mock_pathfinder.get_node_parameters_path.assert_called_once_with(sample_project, "test-node-id")
+        mock_datawriter.write_json.assert_called_once()
+
+        # Verify the written data
+        written_data = mock_datawriter.write_json.call_args[1]["data"]
+        assert len(written_data["parameters"]) == 2
+        assert written_data["parameters"][0]["name"] == "param1"
+        assert written_data["parameters"][1]["name"] == "param2"
+
+        # Verify result
+        assert result == parameters
