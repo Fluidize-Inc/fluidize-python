@@ -11,10 +11,10 @@ from fluidize.core.types.project import ProjectSummary
 
 class ProjectGraph:
     """
-    Graph manager scoped to a specific project.
+    Graph manager for a specific project.
 
-    Provides convenient graph operations without requiring users to pass
-    project context repeatedly.
+    Provides graph operations like adding nodes/edges without requiring
+    project context on each method call.
     """
 
     def __init__(self, backend: Any, project: ProjectSummary) -> None:

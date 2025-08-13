@@ -12,10 +12,9 @@ from .project_runs import ProjectRuns
 
 class Project:
     """
-    Project wrapper that provides convenient access to project operations.
+    Project entity that wraps project data and provides access to scoped managers.
 
-    This class wraps a ProjectSummary and adds convenient properties like
-    graph access while maintaining compatibility with all existing project data.
+    Provides convenient access to graph and runs operations for this specific project.
     """
 
     def __init__(self, backend: Any, project_summary: ProjectSummary) -> None:

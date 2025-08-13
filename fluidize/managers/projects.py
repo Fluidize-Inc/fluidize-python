@@ -4,7 +4,12 @@ from .project_manager import Project
 
 
 class Projects:
-    """Manager for project-related operations."""
+    """
+    Manager for project CRUD operations.
+
+    Provides methods to create, retrieve, update, and list projects.
+    All methods return Project entities that give access to project-scoped operations.
+    """
 
     def __init__(self, backend: Any) -> None:
         """

@@ -2,15 +2,6 @@
 
 ## Run Management
 
-### Runs Manager
-::: fluidize.managers.runs.Runs
-    options:
-      show_source: false
-      members:
-        - run_flow
-        - list_runs
-        - get_run_status
-
 ### ProjectRuns
 ::: fluidize.managers.project_runs.ProjectRuns
     options:

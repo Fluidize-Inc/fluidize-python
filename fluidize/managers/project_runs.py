@@ -10,10 +10,10 @@ from fluidize.core.types.runs import RunFlowPayload
 
 class ProjectRuns:
     """
-    Runs manager scoped to a specific project.
+    Runs manager for a specific project.
 
-    Provides convenient run operations without requiring users to pass
-    project context repeatedly.
+    Provides run operations like executing workflows without requiring
+    project context on each method call.
     """
 
     def __init__(self, backend: Any, project: ProjectSummary) -> None:

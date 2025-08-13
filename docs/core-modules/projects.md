@@ -8,6 +8,6 @@
       show_source: false
 
 ### Project Class
-::: fluidize.managers.project.Project
+::: fluidize.managers.project_manager.Project
     options:
       show_source: false
