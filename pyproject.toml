@@ -76,8 +76,8 @@ line-length = 120
 fix = true
 exclude = [
     "tests/fixtures/",
-    "utils/fluidize_demo.ipynb",
-    "utils/demo.ipynb",
+    "utils",
+    "examples",
 ]
 
 [tool.ruff.lint]
@@ -136,4 +136,4 @@ branch = true
 source = ["fluidize"]
 
 [tool.deptry]
-extend_exclude = ["utils"]
+extend_exclude = ["utils", "examples"]
