@@ -5,7 +5,7 @@ from unittest.mock import Mock
 import pytest
 
 from fluidize.managers.project_graph import ProjectGraph
-from fluidize.managers.project_manager import Project
+from fluidize.managers.project_manager import ProjectManager
 from tests.fixtures.sample_projects import SampleProjects
 
 
@@ -27,11 +27,11 @@ class TestProject:
     @pytest.fixture
     def project_wrapper(self, mock_adapter, sample_project_summary):
         """Create a Project wrapper instance for testing."""
-        return Project(mock_adapter, sample_project_summary)
+        return ProjectManager(mock_adapter, sample_project_summary)
 
     def test_init(self, mock_adapter, sample_project_summary):
         """Test Project wrapper initialization."""
-        project = Project(mock_adapter, sample_project_summary)
+        project = ProjectManager(mock_adapter, sample_project_summary)
 
         assert project._adapter is mock_adapter
         assert project._project_summary is sample_project_summary
@@ -97,7 +97,7 @@ class TestProject:
         project_summary.status = "active"
         project_summary.created_at = "2024-01-01T00:00:00Z"
 
-        project = Project(mock_adapter, project_summary)
+        project = ProjectManager(mock_adapter, project_summary)
 
         assert project.created_at == "2024-01-01T00:00:00Z"
 
@@ -120,7 +120,7 @@ class TestProject:
         project_summary.status = "active"
         project_summary.updated_at = "2024-01-01T12:00:00Z"
 
-        project = Project(mock_adapter, project_summary)
+        project = ProjectManager(mock_adapter, project_summary)
 
         assert project.updated_at == "2024-01-01T12:00:00Z"
 
@@ -149,7 +149,7 @@ class TestProject:
     def test_to_dict_minimal_project(self, mock_adapter):
         """Test to_dict with minimal project data."""
         minimal_summary = SampleProjects.minimal_project()
-        project = Project(mock_adapter, minimal_summary)
+        project = ProjectManager(mock_adapter, minimal_summary)
 
         result = project.to_dict()
 
@@ -179,7 +179,7 @@ class TestProject:
         project_summary.created_at = "2024-01-01T00:00:00Z"
         project_summary.updated_at = "2024-01-01T12:00:00Z"
 
-        project = Project(mock_adapter, project_summary)
+        project = ProjectManager(mock_adapter, project_summary)
 
         result = project.to_dict()
 
@@ -195,7 +195,7 @@ class TestProject:
     def test_repr_with_none_label(self, mock_adapter):
         """Test __repr__ method when label is None."""
         minimal_summary = SampleProjects.minimal_project()
-        project = Project(mock_adapter, minimal_summary)
+        project = ProjectManager(mock_adapter, minimal_summary)
 
         result = repr(project)
         # Handle case where minimal project might have label=None or no label attribute
@@ -212,7 +212,7 @@ class TestProject:
     def test_str_without_label(self, mock_adapter):
         """Test __str__ method without label."""
         minimal_summary = SampleProjects.minimal_project()
-        project = Project(mock_adapter, minimal_summary)
+        project = ProjectManager(mock_adapter, minimal_summary)
 
         result = str(project)
         expected = f"Project {minimal_summary.id}: No label"
@@ -277,7 +277,7 @@ class TestProject:
     def test_wrapper_with_different_project_types(self, mock_adapter, project_fixture):
         """Test Project wrapper with different types of ProjectSummary objects."""
         project_summary = getattr(SampleProjects, project_fixture)()
-        project = Project(mock_adapter, project_summary)
+        project = ProjectManager(mock_adapter, project_summary)
 
         # Basic functionality should work for all project types
         assert project.id == project_summary.id

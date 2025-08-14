@@ -13,7 +13,7 @@ from fluidize.adapters.local.adapter import LocalAdapter
 from fluidize.config import FluidizeConfig
 from fluidize.core.types.project import ProjectSummary
 from fluidize.core.types.runs import RunFlowPayload
-from fluidize.managers.project_manager import Project
+from fluidize.managers.project_manager import ProjectManager
 
 
 @pytest.fixture
@@ -79,7 +79,7 @@ def local_adapter(test_config):
 @pytest.fixture
 def project_manager(local_adapter, project_from_file):
     """Create a Project manager instance for testing."""
-    return Project(local_adapter, project_from_file)
+    return ProjectManager(local_adapter, project_from_file)
 
 
 class TestRunFlowDirect:
@@ -300,7 +300,7 @@ class TestRunFlowDirect:
 
             # Load project using from_file like the other tests
             project_summary = ProjectSummary.from_file(empty_project_dir)
-            project_manager = Project(local_adapter, project_summary)
+            project_manager = ProjectManager(local_adapter, project_summary)
 
             payload = RunFlowPayload(name="empty_graph_test")
 
