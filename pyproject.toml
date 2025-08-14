@@ -1,5 +1,5 @@
 [project]
-name = "fluidize-python"
+name = "fluidize"
 version = "0.0.2"
 description = "Python package for automatic generation of scientific computing software pipelines."
 authors = [{ name = "Henry Bae", email = "henry@fluidize.ai" }]
