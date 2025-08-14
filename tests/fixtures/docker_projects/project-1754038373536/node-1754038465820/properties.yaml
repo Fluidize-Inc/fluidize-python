@@ -1,0 +1,10 @@
+simulation:
+  container_image: python:3.9-slim
+  image_name: test2-duplicate
+  source_output_folder: output
+  last_run: null
+  node_id: node-1753485831833
+  status: not_run
+  should_run: true
+  simulation_mount_path: source
+  version: 1.0

@@ -1,0 +1,17 @@
+simulation:
+  metadata_version: "1.0"
+  name: test1-simple
+  id: test1-simple
+  description: Simple test node that outputs 'CANDY' to output.txt
+  version: "1.0"
+  date: "2025-08-01"
+  code_url: null
+  paper_url: null
+  authors:
+    - name: Henry Bae
+      institution: Harvard University
+      email: henry@fluidize.ai
+  tags:
+    - name: testing
+    - name: simple
+    - name: local

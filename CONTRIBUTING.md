@@ -9,7 +9,7 @@ You can contribute in many ways:
 
 ## Report Bugs
 
-Report bugs at https://github.com/fluidize_inc/fluidize-python/issues
+Report bugs at https://github.com/Fluidize-Inc/fluidize-python/issues
 
 If you are reporting a bug, please include:
 
@@ -33,7 +33,7 @@ fluidize-python could always use more documentation, whether as part of the offi
 
 ## Submit Feedback
 
-The best way to send feedback is to file an issue at https://github.com/fluidize_inc/fluidize-python/issues.
+The best way to send feedback is to file an issue at https://github.com/Fluidize-Inc/fluidize-python/issues.
 
 If you are proposing a new feature:
 

@@ -1,21 +1,35 @@
 site_name: fluidize-python
-repo_url: https://github.com/fluidize_inc/fluidize-python
-site_url: https://fluidize_inc.github.io/fluidize-python
+repo_url: https://github.com/Fluidize-Inc/fluidize-python
+site_url: https://Fluidize-Inc.github.io/fluidize-python
 site_description: Python package for automatic generation of scientific computing software pipelines.
 site_author: Henry Bae
 edit_uri: edit/main/docs/
-repo_name: fluidize_inc/fluidize-python
-copyright: Maintained by <a href="https://fluidize_inc.com">fluidize_inc</a>.
+repo_name: Fluidize-Inc/fluidize-python
+copyright: Maintained by <a href="https://fluidize.ai">Fluidize-Inc</a>.
 
 nav:
   - Home: index.md
-  - Modules: modules.md
+  - Getting Started:
+      - Fluidize Client: getting-started/client.md
+      - Projects and Nodes: getting-started/projects-nodes.md
+      - Examples: getting-started/examples.md
+  - Core Modules:
+      - Projects: core-modules/projects.md
+      - Graph: core-modules/graph.md
+      - Run: core-modules/run.md
+      - Execute: core-modules/execute.md
 plugins:
   - search
   - mkdocstrings:
       handlers:
         python:
           paths: ["fluidize"]
+          options:
+            filters:
+              - "!^__init__$"
+            show_source: false
+            show_root_heading: true
+            show_root_full_path: false
 theme:
   name: material
   feature:
@@ -41,7 +55,7 @@ theme:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/fluidize_inc/fluidize-python
+      link: https://github.com/Fluidize-Inc/fluidize-python
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/fluidize-python
 

@@ -1,0 +1,23 @@
+project:
+  description: ''
+  id: project-1754038373536
+  label: SIMPLETEST
+  location: ''
+  metadata_version: '1.0'
+  status: active
+run:
+  date_created: '2025-08-05T14:13:10.308858'
+  date_modified: '2025-08-05T14:13:10.308878'
+  description: Testing the new LocalExecutionManagerNew with utilities
+  id: project-1754038373536_run_1
+  metadata_version: '1.0'
+  mlflow_experiment_id: '335927476181895958'
+  mlflow_run_id: e89ac2e48be8467088efbf13b64a341f
+  name: Test New Local Execution
+  run_folder: run_1
+  run_number: 1
+  run_status: SUCCESS
+  tags:
+  - test
+  - local
+  - new-utilities

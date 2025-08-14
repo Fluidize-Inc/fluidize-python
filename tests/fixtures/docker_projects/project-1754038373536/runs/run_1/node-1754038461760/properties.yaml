@@ -1,0 +1,12 @@
+simulation:
+  container_image: python:3.9-slim
+  image_name: test1-simple
+  last_run: null
+  node_id: node-1754038461760
+  output_path: /Users/henrybae/Files/GitHub/fluidize_fast_api/fluidize_local/projects/project-1754038373536/runs/run_1/node-1754038461760/source/output
+  properties_version: '1.0'
+  run_status: SUCCESS
+  should_run: true
+  simulation_mount_path: source
+  source_output_folder: source/output
+  version: 1.0

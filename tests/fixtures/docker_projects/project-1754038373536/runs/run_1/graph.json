@@ -1,0 +1,36 @@
+{
+  "nodes": [
+    {
+      "id": "node-1754038461760",
+      "position": {
+        "x": -25.5,
+        "y": -76.5
+      },
+      "data": {
+        "label": "TEST1",
+        "simulation_id": "test1-simple"
+      },
+      "type": "defaultsimulation"
+    },
+    {
+      "id": "node-1754038465820",
+      "position": {
+        "x": 42.0,
+        "y": 63.5
+      },
+      "data": {
+        "label": "TEST2",
+        "simulation_id": "test2-duplicate"
+      },
+      "type": "defaultsimulation"
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1754038470422",
+      "source": "node-1754038461760",
+      "target": "node-1754038465820",
+      "type": "button"
+    }
+  ]
+}

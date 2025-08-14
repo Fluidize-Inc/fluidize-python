@@ -1,74 +1,126 @@
-# fluidize-python
+# Fluidize
 
-[![Release](https://img.shields.io/github/v/release/fluidize_inc/fluidize-python)](https://img.shields.io/github/v/release/fluidize_inc/fluidize-python)
-[![Build status](https://img.shields.io/github/actions/workflow/status/fluidize_inc/fluidize-python/main.yml?branch=main)](https://github.com/fluidize_inc/fluidize-python/actions/workflows/main.yml?query=branch%3Amain)
-[![codecov](https://codecov.io/gh/fluidize_inc/fluidize-python/branch/main/graph/badge.svg)](https://codecov.io/gh/fluidize_inc/fluidize-python)
-[![Commit activity](https://img.shields.io/github/commit-activity/m/fluidize_inc/fluidize-python)](https://img.shields.io/github/commit-activity/m/fluidize_inc/fluidize-python)
-[![License](https://img.shields.io/github/license/fluidize_inc/fluidize-python)](https://img.shields.io/github/license/fluidize_inc/fluidize-python)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![PyPI](https://img.shields.io/pypi/v/fluidize?style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/fluidize/)
+[![License](https://img.shields.io/github/license/Fluidize-Inc/fluidize-python?style=for-the-badge)](LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-available-brightgreen?style=for-the-badge&logo=gitbook&logoColor=white)](https://Fluidize-Inc.github.io/fluidize-python/)
 
-Python package for automatic generation of scientific computing software pipelines.
+### An Open Framework for AI-Driven Scientific Computing
 
-- **Github repository**: <https://github.com/fluidize_inc/fluidize-python/>
-- **Documentation** <https://fluidize_inc.github.io/fluidize-python/>
+ **fluidize-python ** is a library for building modular, reproducible scientific computing pipelines. It provides a unified interface to a wide range of physical simulation tools, eliminating the need to navigate the inconsistent, incomplete instructions that often vary from tool to tool.
 
-## Getting started with your project
+This library marks our first step toward AI-orchestrated scientific computing. By standardizing tools and practices within our framework, AI agents can automatically build, configure, and execute computational pipelines across domains and simulation platforms. Our goal is to improve today’s simulation tools so AI can assist researchers and scientists in accelerating the pace of innovation and scientific discovery.
 
-### 1. Create a New Repository
+## Quick Start
 
-First, create a repository on GitHub with the same name as this project, and then run the following commands:
+## Installation
 
+### Prerequesites:
+
+- Python 3.9+
+- Docker Desktop (for local execution). Download and install Docker Desktop from https://docs.docker.com/desktop/.
+
+  After installation, verify with:
+  ```bash
+  docker --version
+  ```
+
+
+
+### From PyPI
 ```bash
-git init -b main
-git add .
-git commit -m "init commit"
-git remote add origin git@github.com:fluidize_inc/fluidize-python.git
-git push -u origin main
+pip install fluidize
 ```
 
-### 2. Set Up Your Development Environment
-
-Then, install the environment and the pre-commit hooks with
-
+### From Source
 ```bash
+git clone https://github.com/Fluidize-Inc/fluidize-python.git
+cd fluidize-python
 make install
 ```
 
-This will also generate your `uv.lock` file
+## Run Examples
 
-### 3. Run the pre-commit hooks
+Example projects are located in this folder: [example/](example/)
 
-Initially, the CI/CD pipeline might be failing due to formatting issues. To resolve those run:
 
-```bash
-uv run pre-commit run -a
-```
+## The Problem
 
-### 4. Commit the changes
+Students and researchers face significant barriers when working with different simulation tools:
 
-Lastly, commit the changes made by the two steps above to your repository.
+- **Setup overhead** – Installing and configuring someone else’s research code can take an enormous amount of time.
+- **Diverse architectures** – Scientific software is built using a wide range of tools and architectures, each with its own complexities and quirks.
+- **Time drain** – Good software engineering practices are important, but in practice they often slow down the process of getting immediate results.
+- **Reproducibility issues** – Sharing and reproducing experiments is frequently cumbersome and error-prone.
+- **Scaling friction** – Moving from a local prototype to a cloud environment or dedicated compute cluster can be slow and difficult.
 
-```bash
-git add .
-git commit -m 'Fix formatting issues'
-git push origin main
-```
+## The Solution
 
-You are now ready to start development on your project!
-The CI/CD pipeline will be triggered when you open a pull request, merge to main, or when you create a new release.
+Fluidize provides a standardized wrapper that turns complex scientific software into modular components. This makes it possible to:
 
-To finalize the set-up for publishing to PyPI, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/publishing/#set-up-for-pypi).
-For activating the automatic documentation with MkDocs, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/mkdocs/#enabling-the-documentation-on-github).
-To enable the code coverage reports, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/codecov/).
+- **Expose a single API endpoint** for any scientific computing software—any language, any tool, any complexity.
+- **Easily connect** tools that were never designed to work together.
+- **Adopt consistent I/O patterns** across all simulations.
 
-## Releasing a new version
+All of this works with **minimal or no changes** to the existing codebase, allowing our framework to scale effortlessly to any repository.
 
-- Create an API Token on [PyPI](https://pypi.org/).
-- Add the API Token to your projects secrets with the name `PYPI_TOKEN` by visiting [this page](https://github.com/fluidize_inc/fluidize-python/settings/secrets/actions/new).
-- Create a [new release](https://github.com/fluidize_inc/fluidize-python/releases/new) on Github.
-- Create a new tag in the form `*.*.*`.
+## Architecture
 
-For more details, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/cicd/#how-to-trigger-a-release).
+### Nodes
+The foundational building blocks of Fluidize. Each node encapsulates a computational unit with:
 
----
+| File | Purpose |
+|------|---------|
+| `properties.yaml` | Container configuration, working directory, and output paths |
+| `metadata.yaml` | Node description, version, authors, and repository URL |
+| `Dockerfile` | Environment setup and dependency installation |
+| `parameters.json` | Tunable parameters for experiments |
+| `main.sh` | Execution script for the source code |
+| `source/` | Original scientific computing code |
 
-Repository initiated with [fpgmaas/cookiecutter-uv](https://github.com/fpgmaas/cookiecutter-uv).
+**Key Features:**
+- Predictable input/output paths
+- Modular and extensible design
+- No source code modification required
+- Automated node generation support (Public launch soon)
+
+### Projects
+The project currently hosts a simple layer for composing and managing multiple nodes:
+
+| File | Purpose |
+|------|---------|
+| `graph.json` | Node connectivity and data flow definition |
+| `metadata.yaml` | Project description and configuration |
+
+
+Docker engine is used for local execution. With API calls, we use the Kubernetes engine with Argo Workflow Manager.
+
+
+
+
+## Documentation
+
+Comprehensive documentation is available at [https://Fluidize-Inc.github.io/fluidize-python/](https://Fluidize-Inc.github.io/fluidize-python/)
+
+- [Getting Started Guide](https://Fluidize-Inc.github.io/fluidize-python/getting-started)
+- [Node Creation Tutorial](https://Fluidize-Inc.github.io/fluidize-python/nodes)
+- [Project Orchestration](https://Fluidize-Inc.github.io/fluidize-python/projects)
+- [API Reference](https://Fluidize-Inc.github.io/fluidize-python/api)
+
+## Contributing
+
+We would love contributions and collaborations! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+Also - we would love to help streamline your research pipeline! Please reach out at [henry@fluidize.ai](mailto:henry@fluidize.ai) or [henrybae@g.harvard.edu](mailto:henrybae@g.harvard.edu).
+
+## Roadmap
+
+This is just the beginning of what we think is a really exciting new era for how we learn science and do research. We will be releasing the following tools built from this framework:
+
+- **Fluidize Playground**: Automatically explore and build simulation pipelines with natural language.
+- **Auto-Fluidize**: Automatically convert obscure scientific software to run anywhere
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -1,0 +1,20 @@
+{
+  "parameters": [
+    {
+      "value": "20.0",
+      "description": "Control signal strength for bat motor (higher = faster swing, more collision force)",
+      "type": "text",
+      "label": "Motor Strength",
+      "name": "motor_strength",
+      "latex": null,
+      "location": [
+        "source/pinata_simulation.py",
+        "source/pinata_simulation.py",
+        "source/pinata_simulation.py",
+        "source/pinata_simulation.py"
+      ],
+      "options": null,
+      "scope": "simulation"
+    }
+  ]
+}
