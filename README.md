@@ -41,7 +41,7 @@ make install
 
 ## Run Examples
 
-Example projects are located in this folder: [example/](example/)
+Example projects are located in this folder: [examples/](examples/). There you can find an [Jupyter Notebook](examples/demo.ipynb) of a simple simulation
 
 
 ## The Problem
