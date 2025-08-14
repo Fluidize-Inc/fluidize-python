@@ -5,10 +5,11 @@
 [![License](https://img.shields.io/github/license/Fluidize-Inc/fluidize-python?style=for-the-badge)](LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-available-brightgreen?style=for-the-badge&logo=gitbook&logoColor=white)](https://Fluidize-Inc.github.io/fluidize-python/)
 
-**Open Foundation for AI-Driven Scientific Computing**
+### An Open Framework for AI-Driven Scientific Computing
 
-Fluidize is a Python library that establishes a standard for AI-orchestrated scientific computing. With this common framework, agents can automatically build, configure, and run computational pipelines across different domains and platforms.
+ **fluidize-python ** is a library for building modular, reproducible scientific computing pipelines. It provides a unified interface to a wide range of physical simulation tools, eliminating the need to navigate the inconsistent, incomplete instructions that often vary from tool to tool.
 
+This library marks our first step toward AI-orchestrated scientific computing. By standardizing tools and practices within our framework, AI agents can automatically build, configure, and execute computational pipelines across domains and simulation platforms. Our goal is to improve today’s simulation tools so AI can assist researchers and scientists in accelerating the pace of innovation and scientific discovery.
 
 ## Quick Start
 
@@ -45,23 +46,23 @@ Example projects are located in this folder: [example/](example/)
 
 ## The Problem
 
-Students and researchers face significant barriers when exploring different ideas and simulation tools.
+Students and researchers face significant barriers when working with different simulation tools:
 
-- **Setup**: Often setting up other's code in research takes a really long time.
-- **Diversified Architecture**: People use different tools to develop their science softwares. The specificy and complexity of these programs make them
-- **Time drain**: Following good software engineering practices is ideal in theory, but in practice doing so comes at a cost of immediately obtaining results.
-- **Reproducibility challenges**: It's difficult to share and reproduce experiments
-- **Scaling barriers**: Moving from local prototypes to cloud or dedicated cluster is often time consuming and difficult
+- **Setup overhead** – Installing and configuring someone else’s research code can take an enormous amount of time.
+- **Diverse architectures** – Scientific software is built using a wide range of tools and architectures, each with its own complexities and quirks.
+- **Time drain** – Good software engineering practices are important, but in practice they often slow down the process of getting immediate results.
+- **Reproducibility issues** – Sharing and reproducing experiments is frequently cumbersome and error-prone.
+- **Scaling friction** – Moving from a local prototype to a cloud environment or dedicated compute cluster can be slow and difficult.
 
 ## The Solution
 
-Fluidize provides a standardized wrapper that transforms complex scientific software into modular, AI-orchestratable components. This enables:
+Fluidize provides a standardized wrapper that turns complex scientific software into modular components. This makes it possible to:
 
-- **Single API endpoint** for arbitrarily complex scientific computing software, any language, any software
-- **Easy orchestration** of tools that don't work well together.
-- **Consistent I/O patterns** across all simulations
+- **Expose a single API endpoint** for any scientific computing software—any language, any tool, any complexity.
+- **Easily connect** tools that were never designed to work together.
+- **Adopt consistent I/O patterns** across all simulations.
 
-This is done with virtually no changes to the existing codebase.
+All of this works with **minimal or no changes** to the existing codebase, allowing our framework to scale effortlessly to any repository.
 
 ## Architecture
 
