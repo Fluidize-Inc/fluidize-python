@@ -4,8 +4,9 @@
 ::: fluidize.managers.graph.GraphManager
     options:
       show_source: false
-      how_root_heading: true
       heading_level: 3
+      extra:
+        show_root_heading: true
       members:
         - get
         - add_node
@@ -18,27 +19,31 @@
 ::: fluidize.core.modules.graph.GraphProcessor
     options:
       show_source: false
-      show_root_heading: true
       heading_level: 3
+      extra:
+        show_root_heading: true
 
 ## Graph Types
 
 ::: fluidize.core.types.graph.GraphData
     options:
-      show_attributes: true
-      show_root_heading: true
       heading_level: 3
+      extra:
+        show_attributes: true
+        show_root_heading: true
 
 
 ::: fluidize.core.types.graph.GraphNode
     options:
-      show_attributes: true
-      show_root_heading: true
       heading_level: 3
+      extra:
+        show_attributes: true
+        show_root_heading: true
 
 
 ::: fluidize.core.types.graph.GraphEdge
     options:
-      show_attributes: true
-      show_root_heading: true
       heading_level: 3
+      extra:
+        show_attributes: true
+        show_root_heading: true
