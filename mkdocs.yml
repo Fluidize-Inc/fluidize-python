@@ -29,12 +29,13 @@ plugins:
             show_signature_annotations: true
             members_order: source
             docstring_style: google
-            show_attributes: true
             filters:
               - "!^_"
             show_source: false
-            show_root_heading: true
             show_root_full_path: false
+            extra:
+              show_attributes: true
+              show_root_heading: true
 theme:
   name: material
   features:

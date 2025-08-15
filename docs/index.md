@@ -41,7 +41,7 @@ make install
 
 ## Run Examples
 
-Example projects are located in this folder: [examples/](examples/). There you can find an [Jupyter Notebook](examples/demo.ipynb) of a simple simulation
+Example projects are located in this folder: [examples/](https://github.com/Fluidize-Inc/fluidize-python/tree/main/examples). There you can find an [Jupyter Notebook](https://github.com/Fluidize-Inc/fluidize-python/blob/main/examples/demo.ipynb) of a simple simulation
 
 ## Architecture
 
@@ -85,7 +85,7 @@ Pipelines can be executed both locally and on the cloud. Local execution is hand
 
 ## Contributing
 
-We would love to collaborate with you! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+We would love to collaborate with you! Please see our [Contributing Guide](https://github.com/Fluidize-Inc/fluidize-python/blob/main/CONTRIBUTING.md) for details.
 
 Also - we would love to help streamline your pipeline! Please reach out to us at [founders@fluidize.ai](mailto:founders@fluidize.ai).
 

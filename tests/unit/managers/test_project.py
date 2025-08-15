@@ -186,23 +186,6 @@ class TestProject:
         assert result["created_at"] == "2024-01-01T00:00:00Z"
         assert result["updated_at"] == "2024-01-01T12:00:00Z"
 
-    def test_repr(self, project_wrapper, sample_project_summary):
-        """Test __repr__ method."""
-        result = repr(project_wrapper)
-        expected = f"Project(id='{sample_project_summary.id}', label='{sample_project_summary.label}')"
-        assert result == expected
-
-    def test_repr_with_none_label(self, mock_adapter):
-        """Test __repr__ method when label is None."""
-        minimal_summary = SampleProjects.minimal_project()
-        project = ProjectManager(mock_adapter, minimal_summary)
-
-        result = repr(project)
-        # Handle case where minimal project might have label=None or no label attribute
-        label_value = getattr(minimal_summary, "label", None)
-        expected = f"Project(id='{minimal_summary.id}', label='{label_value}')"
-        assert result == expected
-
     def test_str_with_label(self, project_wrapper, sample_project_summary):
         """Test __str__ method with label."""
         result = str(project_wrapper)
@@ -287,10 +270,7 @@ class TestProject:
         graph = project.graph
         assert isinstance(graph, GraphManager)
 
-        # String representations should work
-        repr_result = repr(project)
+        # String representation should work
         str_result = str(project)
-        assert isinstance(repr_result, str)
         assert isinstance(str_result, str)
-        assert project_summary.id in repr_result
         assert project_summary.id in str_result

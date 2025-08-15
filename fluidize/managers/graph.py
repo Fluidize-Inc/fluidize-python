@@ -2,9 +2,12 @@
 Project-scoped graph manager for user-friendly graph operations.
 """
 
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
+
+if TYPE_CHECKING:
+    from .node import NodeManager
 from fluidize.core.types.node import nodeMetadata_simulation, nodeProperties_simulation
 from fluidize.core.types.parameters import Parameter
 from fluidize.core.types.project import ProjectSummary
@@ -40,7 +43,21 @@ class GraphManager:
         """
         return self.adapter.graph.get_graph(self.project)  # type: ignore[no-any-return]
 
-    def add_node(self, node: GraphNode, sim_global: bool = True) -> GraphNode:
+    def get_node(self, node_id: str) -> "NodeManager":
+        """
+        Get a NodeManager for a specific node in the project.
+
+        Args:
+            node_id: ID of the node to get a manager for
+
+        Returns:
+            NodeManager instance for the specified node
+        """
+        from .node import NodeManager
+
+        return NodeManager(self.adapter, self.project, node_id)
+
+    def add_node(self, node: GraphNode, sim_global: bool = True) -> "NodeManager":
         """
         Add a new node to this project's graph.
 
@@ -51,7 +68,8 @@ class GraphManager:
         Returns:
             The added node
         """
-        return self.adapter.graph.insert_node(self.project, node, sim_global)  # type: ignore[no-any-return]
+        inserted_node = self.adapter.graph.insert_node(self.project, node, sim_global)
+        return self.get_node(inserted_node.id)
 
     def add_node_from_scratch(
         self,
@@ -59,7 +77,7 @@ class GraphManager:
         node_properties: nodeProperties_simulation,
         node_metadata: nodeMetadata_simulation,
         repo_link: Optional[str] = None,
-    ) -> GraphNode:
+    ) -> "NodeManager":
         """
         Add a new node to this project's graph from scratch, creating all necessary files and directories.
 
@@ -72,9 +90,10 @@ class GraphManager:
         Returns:
             The added node
         """
-        return self.adapter.graph.insert_node_from_scratch(  # type: ignore[no-any-return]
+        inserted_node = self.adapter.graph.insert_node_from_scratch(
             self.project, node, node_properties, node_metadata, repo_link
         )
+        return self.get_node(inserted_node.id)
 
     def update_node_position(self, node: GraphNode) -> GraphNode:
         """

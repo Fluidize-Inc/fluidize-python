@@ -9,6 +9,7 @@ from fluidize.core.types.node import author, nodeMetadata_simulation, nodeProper
 from fluidize.core.types.parameters import Parameter
 from fluidize.core.types.runs import RunStatus
 from fluidize.managers.graph import GraphManager
+from fluidize.managers.node import NodeManager
 from tests.fixtures.sample_graphs import SampleGraphs
 from tests.fixtures.sample_projects import SampleProjects
 
@@ -94,7 +95,8 @@ class TestGraphManager:
 
         result = project_graph.add_node(node)
 
-        assert result == node
+        assert isinstance(result, NodeManager)
+        assert result.node_id == node.id
         mock_adapter.graph.insert_node.assert_called_once_with(
             project_graph.project,
             node,
@@ -108,7 +110,8 @@ class TestGraphManager:
 
         result = project_graph.add_node(node, sim_global=False)
 
-        assert result == node
+        assert isinstance(result, NodeManager)
+        assert result.node_id == node.id
         mock_adapter.graph.insert_node.assert_called_once_with(project_graph.project, node, False)
 
     def test_add_node_from_scratch_success(self, project_graph, mock_adapter):
@@ -142,7 +145,8 @@ class TestGraphManager:
 
         result = project_graph.add_node_from_scratch(node, node_properties, node_metadata)
 
-        assert result == node
+        assert isinstance(result, NodeManager)
+        assert result.node_id == node.id
         mock_adapter.graph.insert_node_from_scratch.assert_called_once_with(
             project_graph.project,
             node,
@@ -175,7 +179,8 @@ class TestGraphManager:
 
         result = project_graph.add_node_from_scratch(node, node_properties, node_metadata, repo_link)
 
-        assert result == node
+        assert isinstance(result, NodeManager)
+        assert result.node_id == node.id
         mock_adapter.graph.insert_node_from_scratch.assert_called_once_with(
             project_graph.project, node, node_properties, node_metadata, repo_link
         )
@@ -344,7 +349,8 @@ class TestGraphManager:
 
         result = project_graph.add_node_from_scratch(node, node_properties, node_metadata)
 
-        assert result == node
+        assert isinstance(result, NodeManager)
+        assert result.node_id == node.id
         mock_adapter.graph.insert_node_from_scratch.assert_called_once_with(
             project_graph.project, node, node_properties, node_metadata, None
         )

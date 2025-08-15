@@ -9,8 +9,9 @@ The Fluidize Client is the primary interface to create and edit projects. There 
 ::: fluidize.client.FluidizeClient
     options:
       show_source: false
-      show_root_heading: true
       heading_level: 3
+      extra:
+        show_root_heading: true
       members:
         - mode
         - adapters
@@ -20,8 +21,9 @@ The Fluidize Client is the primary interface to create and edit projects. There 
 ::: fluidize.config.FluidizeConfig
     options:
       show_source: false
-      show_root_heading: true
       heading_level: 3
+      extra:
+        show_root_heading: true
       members:
         - is_local_mode
         - is_api_mode
