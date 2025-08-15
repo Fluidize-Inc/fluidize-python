@@ -462,8 +462,8 @@ class TestGraphManager:
         project1 = SampleProjects.standard_project()
         project2 = SampleProjects.minimal_project()
 
-        graph1 = ProjectGraph(mock_adapter, project1)
-        graph2 = ProjectGraph(mock_adapter, project2)
+        graph1 = GraphManager(mock_adapter, project1)
+        graph2 = GraphManager(mock_adapter, project2)
 
         parameter = Parameter(
             name="test_param", value="test_value", type="text", label="Test Parameter", description="A test parameter"
