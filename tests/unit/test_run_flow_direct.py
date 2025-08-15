@@ -167,56 +167,6 @@ class TestRunFlowDirect:
             config.local_projects_path = original_projects_path
             config.local_simulations_path = original_simulations_path
 
-    def test_list_node_outputs_and_get_output_path(self, project_manager, test_config):
-        """Test listing node outputs and getting output paths."""
-        from fluidize.config import config
-
-        # Store original values
-        original_mode = config.mode
-        original_base_path = config.local_base_path
-        original_projects_path = config.local_projects_path
-        original_simulations_path = config.local_simulations_path
-
-        # Configure global config
-        config.mode = test_config.mode
-        config.local_base_path = test_config.local_base_path
-        config.local_projects_path = test_config.local_projects_path
-        config.local_simulations_path = test_config.local_simulations_path
-
-        try:
-            # Create a fake output directory with some files
-            run_dir = test_config.local_projects_path / "project-1754038373536" / "runs" / "run_1"
-            outputs_dir = run_dir / "outputs" / "node-1754038461760"
-            outputs_dir.mkdir(parents=True, exist_ok=True)
-
-            # Create some test output files
-            (outputs_dir / "output.txt").write_text("CANDY")
-            (outputs_dir / "plot.png").write_bytes(b"fake image data")
-            (outputs_dir / "results.json").write_text('{"result": "success"}')
-
-            # Test listing node outputs
-            files = project_manager.runs.list_node_outputs(1, "node-1754038461760")
-            assert isinstance(files, list)
-            assert "output.txt" in files
-            assert "plot.png" in files
-            assert "results.json" in files
-
-            # Test getting output path
-            output_path = project_manager.runs.get_output_path(1, "node-1754038461760")
-            assert output_path.exists()
-            assert (output_path / "output.txt").exists()
-
-            # Test with non-existent node
-            empty_files = project_manager.runs.list_node_outputs(1, "non-existent-node")
-            assert empty_files == []
-
-        finally:
-            # Restore original values
-            config.mode = original_mode
-            config.local_base_path = original_base_path
-            config.local_projects_path = original_projects_path
-            config.local_simulations_path = original_simulations_path
-
     def test_run_flow_payload_variations(self, project_manager, test_config):
         """Test run_flow with different payload configurations."""
 

@@ -11,7 +11,6 @@ from typing import Optional, Union
 from pydantic import BaseModel, ConfigDict, computed_field
 
 from .file_models.metadata_model import MetadataModel
-from .file_models.parameters_model import ParametersModel
 from .file_models.properties_model import PropertiesModel
 from .runs import RunStatus
 
@@ -96,15 +95,3 @@ class nodeMetadata_simulation(MetadataModel):
     class Key:
         key = "simulation"
         metadata_version = "1.0"
-
-
-class nodeParameters_simulation(ParametersModel):
-    """
-    Parameters configuration for a simulation node.
-
-    Handles loading and saving of parameters.json files with the structure:
-    {"parameters": [list of Parameter objects]}
-    """
-
-    class Key:
-        key = "parameters"
