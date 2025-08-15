@@ -1,7 +1,0 @@
-project:
-  description: A MuJoCo simulation project
-  id: MUJOCO
-  label: MUJOCO DEMO
-  location: ''
-  metadata_version: '1.0'
-  status: active

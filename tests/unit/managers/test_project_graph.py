@@ -6,10 +6,8 @@ from unittest.mock import Mock
 import pytest
 
 from fluidize.core.types.node import author, nodeMetadata_simulation, nodeProperties_simulation, tag
-from fluidize.core.types.parameters import Parameter
 from fluidize.core.types.runs import RunStatus
 from fluidize.managers.graph import GraphManager
-from fluidize.managers.node import NodeManager
 from tests.fixtures.sample_graphs import SampleGraphs
 from tests.fixtures.sample_projects import SampleProjects
 
@@ -95,8 +93,7 @@ class TestGraphManager:
 
         result = project_graph.add_node(node)
 
-        assert isinstance(result, NodeManager)
-        assert result.node_id == node.id
+        assert result == node
         mock_adapter.graph.insert_node.assert_called_once_with(
             project_graph.project,
             node,
@@ -110,8 +107,7 @@ class TestGraphManager:
 
         result = project_graph.add_node(node, sim_global=False)
 
-        assert isinstance(result, NodeManager)
-        assert result.node_id == node.id
+        assert result == node
         mock_adapter.graph.insert_node.assert_called_once_with(project_graph.project, node, False)
 
     def test_add_node_from_scratch_success(self, project_graph, mock_adapter):
@@ -145,8 +141,7 @@ class TestGraphManager:
 
         result = project_graph.add_node_from_scratch(node, node_properties, node_metadata)
 
-        assert isinstance(result, NodeManager)
-        assert result.node_id == node.id
+        assert result == node
         mock_adapter.graph.insert_node_from_scratch.assert_called_once_with(
             project_graph.project,
             node,
@@ -179,8 +174,7 @@ class TestGraphManager:
 
         result = project_graph.add_node_from_scratch(node, node_properties, node_metadata, repo_link)
 
-        assert isinstance(result, NodeManager)
-        assert result.node_id == node.id
+        assert result == node
         mock_adapter.graph.insert_node_from_scratch.assert_called_once_with(
             project_graph.project, node, node_properties, node_metadata, repo_link
         )
@@ -349,8 +343,7 @@ class TestGraphManager:
 
         result = project_graph.add_node_from_scratch(node, node_properties, node_metadata)
 
-        assert isinstance(result, NodeManager)
-        assert result.node_id == node.id
+        assert result == node
         mock_adapter.graph.insert_node_from_scratch.assert_called_once_with(
             project_graph.project, node, node_properties, node_metadata, None
         )
@@ -389,131 +382,3 @@ class TestGraphManager:
         for call_list in all_calls:
             if call_list:  # If method was called
                 assert call_list[0][0][0] == project
-
-    def test_get_parameters_success(self, project_graph, mock_adapter):
-        """Test successful parameter retrieval through ProjectGraph."""
-        node_id = "test-node-id"
-        expected_parameters = [
-            Parameter(
-                name="test_param",
-                value="test_value",
-                type="text",
-                label="Test Parameter",
-                description="A test parameter",
-            )
-        ]
-
-        mock_adapter.graph.get_parameters.return_value = expected_parameters
-
-        result = project_graph.get_parameters(node_id)
-
-        assert result == expected_parameters
-        mock_adapter.graph.get_parameters.assert_called_once_with(project_graph.project, node_id)
-
-    def test_upsert_parameter_success(self, project_graph, mock_adapter):
-        """Test successful parameter upsert through ProjectGraph."""
-        node_id = "test-node-id"
-        parameter = Parameter(
-            name="new_param", value="new_value", type="text", label="New Parameter", description="A new parameter"
-        )
-
-        mock_adapter.graph.upsert_parameter.return_value = parameter
-
-        result = project_graph.upsert_parameter(node_id, parameter)
-
-        assert result == parameter
-        mock_adapter.graph.upsert_parameter.assert_called_once_with(project_graph.project, node_id, parameter)
-
-    def test_set_parameters_success(self, project_graph, mock_adapter):
-        """Test successful parameters setting through ProjectGraph."""
-        node_id = "test-node-id"
-        parameters = [
-            Parameter(name="param1", value="value1", type="text", label="Parameter 1", description="First parameter"),
-            Parameter(
-                name="param2", value="value2", type="number", label="Parameter 2", description="Second parameter"
-            ),
-        ]
-
-        mock_adapter.graph.set_parameters.return_value = parameters
-
-        result = project_graph.set_parameters(node_id, parameters)
-
-        assert result == parameters
-        mock_adapter.graph.set_parameters.assert_called_once_with(project_graph.project, node_id, parameters)
-
-    def test_parameter_methods_error_propagation(self, project_graph, mock_adapter):
-        """Test that parameter method errors are propagated."""
-        node_id = "test-node-id"
-        parameter = Parameter(
-            name="test_param", value="test_value", type="text", label="Test Parameter", description="A test parameter"
-        )
-
-        # Test get_parameters error propagation
-        mock_adapter.graph.get_parameters.side_effect = FileNotFoundError("Parameters file not found")
-        with pytest.raises(FileNotFoundError, match="Parameters file not found"):
-            project_graph.get_parameters(node_id)
-
-        # Test upsert_parameter error propagation
-        mock_adapter.graph.upsert_parameter.side_effect = ValueError("Invalid parameter data")
-        with pytest.raises(ValueError, match="Invalid parameter data"):
-            project_graph.upsert_parameter(node_id, parameter)
-
-        # Test set_parameters error propagation
-        mock_adapter.graph.set_parameters.side_effect = PermissionError("Cannot write to parameters file")
-        with pytest.raises(PermissionError, match="Cannot write to parameters file"):
-            project_graph.set_parameters(node_id, [parameter])
-
-    def test_parameter_methods_use_correct_project_context(self, mock_adapter):
-        """Test that parameter methods use correct project context."""
-        project1 = SampleProjects.standard_project()
-        project2 = SampleProjects.minimal_project()
-
-        graph1 = GraphManager(mock_adapter, project1)
-        graph2 = GraphManager(mock_adapter, project2)
-
-        parameter = Parameter(
-            name="test_param", value="test_value", type="text", label="Test Parameter", description="A test parameter"
-        )
-
-        mock_adapter.graph.get_parameters.return_value = [parameter]
-        mock_adapter.graph.upsert_parameter.return_value = parameter
-        mock_adapter.graph.set_parameters.return_value = [parameter]
-
-        # Call parameter methods on different project graphs
-        graph1.get_parameters("node1")
-        graph2.get_parameters("node2")
-
-        graph1.upsert_parameter("node1", parameter)
-        graph2.upsert_parameter("node2", parameter)
-
-        graph1.set_parameters("node1", [parameter])
-        graph2.set_parameters("node2", [parameter])
-
-        # Verify correct project contexts were used
-        get_calls = mock_adapter.graph.get_parameters.call_args_list
-        upsert_calls = mock_adapter.graph.upsert_parameter.call_args_list
-        set_calls = mock_adapter.graph.set_parameters.call_args_list
-
-        assert len(get_calls) == 2
-        assert get_calls[0][0][0] == project1
-        assert get_calls[1][0][0] == project2
-
-        assert len(upsert_calls) == 2
-        assert upsert_calls[0][0][0] == project1
-        assert upsert_calls[1][0][0] == project2
-
-        assert len(set_calls) == 2
-        assert set_calls[0][0][0] == project1
-        assert set_calls[1][0][0] == project2
-
-    def test_show_parameters_success(self, project_graph, mock_adapter):
-        """Test successful parameter display through ProjectGraph."""
-        node_id = "test-node-id"
-        expected_output = "Parameters for node 'test-node-id':\n\nParameter 1:\n  Name: test_param\n  Value: test_value"
-
-        mock_adapter.graph.show_parameters.return_value = expected_output
-
-        result = project_graph.show_parameters(node_id)
-
-        assert result == expected_output
-        mock_adapter.graph.show_parameters.assert_called_once_with(project_graph.project, node_id)

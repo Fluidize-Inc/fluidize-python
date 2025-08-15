@@ -74,19 +74,10 @@ class DockerExecutionClient:
         Returns:
             True if successful, False otherwise
         """
-        # First check if image exists locally
-        try:
-            self.client.images.get(image)
-        except ImageNotFound:
-            pass  # Image not local, continue to pull
-        else:
-            logger.info(f"Image {image} already exists locally")
-            return True
-
-        # Image not local, try to pull it
         try:
             logger.info(f"Pulling Docker image: {image}")
             self.client.images.pull(image)
+            logger.info(f"Successfully pulled image: {image}")
         except ImageNotFound:
             logger.exception(f"Image not found: {image}")
             return False
@@ -94,7 +85,6 @@ class DockerExecutionClient:
             logger.exception(f"Failed to pull image {image}")
             return False
         else:
-            logger.info(f"Successfully pulled image: {image}")
             return True
 
     def run_container(self, container_spec: ContainerSpec, volumes: list[Volume], **kwargs: str) -> ContainerResult:
@@ -110,9 +100,6 @@ class DockerExecutionClient:
             ContainerResult with execution details
         """
         try:
-            # Pull image if not available locally (Docker will select appropriate architecture)
-            self.pull_image(container_spec.image)
-
             # Convert volumes to Docker SDK format
             docker_volumes = self._convert_volumes(volumes, container_spec.volume_mounts)
 
@@ -130,15 +117,11 @@ class DockerExecutionClient:
                 **kwargs,
             }
 
-            # Let Docker automatically select the appropriate platform for the host architecture
-            # Multi-arch manifest will choose the right image (ARM64 for Apple Silicon, AMD64 for Intel)
-
             # Add security context if provided
             if container_spec.security_context:
                 self._apply_security_context(run_kwargs, container_spec.security_context)
 
             logger.info(f"Running container: {container_spec.name}")
-            logger.info(f"Using platform: {run_kwargs.get('platform', 'default')}")
             logger.debug(f"Container run args: {run_kwargs}")
 
             # Run container
@@ -171,8 +154,8 @@ class DockerExecutionClient:
             logger.exception("Container execution failed")
             return ContainerResult(
                 exit_code=e.exit_status,
-                stdout="",  # ContainerError doesn't have stdout
-                stderr=e.stderr.decode("utf-8") if hasattr(e, "stderr") and e.stderr else str(e),
+                stdout=e.stdout.decode("utf-8") if e.stdout else "",
+                stderr=e.stderr.decode("utf-8") if e.stderr else str(e),
                 success=False,
             )
         except DockerException as e:

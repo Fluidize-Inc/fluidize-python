@@ -21,10 +21,6 @@ class DataLoader:
         return list(cls._get_handler().list_directories(path))
 
     @classmethod
-    def list_files(cls, path: UPath) -> list[UPath]:
-        return list(cls._get_handler().list_files(path))
-
-    @classmethod
     def copy_directory(cls, source: UPath, destination: UPath) -> None:
         cls._get_handler().copy_directory(source, destination)
         return None

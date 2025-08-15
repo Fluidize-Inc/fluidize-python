@@ -80,14 +80,6 @@ class BaseDataLoader(ABC):
         """
         return [item for item in self._list_directory(path) if self._is_directory(item)]
 
-    def list_files(self, path: UPath) -> list[UPath]:
-        """
-        List all files within a given directory (non-recursive)
-        """
-        if not self._directory_exists(path):
-            return []
-        return [item for item in self._list_directory(path) if not self._is_directory(item)]
-
     def load_json(self, filepath: UPath) -> dict:
         """
         Loads JSON from the appropriate path.

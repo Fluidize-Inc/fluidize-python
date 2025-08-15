@@ -65,20 +65,6 @@ class BasePathFinder(ABC):
     def get_properties_path(self, project: ProjectSummary, node_id: str, run_number: Optional[int] = None) -> UPath:
         return self.get_node_path(project, node_id, run_number) / "properties.yaml"
 
-    def get_node_output_path(self, project: ProjectSummary, run_number: int, node_id: str) -> UPath:
-        """
-        Get the path to the output directory for a specific node in a run.
-
-        Args:
-            project: The project containing the run
-            run_number: The run number
-            node_id: ID of the node
-
-        Returns:
-            Path to the node's output directory: {project_path}/runs/run_{run_number}/outputs/{node_id}/
-        """
-        return self.get_run_path(project, run_number) / FileConstants.OUTPUTS_DIR / node_id
-
     @abstractmethod
     def get_mlflow_tracking_uri(self) -> str:
         """Get the MLFlow tracking URI for this storage backend"""

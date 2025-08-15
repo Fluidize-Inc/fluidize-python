@@ -7,7 +7,7 @@
 
 ### An Open Framework for AI-Driven Scientific Computing
 
- **fluidize-python** is a library for building modular, reproducible scientific computing pipelines. It provides a unified interface to a wide range of physical simulation tools, eliminating the need to navigate the inconsistent, incomplete instructions that often vary from tool to tool.
+ **fluidize-python ** is a library for building modular, reproducible scientific computing pipelines. It provides a unified interface to a wide range of physical simulation tools, eliminating the need to navigate the inconsistent, incomplete instructions that often vary from tool to tool.
 
 This library marks our first step toward AI-orchestrated scientific computing. By standardizing tools and practices within our framework, AI agents can automatically build, configure, and execute computational pipelines across domains and simulation platforms.
 
@@ -43,7 +43,7 @@ make install
 
 ## Run Examples
 
-Example projects are located in this folder: [examples/](examples/). There you can find an [Jupyter Notebook](examples/demo.ipynb) of a simple simulation
+Example projects are located in this folder: [example/](example/)
 
 
 ## The Problem

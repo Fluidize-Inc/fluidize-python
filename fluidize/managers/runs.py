@@ -4,8 +4,6 @@ Project-scoped runs manager for user-friendly run operations.
 
 from typing import Any
 
-from upath import UPath
-
 from fluidize.core.types.project import ProjectSummary
 from fluidize.core.types.runs import RunFlowPayload
 
@@ -41,7 +39,7 @@ class RunsManager:
         """
         return self.adapter.runs.run_flow(self.project, payload)  # type: ignore[no-any-return]
 
-    def list_runs(self) -> list[str]:
+    def list(self) -> list[str]:
         """
         List all runs for this project.
 
@@ -61,29 +59,3 @@ class RunsManager:
             Dictionary with run status information
         """
         return self.adapter.runs.get_run_status(self.project, run_number)  # type: ignore[no-any-return]
-
-    def list_node_outputs(self, run_number: int, node_id: str) -> list[str]:
-        """
-        List all output files for a specific node in a run for this project.
-
-        Args:
-            run_number: The run number
-            node_id: The node ID to list outputs for
-
-        Returns:
-            List of relative file paths within the node's output directory
-        """
-        return self.adapter.runs.list_node_outputs(self.project, run_number, node_id)  # type: ignore[no-any-return]
-
-    def get_output_path(self, run_number: int, node_id: str) -> UPath:
-        """
-        Get the full path to a node's output directory for this project.
-
-        Args:
-            run_number: The run number
-            node_id: The node ID
-
-        Returns:
-            UPath to the node's output directory
-        """
-        return self.adapter.runs.get_output_path(self.project, run_number, node_id)  # type: ignore[no-any-return]
