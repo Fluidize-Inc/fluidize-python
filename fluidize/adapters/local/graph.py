@@ -7,14 +7,11 @@ wrapping the core GraphProcessor with adapter-specific functionality.
 
 from typing import Optional
 
-from fluidize.core.modules.graph.parameters import parse_parameters_from_json
 from fluidize.core.modules.graph.processor import GraphProcessor
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
-from fluidize.core.types.node import nodeMetadata_simulation, nodeProperties_simulation
+from fluidize.core.types.node import nodeMetadata_simulation, nodeParameters_simulation, nodeProperties_simulation
 from fluidize.core.types.parameters import Parameter
 from fluidize.core.types.project import ProjectSummary
-from fluidize.core.utils.dataloader.data_loader import DataLoader
-from fluidize.core.utils.dataloader.data_writer import DataWriter
 from fluidize.core.utils.pathfinder.path_finder import PathFinder
 
 
@@ -171,9 +168,9 @@ class GraphHandler:
         Returns:
             A list of Parameter objects for the node
         """
-        parameters_path = PathFinder.get_node_parameters_path(project, node_id)
-        data = DataLoader.load_json(parameters_path)
-        return parse_parameters_from_json(data)
+        node_path = PathFinder.get_node_path(project, node_id)
+        parameters_model = nodeParameters_simulation.from_file(node_path)
+        return parameters_model.parameters
 
     def upsert_parameter(self, project: ProjectSummary, node_id: str, parameter: Parameter) -> Parameter:
         """
@@ -187,12 +184,11 @@ class GraphHandler:
         Returns:
             The upserted parameter
         """
-        parameters_path = PathFinder.get_node_parameters_path(project, node_id)
-        data = DataLoader.load_json(parameters_path)
-        params = parse_parameters_from_json(data)
+        node_path = PathFinder.get_node_path(project, node_id)
+        parameters_model = nodeParameters_simulation.from_file(node_path)
 
         # Check if parameter with same name exists
-        for p in params:
+        for p in parameters_model.parameters:
             if p.name == parameter.name:
                 # Update the existing parameter with new values
                 p.value = parameter.value
@@ -211,13 +207,10 @@ class GraphHandler:
                 break
         else:
             # Parameter doesn't exist, add it
-            params.append(parameter)
+            parameters_model.parameters.append(parameter)
 
-        # Write updated parameters back
-        DataWriter.write_json(
-            filepath=parameters_path,
-            data={"parameters": [p.model_dump() for p in params]},
-        )
+        # Save updated parameters back
+        parameters_model.save()
         return parameter
 
     def set_parameters(self, project: ProjectSummary, node_id: str, parameters: list[Parameter]) -> list[Parameter]:
@@ -232,10 +225,10 @@ class GraphHandler:
         Returns:
             The list of parameters that were set
         """
-        parameters_path = PathFinder.get_node_parameters_path(project, node_id)
-        data = {"parameters": [p.model_dump() for p in parameters]}
-
-        DataWriter.write_json(filepath=parameters_path, data=data)
+        node_path = PathFinder.get_node_path(project, node_id)
+        parameters_model = nodeParameters_simulation.from_file(node_path)
+        parameters_model.parameters = parameters
+        parameters_model.save()
         return parameters
 
     def show_parameters(self, project: ProjectSummary, node_id: str) -> str:

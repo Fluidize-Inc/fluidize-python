@@ -10,14 +10,13 @@ copyright: Maintained by <a href="https://fluidize.ai">Fluidize-Inc</a>.
 nav:
   - Home: index.md
   - Getting Started:
-      - Fluidize Client: getting-started/client.md
-      - Projects and Nodes: getting-started/projects-nodes.md
+      - Quickstart: getting-started/quickstart.md
       - Examples: getting-started/examples.md
   - Core Modules:
+      - Client: core-modules/client.md
       - Projects: core-modules/projects.md
       - Graph: core-modules/graph.md
       - Run: core-modules/run.md
-      - Execute: core-modules/execute.md
 plugins:
   - search
   - mkdocstrings:
@@ -26,17 +25,22 @@ plugins:
           paths: ["fluidize"]
           options:
             merge_init_into_class: true
-            show_signature: false
+            show_signature: true
+            show_signature_annotations: true
+            members_order: source
             docstring_style: google
             filters:
               - "!^_"
             show_source: false
-            show_root_heading: true
             show_root_full_path: false
+            extra:
+              show_attributes: true
+              show_root_heading: true
 theme:
   name: material
-  feature:
-    tabs: true
+  features:
+    - tabs
+    - navigation.indexes
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default

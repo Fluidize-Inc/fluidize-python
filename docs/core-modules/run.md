@@ -2,10 +2,12 @@
 
 ## Run Management
 
-### RunsManager
 ::: fluidize.managers.runs.RunsManager
     options:
       show_source: false
+      heading_level: 3
+      extra:
+        show_root_heading: true
       members:
         - run_flow
         - list
@@ -13,12 +15,16 @@
 
 ## Run Execution
 
-### RunJob
 ::: fluidize.core.modules.run.RunJob
     options:
       show_source: false
+      heading_level: 3
+      extra:
+        show_root_heading: true
 
-### ProjectRunner
-::: fluidize.core.modules.run.ProjectRunner
+::: fluidize.core.modules.run.project.ProjectRunner
     options:
       show_source: false
+      heading_level: 3
+      extra:
+        show_root_heading: true
