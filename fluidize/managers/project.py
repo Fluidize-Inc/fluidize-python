@@ -12,17 +12,15 @@ from .runs import RunsManager
 
 class ProjectManager:
     """
-    Project entity that wraps project data and provides access to scoped managers.
+    Project manager that wraps project data and provides access to scoped managers.
 
     Provides convenient access to graph and runs operations for this specific project.
     """
 
     def __init__(self, adapter: Any, project_summary: ProjectSummary) -> None:
         """
-        Initialize project wrapper.
-
         Args:
-            adapter: adapter adapter (FluidizeSDK or Localadapter)
+            adapter: adapter (FluidizeSDK or LocalAdapter)
             project_summary: The underlying project data
         """
         self._adapter = adapter

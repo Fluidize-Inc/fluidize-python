@@ -20,10 +20,8 @@ class GraphManager:
 
     def __init__(self, adapter: Any, project: ProjectSummary) -> None:
         """
-        Initialize project-scoped graph manager.
-
         Args:
-            adapter: adapter adapter (FluidizeSDK or Localadapter)
+            adapter: adapter (FluidizeSDK or LocalAdapter)
             project: The project this graph manager is bound to
         """
         self.adapter = adapter
