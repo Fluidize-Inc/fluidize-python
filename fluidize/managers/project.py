@@ -6,11 +6,11 @@ from typing import Any, Optional
 
 from fluidize.core.types.project import ProjectSummary
 
-from .project_graph import ProjectGraph
-from .project_runs import ProjectRuns
+from .graph import GraphManager
+from .runs import RunsManager
 
 
-class Project:
+class ProjectManager:
     """
     Project entity that wraps project data and provides access to scoped managers.
 
@@ -27,23 +27,23 @@ class Project:
         """
         self._adapter = adapter
         self._project_summary = project_summary
-        self._graph: Optional[ProjectGraph] = None
-        self._runs: Optional[ProjectRuns] = None
+        self._graph: Optional[GraphManager] = None
+        self._runs: Optional[RunsManager] = None
 
     @property
-    def graph(self) -> ProjectGraph:
+    def graph(self) -> GraphManager:
         """
         Get the graph manager for this project.
 
         Returns:
-            ProjectGraph manager scoped to this project
+            GraphManager manager scoped to this project
         """
         if self._graph is None:
-            self._graph = ProjectGraph(self._adapter, self._project_summary)
+            self._graph = GraphManager(self._adapter, self._project_summary)
         return self._graph
 
     @property
-    def runs(self) -> ProjectRuns:
+    def runs(self) -> RunsManager:
         """
         Get the runs manager for this project.
 
@@ -51,7 +51,7 @@ class Project:
             ProjectRuns manager scoped to this project
         """
         if self._runs is None:
-            self._runs = ProjectRuns(self._adapter, self._project_summary)
+            self._runs = RunsManager(self._adapter, self._project_summary)
         return self._runs
 
     # Delegate all ProjectSummary attributes

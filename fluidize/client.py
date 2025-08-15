@@ -15,7 +15,7 @@ import fluidize.core.utils.pathfinder.methods.local  # noqa: F401
 
 from .adapters.local import LocalAdapter
 from .config import FluidizeConfig
-from .managers.projects import Projects
+from .managers.registry import RegistryManager
 
 
 class FluidizeClient:
@@ -52,7 +52,7 @@ class FluidizeClient:
         self._adapter = self._initialize_adapter()
 
         # Initialize resource managers
-        self.projects = Projects(self._adapter)
+        self.projects = RegistryManager(self._adapter)
 
     def _initialize_adapter(self) -> Any:
         """Initialize the appropriate adapter based on the mode."""
