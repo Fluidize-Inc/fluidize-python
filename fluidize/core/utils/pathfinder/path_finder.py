@@ -62,6 +62,21 @@ class PathFinder:
         return cls._get_handler().get_properties_path(project, node_id, run_number)  # type: ignore[no-any-return]
 
     @classmethod
+    def get_node_output_path(cls, project: ProjectSummary, run_number: int, node_id: str) -> UPath:
+        """
+        Get the path to the output directory for a specific node in a run.
+
+        Args:
+            project: The project containing the run
+            run_number: The run number
+            node_id: ID of the node
+
+        Returns:
+            Path to the node's output directory: {project_path}/runs/run_{run_number}/outputs/{node_id}/
+        """
+        return cls._get_handler().get_node_output_path(project, run_number, node_id)  # type: ignore[no-any-return]
+
+    @classmethod
     def infer_cloud_bucket_and_path(cls, path: UPath) -> tuple[str, UPath]:
         """
         Infer the cloud storage bucket and path from a given UPath.

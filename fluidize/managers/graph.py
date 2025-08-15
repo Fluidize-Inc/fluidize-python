@@ -2,10 +2,14 @@
 Project-scoped graph manager for user-friendly graph operations.
 """
 
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
+
+if TYPE_CHECKING:
+    from .node import NodeManager
 from fluidize.core.types.node import nodeMetadata_simulation, nodeProperties_simulation
+from fluidize.core.types.parameters import Parameter
 from fluidize.core.types.project import ProjectSummary
 
 
@@ -41,7 +45,21 @@ class GraphManager:
         """
         return self.adapter.graph.get_graph(self.project)  # type: ignore[no-any-return]
 
-    def add_node(self, node: GraphNode, sim_global: bool = True) -> GraphNode:
+    def get_node(self, node_id: str) -> "NodeManager":
+        """
+        Get a NodeManager for a specific node in the project.
+
+        Args:
+            node_id: ID of the node to get a manager for
+
+        Returns:
+            NodeManager instance for the specified node
+        """
+        from .node import NodeManager
+
+        return NodeManager(self.adapter, self.project, node_id)
+
+    def add_node(self, node: GraphNode, sim_global: bool = True) -> "NodeManager":
         """
         Add a new node to this project's graph.
 
@@ -50,9 +68,10 @@ class GraphManager:
             sim_global: Whether to use global simulations (placeholder for future)
 
         Returns:
-            The inserted node
+            NodeManager for the inserted node
         """
-        return self.adapter.graph.insert_node(self.project, node, sim_global)  # type: ignore[no-any-return]
+        inserted_node = self.adapter.graph.insert_node(self.project, node, sim_global)
+        return self.get_node(inserted_node.id)
 
     def add_node_from_scratch(
         self,
@@ -60,7 +79,7 @@ class GraphManager:
         node_properties: nodeProperties_simulation,
         node_metadata: nodeMetadata_simulation,
         repo_link: Optional[str] = None,
-    ) -> GraphNode:
+    ) -> "NodeManager":
         """
         Add a new node to this project's graph from scratch, creating all necessary files and directories.
 
@@ -71,11 +90,12 @@ class GraphManager:
             repo_link: Optional repository URL to clone into the source directory
 
         Returns:
-            The inserted node
+            NodeManager for the inserted node
         """
-        return self.adapter.graph.insert_node_from_scratch(  # type: ignore[no-any-return]
+        inserted_node = self.adapter.graph.insert_node_from_scratch(
             self.project, node, node_properties, node_metadata, repo_link
         )
+        return self.get_node(inserted_node.id)
 
     def update_node_position(self, node: GraphNode) -> GraphNode:
         """
@@ -127,3 +147,53 @@ class GraphManager:
             ASCII string representation of the graph structure
         """
         return self.adapter.graph.show_graph_ascii(self.project)  # type: ignore[no-any-return]
+
+    def get_parameters(self, node_id: str) -> list[Parameter]:
+        """
+        Get the parameters for a specific node in this project's graph.
+
+        Args:
+            node_id: ID of the node to retrieve parameters for
+
+        Returns:
+            A list of Parameter objects for the node
+        """
+        return self.adapter.graph.get_parameters(self.project, node_id)  # type: ignore[no-any-return]
+
+    def upsert_parameter(self, node_id: str, parameter: Parameter) -> Parameter:
+        """
+        Upsert a parameter for a specific node in this project's graph.
+
+        Args:
+            node_id: ID of the node to update parameters for
+            parameter: The parameter to upsert
+
+        Returns:
+            The upserted parameter
+        """
+        return self.adapter.graph.upsert_parameter(self.project, node_id, parameter)  # type: ignore[no-any-return]
+
+    def set_parameters(self, node_id: str, parameters: list[Parameter]) -> list[Parameter]:
+        """
+        Set all parameters for a specific node in this project's graph, replacing existing ones.
+
+        Args:
+            node_id: ID of the node to set parameters for
+            parameters: List of parameters to set
+
+        Returns:
+            The list of parameters that were set
+        """
+        return self.adapter.graph.set_parameters(self.project, node_id, parameters)  # type: ignore[no-any-return]
+
+    def show_parameters(self, node_id: str) -> str:
+        """
+        Get a nicely formatted string display of parameters for a specific node in this project's graph.
+
+        Args:
+            node_id: ID of the node to retrieve parameters for
+
+        Returns:
+            A formatted string displaying the parameters
+        """
+        return self.adapter.graph.show_parameters(self.project, node_id)  # type: ignore[no-any-return]

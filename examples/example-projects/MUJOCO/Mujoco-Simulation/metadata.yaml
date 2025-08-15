@@ -1,0 +1,12 @@
+simulation:
+  authors: []
+  code_url: null
+  date: '2025-08-13'
+  description: A demo simulation of a humanoid in MuJoCo
+  id: mujoco-humanoid-demo
+  metadata_version: '1.0'
+  mlflow_run_id: null
+  name: MuJoCo Humanoid Locomotion Demo
+  paper_url: null
+  tags: []
+  version: '0.1'

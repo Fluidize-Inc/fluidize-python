@@ -9,8 +9,10 @@ from typing import Optional
 
 from fluidize.core.modules.graph.processor import GraphProcessor
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
-from fluidize.core.types.node import nodeMetadata_simulation, nodeProperties_simulation
+from fluidize.core.types.node import nodeMetadata_simulation, nodeParameters_simulation, nodeProperties_simulation
+from fluidize.core.types.parameters import Parameter
 from fluidize.core.types.project import ProjectSummary
+from fluidize.core.utils.pathfinder.path_finder import PathFinder
 
 
 class GraphHandler:
@@ -154,3 +156,119 @@ class GraphHandler:
         graph = Graph(nodes=graph_data.nodes, edges=graph_data.edges)
 
         return graph.to_ascii()
+
+    def get_parameters(self, project: ProjectSummary, node_id: str) -> list[Parameter]:
+        """
+        Get the parameters for a specific node in the project graph.
+
+        Args:
+            project: The project containing the graph
+            node_id: ID of the node to retrieve parameters for
+
+        Returns:
+            A list of Parameter objects for the node
+        """
+        node_path = PathFinder.get_node_path(project, node_id)
+        parameters_model = nodeParameters_simulation.from_file(node_path)
+        return parameters_model.parameters
+
+    def upsert_parameter(self, project: ProjectSummary, node_id: str, parameter: Parameter) -> Parameter:
+        """
+        Upsert a parameter for a specific node in the project graph.
+
+        Args:
+            project: The project containing the graph
+            node_id: ID of the node to update parameters for
+            parameter: The parameter to upsert
+
+        Returns:
+            The upserted parameter
+        """
+        node_path = PathFinder.get_node_path(project, node_id)
+        parameters_model = nodeParameters_simulation.from_file(node_path)
+
+        # Check if parameter with same name exists
+        for p in parameters_model.parameters:
+            if p.name == parameter.name:
+                # Update the existing parameter with new values
+                p.value = parameter.value
+                p.description = parameter.description
+                p.type = parameter.type
+                p.label = parameter.label
+                p.latex = parameter.latex
+                p.options = parameter.options
+                p.scope = parameter.scope
+                # Extend the location if it exists
+                if parameter.location:
+                    if p.location:
+                        p.location.extend(parameter.location)
+                    else:
+                        p.location = parameter.location
+                break
+        else:
+            # Parameter doesn't exist, add it
+            parameters_model.parameters.append(parameter)
+
+        # Save updated parameters back
+        parameters_model.save()
+        return parameter
+
+    def set_parameters(self, project: ProjectSummary, node_id: str, parameters: list[Parameter]) -> list[Parameter]:
+        """
+        Set all parameters for a specific node in the project graph, replacing existing ones.
+
+        Args:
+            project: The project containing the graph
+            node_id: ID of the node to set parameters for
+            parameters: List of parameters to set
+
+        Returns:
+            The list of parameters that were set
+        """
+        node_path = PathFinder.get_node_path(project, node_id)
+        parameters_model = nodeParameters_simulation.from_file(node_path)
+        parameters_model.parameters = parameters
+        parameters_model.save()
+        return parameters
+
+    def show_parameters(self, project: ProjectSummary, node_id: str) -> str:
+        """
+        Get a nicely formatted string display of parameters for a specific node.
+
+        Args:
+            project: The project containing the graph
+            node_id: ID of the node to retrieve parameters for
+
+        Returns:
+            A formatted string displaying the parameters
+        """
+        parameters = self.get_parameters(project, node_id)
+
+        if not parameters:
+            return f"No parameters found for node '{node_id}'"
+
+        output = f"Parameters for node '{node_id}':\n\n"
+
+        for i, param in enumerate(parameters, 1):
+            output += f"Parameter {i}:\n"
+            output += f"  Name: {param.name}\n"
+            output += f"  Value: {param.value}\n"
+            output += f"  Description: {param.description}\n"
+            output += f"  Type: {param.type}\n"
+            output += f"  Label: {param.label}\n"
+
+            if param.scope:
+                output += f"  Scope: {param.scope}\n"
+
+            if param.location:
+                output += f"  Location: {', '.join(param.location)}\n"
+
+            if param.latex:
+                output += f"  LaTeX: {param.latex}\n"
+
+            if param.options:
+                output += f"  Options: {[f'{opt.label} ({opt.value})' for opt in param.options]}\n"
+
+            output += "\n"
+
+        return output.rstrip()
