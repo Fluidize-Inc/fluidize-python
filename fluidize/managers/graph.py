@@ -51,7 +51,7 @@ class GraphManager:
             sim_global: Whether to use global simulations (placeholder for future)
 
         Returns:
-            The inserted node
+            The added node
         """
         return self.adapter.graph.insert_node(self.project, node, sim_global)  # type: ignore[no-any-return]
 
@@ -72,7 +72,7 @@ class GraphManager:
             repo_link: Optional repository URL to clone into the source directory
 
         Returns:
-            The inserted node
+            The added node
         """
         return self.adapter.graph.insert_node_from_scratch(  # type: ignore[no-any-return]
             self.project, node, node_properties, node_metadata, repo_link
