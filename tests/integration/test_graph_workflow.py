@@ -7,7 +7,7 @@ import pytest
 
 from fluidize import FluidizeClient
 from fluidize.core.types.graph import GraphNode, Position, graphNodeData
-from fluidize.managers.project_manager import ProjectManager
+from fluidize.managers.project_manager import Project
 from tests.fixtures.sample_graphs import SampleGraphs
 
 
@@ -61,7 +61,7 @@ class TestGraphWorkflow:
             description="Testing complete graph workflow",
         )
 
-        assert isinstance(project, ProjectManager)
+        assert isinstance(project, Project)
         assert project.id == "integration-test-project"
         assert project.label == "Integration Test Project"
 
@@ -356,7 +356,7 @@ class TestGraphWorkflow:
 
         # Each project should be a Project wrapper with graph access
         for project in projects_list:
-            assert isinstance(project, ProjectManager)
+            assert isinstance(project, Project)
             assert hasattr(project, "graph")
 
             # Each project's graph should have one node

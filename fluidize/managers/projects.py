@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from .project_manager import ProjectManager
+from .project_manager import Project
 
 
 class Projects:
@@ -27,7 +27,7 @@ class Projects:
         description: str = "",
         location: str = "",
         status: str = "",
-    ) -> ProjectManager:
+    ) -> Project:
         """
         Create a new project.
 
@@ -48,9 +48,9 @@ class Projects:
             location=location,
             status=status,
         )
-        return ProjectManager(self.adapter, project_summary)
+        return Project(self.adapter, project_summary)
 
-    def get(self, project_id: str) -> ProjectManager:
+    def get(self, project_id: str) -> Project:
         """
         Get a project by ID.
 
@@ -61,9 +61,9 @@ class Projects:
             Project wrapped in Project class
         """
         project_summary = self.adapter.projects.retrieve(project_id)
-        return ProjectManager(self.adapter, project_summary)
+        return Project(self.adapter, project_summary)
 
-    def list(self) -> list[ProjectManager]:
+    def list(self) -> list[Project]:
         """
         List all projects.
 
@@ -71,7 +71,7 @@ class Projects:
             List of projects wrapped in Project class
         """
         project_summaries = self.adapter.projects.list()
-        return [ProjectManager(self.adapter, summary) for summary in project_summaries]
+        return [Project(self.adapter, summary) for summary in project_summaries]
 
     def update(
         self,
@@ -80,7 +80,7 @@ class Projects:
         description: Optional[str] = None,
         location: Optional[str] = None,
         status: Optional[str] = None,
-    ) -> ProjectManager:
+    ) -> Project:
         """
         Update an existing project.
 
@@ -106,4 +106,4 @@ class Projects:
             update_data["status"] = status
 
         project_summary = self.adapter.projects.upsert(**update_data)
-        return ProjectManager(self.adapter, project_summary)
+        return Project(self.adapter, project_summary)

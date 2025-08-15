@@ -10,7 +10,7 @@ from .project_graph import ProjectGraph
 from .project_runs import ProjectRuns
 
 
-class ProjectManager:
+class Project:
     """
     Project entity that wraps project data and provides access to scoped managers.
 
