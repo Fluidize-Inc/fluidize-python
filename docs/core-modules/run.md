@@ -2,8 +2,8 @@
 
 ## Run Management
 
-### ProjectRuns
-::: fluidize.managers.project_runs.ProjectRuns
+### RunsManager
+::: fluidize.managers.runs.RunsManager
     options:
       show_source: false
       members:

@@ -8,7 +8,7 @@ from fluidize.core.types.project import ProjectSummary
 from fluidize.core.types.runs import RunFlowPayload
 
 
-class ProjectRuns:
+class RunsManager:
     """
     Runs manager for a specific project.
 

@@ -9,7 +9,7 @@ from fluidize.core.types.node import nodeMetadata_simulation, nodeProperties_sim
 from fluidize.core.types.project import ProjectSummary
 
 
-class ProjectGraph:
+class GraphManager:
     """
     Graph manager for a specific project.
 

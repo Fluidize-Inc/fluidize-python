@@ -1,9 +1,6 @@
 # Graph Module
 
-## Graph Management
-
-### ProjectGraph
-::: fluidize.managers.project_graph.ProjectGraph
+::: fluidize.managers.graph.GraphManager
     options:
       show_source: false
       members:
@@ -14,9 +11,6 @@
         - add_edge
         - delete_edge
 
-## Graph Processing
-
-### GraphProcessor
 ::: fluidize.core.modules.graph.GraphProcessor
     options:
       show_source: false
@@ -27,13 +21,19 @@
 ::: fluidize.core.types.GraphData
     options:
       show_source: false
+      show_root_heading: true
+      heading_level: 3
 
 ### GraphNode
 ::: fluidize.core.types.GraphNode
     options:
       show_source: false
+      show_root_heading: true
+      heading_level: 3
 
 ### GraphEdge
 ::: fluidize.core.types.GraphEdge
     options:
       show_source: false
+      show_root_heading: true
+      heading_level: 3
