@@ -6,44 +6,42 @@ from typing import Any, Optional
 
 from fluidize.core.types.project import ProjectSummary
 
-from .project_graph import ProjectGraph
-from .project_runs import ProjectRuns
+from .graph import GraphManager
+from .runs import RunsManager
 
 
-class Project:
+class ProjectManager:
     """
-    Project entity that wraps project data and provides access to scoped managers.
+    Project manager that wraps project data and provides access to scoped managers.
 
     Provides convenient access to graph and runs operations for this specific project.
     """
 
     def __init__(self, adapter: Any, project_summary: ProjectSummary) -> None:
         """
-        Initialize project wrapper.
-
         Args:
-            adapter: adapter adapter (FluidizeSDK or Localadapter)
+            adapter: adapter (FluidizeSDK or LocalAdapter)
             project_summary: The underlying project data
         """
         self._adapter = adapter
         self._project_summary = project_summary
-        self._graph: Optional[ProjectGraph] = None
-        self._runs: Optional[ProjectRuns] = None
+        self._graph: Optional[GraphManager] = None
+        self._runs: Optional[RunsManager] = None
 
     @property
-    def graph(self) -> ProjectGraph:
+    def graph(self) -> GraphManager:
         """
         Get the graph manager for this project.
 
         Returns:
-            ProjectGraph manager scoped to this project
+            GraphManager manager scoped to this project
         """
         if self._graph is None:
-            self._graph = ProjectGraph(self._adapter, self._project_summary)
+            self._graph = GraphManager(self._adapter, self._project_summary)
         return self._graph
 
     @property
-    def runs(self) -> ProjectRuns:
+    def runs(self) -> RunsManager:
         """
         Get the runs manager for this project.
 
@@ -51,48 +49,80 @@ class Project:
             ProjectRuns manager scoped to this project
         """
         if self._runs is None:
-            self._runs = ProjectRuns(self._adapter, self._project_summary)
+            self._runs = RunsManager(self._adapter, self._project_summary)
         return self._runs
 
     # Delegate all ProjectSummary attributes
     @property
     def id(self) -> str:
-        """Get project ID."""
+        """Get project ID.
+
+        Returns:
+            The project ID
+        """
         return self._project_summary.id
 
     @property
     def label(self) -> Optional[str]:
-        """Get project label."""
+        """Get project label.
+
+        Returns:
+            The project label
+        """
         return self._project_summary.label
 
     @property
     def description(self) -> Optional[str]:
-        """Get project description."""
+        """Get project description.
+
+        Returns:
+            The project description
+        """
         return self._project_summary.description
 
     @property
     def location(self) -> Optional[str]:
-        """Get project location."""
+        """Get project location.
+
+        Returns:
+            The project location
+        """
         return self._project_summary.location
 
     @property
     def status(self) -> Optional[str]:
-        """Get project status."""
+        """Get project status.
+
+        Returns:
+            The project status
+        """
         return self._project_summary.status
 
     @property
     def metadata_version(self) -> str:
-        """Get project metadata version."""
+        """Get project metadata version.
+
+        Returns:
+            The project metadata version
+        """
         return self._project_summary.metadata_version
 
     @property
     def created_at(self) -> Optional[str]:
-        """Get project creation timestamp."""
+        """Get project creation timestamp.
+
+        Returns:
+            The project creation timestamp
+        """
         return getattr(self._project_summary, "created_at", None)
 
     @property
     def updated_at(self) -> Optional[str]:
-        """Get project update timestamp."""
+        """Get project update timestamp.
+
+        Returns:
+            The project update timestamp
+        """
         return getattr(self._project_summary, "updated_at", None)
 
     def to_dict(self) -> dict[str, Any]:
@@ -112,9 +142,6 @@ class Project:
             "created_at": self.created_at,
             "updated_at": self.updated_at,
         }
-
-    def __repr__(self) -> str:
-        return f"Project(id='{self.id}', label='{self.label}')"
 
     def __str__(self) -> str:
         return f"Project {self.id}: {self.label or 'No label'}"

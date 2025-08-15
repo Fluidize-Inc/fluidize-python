@@ -1,11 +1,11 @@
 from typing import Any, Optional
 
-from .project_manager import Project
+from .project import ProjectManager
 
 
-class Projects:
+class RegistryManager:
     """
-    Manager for project CRUD operations.
+    Registry manager for project CRUD operations.
 
     Provides methods to create, retrieve, update, and list projects.
     All methods return Project entities that give access to project-scoped operations.
@@ -13,10 +13,8 @@ class Projects:
 
     def __init__(self, adapter: Any) -> None:
         """
-        Initialize the Projects manager.
-
         Args:
-            adapter: adapter adapter (FluidizeSDK or Localadapter)
+            adapter: adapter (FluidizeSDK or LocalAdapter)
         """
         self.adapter = adapter
 
@@ -27,7 +25,7 @@ class Projects:
         description: str = "",
         location: str = "",
         status: str = "",
-    ) -> Project:
+    ) -> ProjectManager:
         """
         Create a new project.
 
@@ -48,9 +46,9 @@ class Projects:
             location=location,
             status=status,
         )
-        return Project(self.adapter, project_summary)
+        return ProjectManager(self.adapter, project_summary)
 
-    def get(self, project_id: str) -> Project:
+    def get(self, project_id: str) -> ProjectManager:
         """
         Get a project by ID.
 
@@ -61,9 +59,9 @@ class Projects:
             Project wrapped in Project class
         """
         project_summary = self.adapter.projects.retrieve(project_id)
-        return Project(self.adapter, project_summary)
+        return ProjectManager(self.adapter, project_summary)
 
-    def list(self) -> list[Project]:
+    def list(self) -> list[ProjectManager]:
         """
         List all projects.
 
@@ -71,7 +69,7 @@ class Projects:
             List of projects wrapped in Project class
         """
         project_summaries = self.adapter.projects.list()
-        return [Project(self.adapter, summary) for summary in project_summaries]
+        return [ProjectManager(self.adapter, summary) for summary in project_summaries]
 
     def update(
         self,
@@ -80,7 +78,7 @@ class Projects:
         description: Optional[str] = None,
         location: Optional[str] = None,
         status: Optional[str] = None,
-    ) -> Project:
+    ) -> ProjectManager:
         """
         Update an existing project.
 
@@ -106,4 +104,4 @@ class Projects:
             update_data["status"] = status
 
         project_summary = self.adapter.projects.upsert(**update_data)
-        return Project(self.adapter, project_summary)
+        return ProjectManager(self.adapter, project_summary)

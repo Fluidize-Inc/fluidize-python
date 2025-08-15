@@ -9,7 +9,9 @@
 
  **fluidize-python** is a library for building modular, reproducible scientific computing pipelines. It provides a unified interface to a wide range of physical simulation tools, eliminating the need to navigate the inconsistent, incomplete instructions that often vary from tool to tool.
 
-This library marks our first step toward AI-orchestrated scientific computing. By standardizing tools and practices within our framework, AI agents can automatically build, configure, and execute computational pipelines across domains and simulation platforms. Our goal is to improve today’s simulation tools so AI can assist researchers and scientists in accelerating the pace of innovation and scientific discovery.
+This library marks our first step toward AI-orchestrated scientific computing. By standardizing tools and practices within our framework, AI agents can automatically build, configure, and execute computational pipelines across domains and simulation platforms.
+
+Our goal is to improve today’s simulation tools so AI can assist researchers and scientists in accelerating the pace of innovation and scientific discovery.
 
 ## Quick Start
 
@@ -54,6 +56,7 @@ Students and researchers face significant barriers when working with different s
 - **Reproducibility issues** – Sharing and reproducing experiments is frequently cumbersome and error-prone.
 - **Scaling friction** – Moving from a local prototype to a cloud environment or dedicated compute cluster can be slow and difficult.
 
+
 ## The Solution
 
 Fluidize provides a standardized wrapper that turns complex scientific software into modular components. This makes it possible to:
@@ -64,10 +67,16 @@ Fluidize provides a standardized wrapper that turns complex scientific software 
 
 All of this works with **minimal or no changes** to the existing codebase, allowing our framework to scale effortlessly to any repository.
 
+
 ## Architecture
 
+At Fluidize, we believe strong organization leads to better reproducibility and scalability.
+
+We treat each simulation pipeline as an individual project. Within projects, each pipeline is treated as a DAG (directed acyclic graph), where nodes represent individual pieces of scientific software (e.g. inputs, solvers, visualization tools, etc.) and edges represent data flow between nodes.
+
+
 ### Nodes
-The foundational building blocks of Fluidize. Each node encapsulates a computational unit with:
+Nodes are the foundational building blocks of simulation pipelines. Each node represents a computational unit with:
 
 | File | Purpose |
 |------|---------|
@@ -84,18 +93,20 @@ The foundational building blocks of Fluidize. Each node encapsulates a computati
 - No source code modification required
 - Automated node generation support (Public launch soon)
 
+
 ### Projects
-The project currently hosts a simple layer for composing and managing multiple nodes:
+
+Projects store a simple data layer for managing individual modules within a pipeline.
 
 | File | Purpose |
 |------|---------|
-| `graph.json` | Node connectivity and data flow definition |
+| `graph.json` | Node (scientific software) and edge (data flow) definitions |
 | `metadata.yaml` | Project description and configuration |
 
 
-Docker engine is used for local execution. With API calls, we use the Kubernetes engine with Argo Workflow Manager.
+### Runs
 
-
+Pipelines can be executed both locally and on the cloud. Local execution is handled by Docker engine. Cloud execution is routed through our API, and uses the Kubernetes engine with Argo Workflow Manager.
 
 
 ## Documentation
@@ -107,18 +118,22 @@ Comprehensive documentation is available at [https://Fluidize-Inc.github.io/flui
 - [Project Orchestration](https://Fluidize-Inc.github.io/fluidize-python/projects)
 - [API Reference](https://Fluidize-Inc.github.io/fluidize-python/api)
 
+
 ## Contributing
 
-We would love contributions and collaborations! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+We would love to collaborate with you! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-Also - we would love to help streamline your research pipeline! Please reach out at [henry@fluidize.ai](mailto:henry@fluidize.ai) or [henrybae@g.harvard.edu](mailto:henrybae@g.harvard.edu).
+Also - we would love to help streamline your pipeline! Please reach out to us at [founders@fluidize.ai](mailto:founders@fluidize.ai).
 
-## Roadmap
 
-This is just the beginning of what we think is a really exciting new era for how we learn science and do research. We will be releasing the following tools built from this framework:
+## Vision and Roadmap
 
-- **Fluidize Playground**: Automatically explore and build simulation pipelines with natural language.
-- **Auto-Fluidize**: Automatically convert obscure scientific software to run anywhere
+This is just the beginning of what we believe will be a really exciting new era for how we conduct research and make discoveries in science.
+
+By standardizing tools, we hope to significantly increase the effectiveness of AI in research and discovery. Soon, we will be releasing the following tools built from this framework:
+
+- **Auto-Fluidize**: Automatically convert any scientific software to run anywhere with our framework.
+- **Fluidize AI Playground**: Explore and build simulation pipelines with natural language.
 
 
 ## License

@@ -15,29 +15,50 @@ class ProjectRunner:
     """
 
     def __init__(self, project: ProjectSummary):
-        """Initialize with project and get handler"""
+        """
+        Args:
+            project: ProjectSummary
+        """
         self.project = project
         self.handler = get_handler("project_runner", project)
 
     def prepare_run_environment(self, metadata: RunFlowPayload) -> int:
         """
-        Create a new run folder for the project
-        Returns the run number
+        Create a new run folder for the project.
+
+        Args:
+            metadata: RunFlowPayload
+
+        Returns:
+            int: Run number
         """
         return cast(int, self.handler.prepare_run_environment(metadata))
 
     async def execute_node(self, node_id: str, prev_node_id: Optional[str] = None, **kwargs: Any) -> dict[str, Any]:
         """
-        Execute a single node within the project run
-        Returns the execution result
+        Execute a single node within the project run.
+
+        Args:
+            node_id: Node ID
+            prev_node_id: Previous node ID
+            **kwargs: Additional keyword arguments
+
+        Returns:
+            dict[str, Any]: Execution result
         """
         return await asyncio.to_thread(self.handler.execute_node, node_id, prev_node_id=prev_node_id, **kwargs)
 
     async def execute_flow(self, nodes_to_run: list[str], prev_nodes: list[str], **kwargs: Any) -> list[dict[str, Any]]:
         """
-        Execute a flow of nodes in the correct order
-        nodes_to_run: List of node IDs
-        Returns execution results for all nodes
+        Execute a flow of nodes in order.
+
+        Args:
+            nodes_to_run: List of node IDs
+            prev_nodes: List of previous node IDs
+            **kwargs: Additional keyword arguments
+
+        Returns:
+            list[dict[str, Any]]: Execution results for all nodes
         """
         # Make sure that nodes_to_run and prev_nodes are same size lists
         if len(nodes_to_run) != len(prev_nodes):

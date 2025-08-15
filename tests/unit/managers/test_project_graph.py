@@ -1,4 +1,4 @@
-"""Unit tests for ProjectGraph manager - project-scoped graph operations."""
+"""Unit tests for GraphManager manager - project-scoped graph operations."""
 
 import datetime
 from unittest.mock import Mock
@@ -8,13 +8,14 @@ import pytest
 from fluidize.core.types.node import author, nodeMetadata_simulation, nodeProperties_simulation, tag
 from fluidize.core.types.parameters import Parameter
 from fluidize.core.types.runs import RunStatus
-from fluidize.managers.project_graph import ProjectGraph
+from fluidize.managers.graph import GraphManager
+from fluidize.managers.node import NodeManager
 from tests.fixtures.sample_graphs import SampleGraphs
 from tests.fixtures.sample_projects import SampleProjects
 
 
-class TestProjectGraph:
-    """Test suite for ProjectGraph manager class."""
+class TestGraphManager:
+    """Test suite for GraphManager manager class."""
 
     @pytest.fixture
     def mock_adapter(self):
@@ -30,14 +31,14 @@ class TestProjectGraph:
 
     @pytest.fixture
     def project_graph(self, mock_adapter, sample_project):
-        """Create a ProjectGraph instance for testing."""
-        return ProjectGraph(mock_adapter, sample_project)
+        """Create a GraphManager instance for testing."""
+        return GraphManager(mock_adapter, sample_project)
 
     def test_init_with_graph_initialization(self, mock_adapter, sample_project):
-        """Test ProjectGraph initialization triggers graph initialization."""
+        """Test GraphManager initialization triggers graph initialization."""
         mock_adapter.graph.ensure_graph_initialized = Mock()
 
-        project_graph = ProjectGraph(mock_adapter, sample_project)
+        project_graph = GraphManager(mock_adapter, sample_project)
 
         assert project_graph.adapter is mock_adapter
         assert project_graph.project is sample_project
@@ -49,7 +50,7 @@ class TestProjectGraph:
         del adapter_without_graph.graph  # Remove graph attribute
 
         # Should not raise error
-        project_graph = ProjectGraph(adapter_without_graph, sample_project)
+        project_graph = GraphManager(adapter_without_graph, sample_project)
 
         assert project_graph.adapter is adapter_without_graph
         assert project_graph.project is sample_project
@@ -61,7 +62,7 @@ class TestProjectGraph:
         del adapter.graph.ensure_graph_initialized  # Remove ensure method
 
         # Should not raise error
-        project_graph = ProjectGraph(adapter, sample_project)
+        project_graph = GraphManager(adapter, sample_project)
 
         assert project_graph.adapter is adapter
         assert project_graph.project is sample_project
@@ -94,7 +95,8 @@ class TestProjectGraph:
 
         result = project_graph.add_node(node)
 
-        assert result == node
+        assert isinstance(result, NodeManager)
+        assert result.node_id == node.id
         mock_adapter.graph.insert_node.assert_called_once_with(
             project_graph.project,
             node,
@@ -108,7 +110,8 @@ class TestProjectGraph:
 
         result = project_graph.add_node(node, sim_global=False)
 
-        assert result == node
+        assert isinstance(result, NodeManager)
+        assert result.node_id == node.id
         mock_adapter.graph.insert_node.assert_called_once_with(project_graph.project, node, False)
 
     def test_add_node_from_scratch_success(self, project_graph, mock_adapter):
@@ -142,7 +145,8 @@ class TestProjectGraph:
 
         result = project_graph.add_node_from_scratch(node, node_properties, node_metadata)
 
-        assert result == node
+        assert isinstance(result, NodeManager)
+        assert result.node_id == node.id
         mock_adapter.graph.insert_node_from_scratch.assert_called_once_with(
             project_graph.project,
             node,
@@ -175,7 +179,8 @@ class TestProjectGraph:
 
         result = project_graph.add_node_from_scratch(node, node_properties, node_metadata, repo_link)
 
-        assert result == node
+        assert isinstance(result, NodeManager)
+        assert result.node_id == node.id
         mock_adapter.graph.insert_node_from_scratch.assert_called_once_with(
             project_graph.project, node, node_properties, node_metadata, repo_link
         )
@@ -273,12 +278,12 @@ class TestProjectGraph:
             project_graph.add_edge(edge)
 
     def test_project_scoping(self, mock_adapter):
-        """Test that different ProjectGraph instances are properly scoped to their projects."""
+        """Test that different GraphManager instances are properly scoped to their projects."""
         project1 = SampleProjects.standard_project()
         project2 = SampleProjects.minimal_project()
 
-        graph1 = ProjectGraph(mock_adapter, project1)
-        graph2 = ProjectGraph(mock_adapter, project2)
+        graph1 = GraphManager(mock_adapter, project1)
+        graph2 = GraphManager(mock_adapter, project2)
 
         node = SampleGraphs.sample_nodes()[0]
 
@@ -295,7 +300,7 @@ class TestProjectGraph:
         assert calls[1][0][0] == project2  # Second call with project2
 
     def test_all_methods_delegate_to_adapter(self, project_graph, mock_adapter):
-        """Test that all ProjectGraph methods properly delegate to adapter."""
+        """Test that all GraphManager methods properly delegate to adapter."""
         # Setup return values
         mock_graph_data = SampleGraphs.single_node_graph()
         mock_node = SampleGraphs.sample_nodes()[0]
@@ -344,7 +349,8 @@ class TestProjectGraph:
 
         result = project_graph.add_node_from_scratch(node, node_properties, node_metadata)
 
-        assert result == node
+        assert isinstance(result, NodeManager)
+        assert result.node_id == node.id
         mock_adapter.graph.insert_node_from_scratch.assert_called_once_with(
             project_graph.project, node, node_properties, node_metadata, None
         )
@@ -462,8 +468,8 @@ class TestProjectGraph:
         project1 = SampleProjects.standard_project()
         project2 = SampleProjects.minimal_project()
 
-        graph1 = ProjectGraph(mock_adapter, project1)
-        graph2 = ProjectGraph(mock_adapter, project2)
+        graph1 = GraphManager(mock_adapter, project1)
+        graph2 = GraphManager(mock_adapter, project2)
 
         parameter = Parameter(
             name="test_param", value="test_value", type="text", label="Test Parameter", description="A test parameter"
