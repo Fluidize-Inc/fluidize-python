@@ -6,22 +6,22 @@ The Fluidize Client is the primary interface to create and edit projects. There 
 
 - **API Mode**: Runs on Fluidize API to manage projects and workflows in the cloud.
 
-## Client API
-
-### FluidizeClient
 ::: fluidize.client.FluidizeClient
     options:
       show_source: false
+      show_root_heading: true
+      heading_level: 3
       members:
         - mode
         - adapters
         - projects
         - runs
 
-### FluidizeConfig
 ::: fluidize.config.FluidizeConfig
     options:
       show_source: false
+      show_root_heading: true
+      heading_level: 3
       members:
         - is_local_mode
         - is_api_mode

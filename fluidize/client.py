@@ -34,8 +34,6 @@ class FluidizeClient:
 
     def __init__(self, mode: Literal["local", "api", "auto"] = "auto", base_path: Optional[Path] = None):
         """
-        Initialize the Fluidize client.
-
         Args:
             mode: Operation mode - "local", "api", or "auto" for environment detection
             base_path: Optional custom base path for local mode. If None, uses ~/.fluidize
@@ -55,14 +53,22 @@ class FluidizeClient:
         self.projects = RegistryManager(self._adapter)
 
     def _initialize_adapter(self) -> Any:
-        """Initialize the appropriate adapter based on the mode."""
+        """Initialize the appropriate adapter based on the mode.
+
+        Returns:
+            Any: The initialized adapter
+        """
         if self.config.is_api_mode():
             return self._initialize_api_adapter()
         else:
             return self._initialize_local_adapter()
 
     def _initialize_api_adapter(self) -> FluidizeSDK:
-        """Initialize the API adapter using FluidizeSDK."""
+        """Initialize the API adapter using FluidizeSDK.
+
+        Returns:
+            FluidizeSDK: The initialized API adapter
+        """
         if not self.config.api_key:
             msg = "API mode requires an API key. Set the FLUIDIZE_API_KEY environment variable."
             raise ValueError(msg)
@@ -72,18 +78,35 @@ class FluidizeClient:
         )
 
     def _initialize_local_adapter(self) -> LocalAdapter:
-        """Initialize the local adapter."""
+        """Initialize the local adapter.
+
+        Returns:
+            LocalAdapter: The initialized local adapter
+        """
         return LocalAdapter(self.config)
 
     @property
     def mode(self) -> str:
-        """Get the current operation mode."""
+        """Get the current operation mode.
+
+        Returns:
+            str: The current operation mode
+        """
         return self.config.mode
 
     @property
     def adapter(self) -> Any:
-        """Access the underlying adapter for advanced operations."""
+        """Access the underlying adapter for advanced operations.
+
+        Returns:
+            Any: The underlying adapter
+        """
         return self._adapter
 
     def __repr__(self) -> str:
+        """Return a string representation of the client.
+
+        Returns:
+            str: A string representation of the client
+        """
         return f"FluidizeClient(mode='{self.mode}')"

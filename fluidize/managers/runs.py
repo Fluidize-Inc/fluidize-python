@@ -20,10 +20,8 @@ class RunsManager:
 
     def __init__(self, adapter: Any, project: ProjectSummary) -> None:
         """
-        Initialize project-scoped runs manager.
-
         Args:
-            adapter: adapter adapter (FluidizeSDK or Localadapter)
+            adapter: adapter (FluidizeSDK or LocalAdapter)
             project: The project this runs manager is bound to
         """
         self.adapter = adapter

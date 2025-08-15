@@ -56,6 +56,7 @@ Students and researchers face significant barriers when working with different s
 - **Reproducibility issues** – Sharing and reproducing experiments is frequently cumbersome and error-prone.
 - **Scaling friction** – Moving from a local prototype to a cloud environment or dedicated compute cluster can be slow and difficult.
 
+
 ## The Solution
 
 Fluidize provides a standardized wrapper that turns complex scientific software into modular components. This makes it possible to:
@@ -66,11 +67,13 @@ Fluidize provides a standardized wrapper that turns complex scientific software 
 
 All of this works with **minimal or no changes** to the existing codebase, allowing our framework to scale effortlessly to any repository.
 
+
 ## Architecture
 
 At Fluidize, we believe strong organization leads to better reproducibility and scalability.
 
 We treat each simulation pipeline as an individual project. Within projects, each pipeline is treated as a DAG (directed acyclic graph), where nodes represent individual pieces of scientific software (e.g. inputs, solvers, visualization tools, etc.) and edges represent data flow between nodes.
+
 
 ### Nodes
 Nodes are the foundational building blocks of simulation pipelines. Each node represents a computational unit with:
@@ -90,6 +93,7 @@ Nodes are the foundational building blocks of simulation pipelines. Each node re
 - No source code modification required
 - Automated node generation support (Public launch soon)
 
+
 ### Projects
 
 Projects store a simple data layer for managing individual modules within a pipeline.
@@ -99,9 +103,11 @@ Projects store a simple data layer for managing individual modules within a pipe
 | `graph.json` | Node (scientific software) and edge (data flow) definitions |
 | `metadata.yaml` | Project description and configuration |
 
+
 ### Runs
 
 Pipelines can be executed both locally and on the cloud. Local execution is handled by Docker engine. Cloud execution is routed through our API, and uses the Kubernetes engine with Argo Workflow Manager.
+
 
 ## Documentation
 
@@ -112,11 +118,13 @@ Comprehensive documentation is available at [https://Fluidize-Inc.github.io/flui
 - [Project Orchestration](https://Fluidize-Inc.github.io/fluidize-python/projects)
 - [API Reference](https://Fluidize-Inc.github.io/fluidize-python/api)
 
+
 ## Contributing
 
 We would love to collaborate with you! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 Also - we would love to help streamline your pipeline! Please reach out to us at [founders@fluidize.ai](mailto:founders@fluidize.ai).
+
 
 ## Vision and Roadmap
 
@@ -126,6 +134,7 @@ By standardizing tools, we hope to significantly increase the effectiveness of A
 
 - **Auto-Fluidize**: Automatically convert any scientific software to run anywhere with our framework.
 - **Fluidize AI Playground**: Explore and build simulation pipelines with natural language.
+
 
 ## License
 

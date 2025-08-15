@@ -1,8 +1,11 @@
 # Graph Module
 
+## Graph Manager
 ::: fluidize.managers.graph.GraphManager
     options:
       show_source: false
+      how_root_heading: true
+      heading_level: 3
       members:
         - get
         - add_node
@@ -11,29 +14,31 @@
         - add_edge
         - delete_edge
 
+## Graph Processor
 ::: fluidize.core.modules.graph.GraphProcessor
     options:
       show_source: false
+      show_root_heading: true
+      heading_level: 3
 
 ## Graph Types
 
-### GraphData
-::: fluidize.core.types.GraphData
+::: fluidize.core.types.graph.GraphData
     options:
-      show_source: false
+      show_attributes: true
       show_root_heading: true
       heading_level: 3
 
-### GraphNode
-::: fluidize.core.types.GraphNode
+
+::: fluidize.core.types.graph.GraphNode
     options:
-      show_source: false
+      show_attributes: true
       show_root_heading: true
       heading_level: 3
 
-### GraphEdge
-::: fluidize.core.types.GraphEdge
+
+::: fluidize.core.types.graph.GraphEdge
     options:
-      show_source: false
+      show_attributes: true
       show_root_heading: true
       heading_level: 3

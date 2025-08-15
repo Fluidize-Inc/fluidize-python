@@ -23,10 +23,8 @@ class GraphManager:
 
     def __init__(self, adapter: Any, project: ProjectSummary) -> None:
         """
-        Initialize project-scoped graph manager.
-
         Args:
-            adapter: adapter adapter (FluidizeSDK or Localadapter)
+            adapter: adapter (FluidizeSDK or LocalAdapter)
             project: The project this graph manager is bound to
         """
         self.adapter = adapter
@@ -68,7 +66,7 @@ class GraphManager:
             sim_global: Whether to use global simulations (placeholder for future)
 
         Returns:
-            NodeManager for the inserted node
+            The added node
         """
         inserted_node = self.adapter.graph.insert_node(self.project, node, sim_global)
         return self.get_node(inserted_node.id)
@@ -90,7 +88,7 @@ class GraphManager:
             repo_link: Optional repository URL to clone into the source directory
 
         Returns:
-            NodeManager for the inserted node
+            The added node
         """
         inserted_node = self.adapter.graph.insert_node_from_scratch(
             self.project, node, node_properties, node_metadata, repo_link

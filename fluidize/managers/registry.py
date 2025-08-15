@@ -5,7 +5,7 @@ from .project import ProjectManager
 
 class RegistryManager:
     """
-    Manager for project CRUD operations.
+    Registry manager for project CRUD operations.
 
     Provides methods to create, retrieve, update, and list projects.
     All methods return Project entities that give access to project-scoped operations.
@@ -13,10 +13,8 @@ class RegistryManager:
 
     def __init__(self, adapter: Any) -> None:
         """
-        Initialize the Projects manager.
-
         Args:
-            adapter: adapter adapter (FluidizeSDK or Localadapter)
+            adapter: adapter (FluidizeSDK or LocalAdapter)
         """
         self.adapter = adapter
 
