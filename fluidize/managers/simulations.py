@@ -16,7 +16,8 @@ class SimulationsManager:
             adapter: adapter (FluidizeSDK or LocalAdapter)
         """
         self._adapter = adapter
-        self.fluidize_sdk = FluidizeSDK()
+        # TODO: Fix hardcoding of api_token and remove type ignore
+        self.fluidize_sdk = FluidizeSDK(api_token="placeholder")  # noqa: S106
 
     def list_simulations(self) -> list[Any]:
         """
@@ -25,5 +26,8 @@ class SimulationsManager:
         Returns:
             List of simulation metadata
         """
-        simulations = self.fluidize_sdk.graph.list_simulations(sim_global=True)
-        return [nodeMetadata_simulation.from_dict_and_path(data=simulation, path=None) for simulation in simulations]
+        simulations = self.fluidize_sdk.simulation.list_simulations(sim_global=True)
+        return [
+            nodeMetadata_simulation.from_dict_and_path(data=simulation.model_dump(), path=None)
+            for simulation in simulations
+        ]
