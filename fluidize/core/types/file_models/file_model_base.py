@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, TypeVar, Union
+from typing import Any, Optional, TypeVar, Union
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr, ValidationError
 from upath import UPath
@@ -49,7 +49,7 @@ class FileModelBase(BaseModel):
             return instance
 
     @classmethod
-    def from_dict_and_path(cls: type[T], data: dict, path: UPath) -> T:
+    def from_dict_and_path(cls: type[T], data: Any, path: Optional[UPath]) -> T:
         """Creates a model instance from a dictionary and a path, without reading the file again."""
         if not data:
             raise ValueError()

@@ -8,6 +8,10 @@ from fluidize.core.types.project import ProjectSummary
 
 # RunJob now uses a strategy instance to dynamically choose behavior.
 class RunJob:
+    """
+    A job that runs for a single node.
+    """
+
     def __init__(
         self,
         project: ProjectSummary,
@@ -18,6 +22,16 @@ class RunJob:
         run_id: Optional[str] = None,
         run_metadata: Optional[object] = None,  # Add run metadata
     ):
+        """
+        Args:
+            project: The project this node belongs to
+            strategyClass: The strategy class to use for execution
+            nodeProperties_simulation: The node properties to run
+            prev_nodeProperties_simulation: The previous node properties (optional)
+            mlflow_tracker: The MLflow tracker (optional)
+            run_id: The run ID (optional)
+            run_metadata: The run metadata (optional)
+        """
         self.project = project
         self.nodeProperties_simulation = nodeProperties_simulation
         self.prev_nodeProperties_simulation = prev_nodeProperties_simulation
