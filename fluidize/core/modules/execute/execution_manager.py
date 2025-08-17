@@ -11,6 +11,7 @@ from typing import Any, Optional
 from fluidize.core.types.execution_models import ExecutionMode, create_execution_context
 from fluidize.core.types.node import nodeProperties_simulation
 from fluidize.core.types.project import ProjectSummary
+from fluidize.core.utils.logger.execution_logger import ExecutionLogger
 
 from .docker_client import DockerExecutionClient
 
@@ -44,6 +45,7 @@ class ExecutionManager:
         execution_mode: ExecutionMode = ExecutionMode.LOCAL_DOCKER,
         run_number: Optional[int] = None,
         run_id: Optional[str] = None,
+        run_metadata: Optional[object] = None,
         **kwargs: Any,
     ) -> dict[str, Any]:
         """
@@ -93,7 +95,7 @@ class ExecutionManager:
                     logger.warning(f"Specification warning: {warning}")
 
             # Step 4: Execute based on mode
-            result = self._execute_with_mode(context.execution_mode, spec, **kwargs)
+            result = self._execute_with_mode(context.execution_mode, spec, project, node, run_metadata, **kwargs)
 
             logger.info(f"Node {node.node_id} execution completed: {result.get('success', False)}")
         except Exception as e:
@@ -102,14 +104,22 @@ class ExecutionManager:
         else:
             return result
 
-    def _execute_with_mode(self, execution_mode: ExecutionMode, spec: Any, **kwargs: Any) -> dict[str, Any]:
+    def _execute_with_mode(
+        self,
+        execution_mode: ExecutionMode,
+        spec: Any,
+        project: ProjectSummary,
+        node: nodeProperties_simulation,
+        run_metadata: Optional[object],
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Execute using the appropriate client based on execution mode."""
 
         if execution_mode == ExecutionMode.LOCAL_DOCKER:
-            return self._execute_docker(spec, **kwargs)
+            return self._execute_docker(spec, project, node, run_metadata, **kwargs)
 
         elif execution_mode == ExecutionMode.VM_DOCKER:
-            return self._execute_vm(spec, **kwargs)
+            return self._execute_vm(spec, project, node, run_metadata, **kwargs)
 
         elif execution_mode == ExecutionMode.KUBERNETES:
             # Kubernetes execution not implemented yet
@@ -118,12 +128,19 @@ class ExecutionManager:
         elif execution_mode == ExecutionMode.CLOUD_BATCH:
             # Could integrate with existing batch execution
             logger.warning("Cloud Batch execution not yet implemented, falling back to VM")
-            return self._execute_vm(spec, **kwargs)
+            return self._execute_vm(spec, project, node, run_metadata, **kwargs)
 
         else:
             return {"success": False, "error": f"Unsupported execution mode: {execution_mode.value}"}
 
-    def _execute_docker(self, spec: Any, **kwargs: Any) -> dict[str, Any]:
+    def _execute_docker(
+        self,
+        spec: Any,
+        project: ProjectSummary,
+        node: nodeProperties_simulation,
+        run_metadata: Optional[object],
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Execute using Docker client."""
         try:
             if not self.docker_client:
@@ -135,6 +152,9 @@ class ExecutionManager:
 
             # Execute container
             result = self.docker_client.run_container(spec.container_spec, spec.volume_spec.volumes, **kwargs)
+
+            # Save execution logs
+            ExecutionLogger.save_execution_logs(project, run_metadata, str(node.node_id), result.stdout, result.stderr)
         except Exception as e:
             logger.exception("Docker execution failed")
             return {"success": False, "error": str(e), "execution_mode": "local_docker"}
@@ -148,7 +168,14 @@ class ExecutionManager:
                 "execution_mode": "local_docker",
             }
 
-    def _execute_vm(self, spec: Any, **kwargs: Any) -> dict[str, Any]:
+    def _execute_vm(
+        self,
+        spec: Any,
+        project: ProjectSummary,
+        node: nodeProperties_simulation,
+        run_metadata: Optional[object],
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Execute using VM client."""
         try:
             if not self.vm_client:
@@ -156,6 +183,9 @@ class ExecutionManager:
 
             # Execute container on VM
             result = self.vm_client.run_container(spec.container_spec, spec.volume_spec.volumes, **kwargs)
+
+            # Save execution logs
+            ExecutionLogger.save_execution_logs(project, run_metadata, str(node.node_id), result.stdout, result.stderr)
         except Exception as e:
             logger.exception("VM execution failed")
             return {"success": False, "error": str(e), "execution_mode": "vm_docker"}
