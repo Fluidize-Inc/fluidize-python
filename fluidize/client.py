@@ -103,6 +103,15 @@ class FluidizeClient:
         """
         return self._adapter
 
+    @property
+    def projects(self) -> RegistryManager:
+        """Access the Client project registry manager.
+
+        Returns:
+            RegistryManager: The Client project registry manager
+        """
+        return self.projects
+
     def __repr__(self) -> str:
         """Return a string representation of the client.
 
