@@ -13,9 +13,11 @@ nav:
       - Quickstart: getting-started/quickstart.md
       - Examples: getting-started/examples.md
   - Core Modules:
+      - core-modules/index.md
       - Client: core-modules/client.md
       - Projects: core-modules/projects.md
       - Graph: core-modules/graph.md
+      - Node: core-modules/node.md
       - Run: core-modules/run.md
 plugins:
   - search

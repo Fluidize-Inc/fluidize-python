@@ -24,8 +24,6 @@ class NodeManager:
 
     def __init__(self, adapter: Any, project: ProjectSummary, node_id: str) -> None:
         """
-        Initialize node-scoped manager.
-
         Args:
             adapter: adapter adapter (FluidizeSDK or Localadapter)
             project: The project this node belongs to
@@ -268,13 +266,13 @@ class NodeManager:
 
     def set_parameters(self, parameters: list[Parameter]) -> list[Parameter]:
         """
-                Replace all parameters with the provided list.
+        Replace all parameters with the provided list.
 
-                Args:
-                    parameters: List of parameters to set
-        W
-                Returns:
-                    The list of parameters that were set
+        Args:
+            parameters: List of parameters to set
+
+        Returns:
+            The list of parameters that were set
         """
         parameters_model = self.get_parameters_model()
         parameters_model.parameters = parameters
