@@ -110,22 +110,27 @@ class TestExecutionManagerSimple:
         assert result["success"] is False
         assert "not yet implemented" in result["error"].lower()
 
-    def test_execute_with_mode_direct(self, execution_manager):
+    def test_execute_with_mode_direct(self, execution_manager, sample_project, sample_node):
         """Test _execute_with_mode method directly."""
         # Test Kubernetes mode
-        result = execution_manager._execute_with_mode(ExecutionMode.KUBERNETES, Mock())
+        result = execution_manager._execute_with_mode(
+            ExecutionMode.KUBERNETES, Mock(), sample_project, sample_node, None
+        )
         assert result["success"] is False
         assert "not yet implemented" in result["error"].lower()
 
         # Test unsupported mode (if any)
         mock_unsupported = Mock()
         mock_unsupported.value = "UNSUPPORTED_MODE"
-        result = execution_manager._execute_with_mode(mock_unsupported, Mock())
+        result = execution_manager._execute_with_mode(mock_unsupported, Mock(), sample_project, sample_node, None)
         assert result["success"] is False
         assert "unsupported" in result["error"].lower()
 
     @patch("fluidize.core.modules.execute.execution_manager.DockerExecutionClient")
-    def test_execute_docker_client_creation(self, mock_docker_client_class, execution_manager):
+    @patch("fluidize.core.modules.execute.execution_manager.ExecutionLogger")
+    def test_execute_docker_client_creation(
+        self, mock_execution_logger, mock_docker_client_class, execution_manager, sample_project, sample_node
+    ):
         """Test Docker client creation in _execute_docker."""
         mock_client = Mock()
         mock_client.pull_image.return_value = True
@@ -137,25 +142,29 @@ class TestExecutionManagerSimple:
         mock_result.container_id = "container123"
         mock_client.run_container.return_value = mock_result
         mock_docker_client_class.return_value = mock_client
+        mock_execution_logger.save_execution_logs.return_value = True
 
         mock_spec = Mock()
         mock_spec.container_spec.image = "test:latest"
         mock_spec.volume_spec.volumes = []
 
-        result = execution_manager._execute_docker(mock_spec)
+        result = execution_manager._execute_docker(mock_spec, sample_project, sample_node, None)
 
         assert execution_manager.docker_client is not None
         assert result["success"] is True
         assert result["execution_mode"] == "local_docker"
+        mock_execution_logger.save_execution_logs.assert_called_once()
 
         # Test reuse of existing client
-        result2 = execution_manager._execute_docker(mock_spec)
+        result2 = execution_manager._execute_docker(mock_spec, sample_project, sample_node, None)
         assert result2["success"] is True
         # Client should only be created once
         assert mock_docker_client_class.call_count == 1
 
     @patch("fluidize.core.modules.execute.execution_manager.DockerExecutionClient")
-    def test_execute_docker_pull_failure(self, mock_docker_client_class, execution_manager):
+    def test_execute_docker_pull_failure(
+        self, mock_docker_client_class, execution_manager, sample_project, sample_node
+    ):
         """Test Docker execution with image pull failure."""
         mock_client = Mock()
         mock_client.pull_image.return_value = False  # Pull fails
@@ -164,13 +173,16 @@ class TestExecutionManagerSimple:
         mock_spec = Mock()
         mock_spec.container_spec.image = "nonexistent:latest"
 
-        result = execution_manager._execute_docker(mock_spec)
+        result = execution_manager._execute_docker(mock_spec, sample_project, sample_node, None)
 
         assert result["success"] is False
         assert "failed to pull image" in result["error"].lower()
 
     @patch("fluidize.core.modules.execute.execution_manager.VMExecutionClient")
-    def test_execute_vm_client_creation(self, mock_vm_client_class, execution_manager):
+    @patch("fluidize.core.modules.execute.execution_manager.ExecutionLogger")
+    def test_execute_vm_client_creation(
+        self, mock_execution_logger, mock_vm_client_class, execution_manager, sample_project, sample_node
+    ):
         """Test VM client creation in _execute_vm."""
         mock_client = Mock()
         mock_result = Mock()
@@ -181,20 +193,24 @@ class TestExecutionManagerSimple:
         mock_result.command = "docker run test"
         mock_client.run_container.return_value = mock_result
         mock_vm_client_class.return_value = mock_client
+        mock_execution_logger.save_execution_logs.return_value = True
 
         mock_spec = Mock()
         mock_spec.container_spec = Mock()
         mock_spec.volume_spec.volumes = []
 
-        result = execution_manager._execute_vm(mock_spec)
+        result = execution_manager._execute_vm(mock_spec, sample_project, sample_node, None)
 
         assert execution_manager.vm_client is not None
         assert result["success"] is True
         assert result["execution_mode"] == "vm_docker"
         assert "command" in result
+        mock_execution_logger.save_execution_logs.assert_called_once()
 
     @patch("fluidize.core.modules.execute.execution_manager.DockerExecutionClient")
-    def test_execute_docker_exception_handling(self, mock_docker_client_class, execution_manager):
+    def test_execute_docker_exception_handling(
+        self, mock_docker_client_class, execution_manager, sample_project, sample_node
+    ):
         """Test exception handling in _execute_docker."""
         mock_client = Mock()
         mock_client.pull_image.side_effect = Exception("Docker daemon not running")
@@ -203,14 +219,14 @@ class TestExecutionManagerSimple:
         mock_spec = Mock()
         mock_spec.container_spec.image = "test:latest"
 
-        result = execution_manager._execute_docker(mock_spec)
+        result = execution_manager._execute_docker(mock_spec, sample_project, sample_node, None)
 
         assert result["success"] is False
         assert "docker daemon not running" in result["error"].lower()
         assert result["execution_mode"] == "local_docker"
 
     @patch("fluidize.core.modules.execute.execution_manager.VMExecutionClient")
-    def test_execute_vm_exception_handling(self, mock_vm_client_class, execution_manager):
+    def test_execute_vm_exception_handling(self, mock_vm_client_class, execution_manager, sample_project, sample_node):
         """Test exception handling in _execute_vm."""
         mock_client = Mock()
         mock_client.run_container.side_effect = Exception("SSH connection failed")
@@ -218,7 +234,7 @@ class TestExecutionManagerSimple:
 
         mock_spec = Mock()
 
-        result = execution_manager._execute_vm(mock_spec)
+        result = execution_manager._execute_vm(mock_spec, sample_project, sample_node, None)
 
         assert result["success"] is False
         assert "ssh connection failed" in result["error"].lower()

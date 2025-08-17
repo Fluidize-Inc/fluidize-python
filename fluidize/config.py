@@ -91,7 +91,11 @@ class FluidizeConfig:
             return result.returncode == 0
 
     def warn_if_docker_unavailable(self) -> None:
-        """Issue a warning if Docker is not available for local runs."""
+        """Issue a warning if Docker is not available for local runs.
+
+        Returns:
+            None
+        """
         if not self.check_docker_available():
             warnings.warn(
                 "Docker is not available. Local simulation runs will not be possible. "

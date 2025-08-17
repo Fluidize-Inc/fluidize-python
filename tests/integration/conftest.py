@@ -10,7 +10,7 @@ import pytest
 from fluidize.adapters.local.adapter import LocalAdapter
 from fluidize.client import FluidizeClient
 from fluidize.config import FluidizeConfig
-from fluidize.managers.projects import Projects
+from fluidize.managers.registry import RegistryManager
 
 
 @pytest.fixture
@@ -79,9 +79,9 @@ def client() -> FluidizeClient:
 
 
 @pytest.fixture
-def projects_manager(local_adapter: LocalAdapter) -> Projects:
+def projects_manager(local_adapter: LocalAdapter) -> RegistryManager:
     """Create a Projects manager for integration testing."""
-    return Projects(local_adapter)
+    return RegistryManager(local_adapter)
 
 
 @pytest.fixture

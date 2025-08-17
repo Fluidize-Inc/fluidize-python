@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import Any, Optional, TypeVar, Union
+from typing import Any, TypeVar, Union
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr, ValidationError
 from upath import UPath
 
-T = TypeVar("T", bound="FileModelBase")
+T = TypeVar("T", bound="JSONFileModelBase")
 
 
-class FileModelBase(BaseModel):
+class JSONFileModelBase(BaseModel):
     _filepath: Union[UPath, None] = PrivateAttr(default=None)
 
     @property
@@ -33,7 +33,7 @@ class FileModelBase(BaseModel):
             raise TypeError()
 
         path = UPath(directory) / filename
-        data = DataLoader.load_yaml(path)
+        data = DataLoader.load_json(path)
 
         if not data:
             raise FileNotFoundError()
@@ -49,7 +49,7 @@ class FileModelBase(BaseModel):
             return instance
 
     @classmethod
-    def from_dict_and_path(cls: type[T], data: Any, path: Optional[UPath]) -> T:
+    def from_dict_and_path(cls: type[T], data: dict, path: UPath) -> T:
         """Creates a model instance from a dictionary and a path, without reading the file again."""
         if not data:
             raise ValueError()
@@ -88,12 +88,12 @@ class FileModelBase(BaseModel):
 
         # Load existing data to preserve other keys, if the file already exists.
         # Pass a new UPath object to avoid issues with object caching if it's the same file.
-        existing_data = DataLoader.load_yaml(UPath(self._filepath))
+        existing_data = DataLoader.load_json(UPath(self._filepath))
 
         new_data = self.model_dump_wrapped()
         existing_data.update(new_data)
 
-        DataWriter.write_yaml(self._filepath, existing_data)
+        DataWriter.write_json(self._filepath, existing_data)
 
     def edit(self, **kwargs: Any) -> None:
         for key, value in kwargs.items():

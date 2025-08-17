@@ -8,9 +8,6 @@
       "name": "motor_strength",
       "latex": null,
       "location": [
-        "source/pinata_simulation.py",
-        "source/pinata_simulation.py",
-        "source/pinata_simulation.py",
         "source/pinata_simulation.py"
       ],
       "options": null,

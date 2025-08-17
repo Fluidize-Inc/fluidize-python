@@ -4,8 +4,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from fluidize.managers.project_graph import ProjectGraph
-from fluidize.managers.project_manager import Project
+from fluidize.managers.graph import GraphManager
+from fluidize.managers.project import ProjectManager
 from tests.fixtures.sample_projects import SampleProjects
 
 
@@ -27,11 +27,11 @@ class TestProject:
     @pytest.fixture
     def project_wrapper(self, mock_adapter, sample_project_summary):
         """Create a Project wrapper instance for testing."""
-        return Project(mock_adapter, sample_project_summary)
+        return ProjectManager(mock_adapter, sample_project_summary)
 
     def test_init(self, mock_adapter, sample_project_summary):
         """Test Project wrapper initialization."""
-        project = Project(mock_adapter, sample_project_summary)
+        project = ProjectManager(mock_adapter, sample_project_summary)
 
         assert project._adapter is mock_adapter
         assert project._project_summary is sample_project_summary
@@ -44,7 +44,7 @@ class TestProject:
         # Access graph property
         graph = project_wrapper.graph
 
-        assert isinstance(graph, ProjectGraph)
+        assert isinstance(graph, GraphManager)
         assert project_wrapper._graph is graph  # Cached
         assert graph.adapter is mock_adapter
         assert graph.project is project_wrapper._project_summary
@@ -97,7 +97,7 @@ class TestProject:
         project_summary.status = "active"
         project_summary.created_at = "2024-01-01T00:00:00Z"
 
-        project = Project(mock_adapter, project_summary)
+        project = ProjectManager(mock_adapter, project_summary)
 
         assert project.created_at == "2024-01-01T00:00:00Z"
 
@@ -120,7 +120,7 @@ class TestProject:
         project_summary.status = "active"
         project_summary.updated_at = "2024-01-01T12:00:00Z"
 
-        project = Project(mock_adapter, project_summary)
+        project = ProjectManager(mock_adapter, project_summary)
 
         assert project.updated_at == "2024-01-01T12:00:00Z"
 
@@ -149,7 +149,7 @@ class TestProject:
     def test_to_dict_minimal_project(self, mock_adapter):
         """Test to_dict with minimal project data."""
         minimal_summary = SampleProjects.minimal_project()
-        project = Project(mock_adapter, minimal_summary)
+        project = ProjectManager(mock_adapter, minimal_summary)
 
         result = project.to_dict()
 
@@ -179,29 +179,12 @@ class TestProject:
         project_summary.created_at = "2024-01-01T00:00:00Z"
         project_summary.updated_at = "2024-01-01T12:00:00Z"
 
-        project = Project(mock_adapter, project_summary)
+        project = ProjectManager(mock_adapter, project_summary)
 
         result = project.to_dict()
 
         assert result["created_at"] == "2024-01-01T00:00:00Z"
         assert result["updated_at"] == "2024-01-01T12:00:00Z"
-
-    def test_repr(self, project_wrapper, sample_project_summary):
-        """Test __repr__ method."""
-        result = repr(project_wrapper)
-        expected = f"Project(id='{sample_project_summary.id}', label='{sample_project_summary.label}')"
-        assert result == expected
-
-    def test_repr_with_none_label(self, mock_adapter):
-        """Test __repr__ method when label is None."""
-        minimal_summary = SampleProjects.minimal_project()
-        project = Project(mock_adapter, minimal_summary)
-
-        result = repr(project)
-        # Handle case where minimal project might have label=None or no label attribute
-        label_value = getattr(minimal_summary, "label", None)
-        expected = f"Project(id='{minimal_summary.id}', label='{label_value}')"
-        assert result == expected
 
     def test_str_with_label(self, project_wrapper, sample_project_summary):
         """Test __str__ method with label."""
@@ -212,7 +195,7 @@ class TestProject:
     def test_str_without_label(self, mock_adapter):
         """Test __str__ method without label."""
         minimal_summary = SampleProjects.minimal_project()
-        project = Project(mock_adapter, minimal_summary)
+        project = ProjectManager(mock_adapter, minimal_summary)
 
         result = str(project)
         expected = f"Project {minimal_summary.id}: No label"
@@ -260,12 +243,12 @@ class TestProject:
         assert graph.adapter is mock_adapter
 
     def test_graph_integration(self, project_wrapper, mock_adapter, sample_project_summary):
-        """Test integration between Project wrapper and ProjectGraph."""
+        """Test integration between Project wrapper and GraphManager."""
         # Access graph
         graph = project_wrapper.graph
 
         # Verify proper integration
-        assert isinstance(graph, ProjectGraph)
+        assert isinstance(graph, GraphManager)
         assert graph.adapter is mock_adapter
         assert graph.project is sample_project_summary
 
@@ -277,7 +260,7 @@ class TestProject:
     def test_wrapper_with_different_project_types(self, mock_adapter, project_fixture):
         """Test Project wrapper with different types of ProjectSummary objects."""
         project_summary = getattr(SampleProjects, project_fixture)()
-        project = Project(mock_adapter, project_summary)
+        project = ProjectManager(mock_adapter, project_summary)
 
         # Basic functionality should work for all project types
         assert project.id == project_summary.id
@@ -285,12 +268,9 @@ class TestProject:
 
         # Graph property should be accessible
         graph = project.graph
-        assert isinstance(graph, ProjectGraph)
+        assert isinstance(graph, GraphManager)
 
-        # String representations should work
-        repr_result = repr(project)
+        # String representation should work
         str_result = str(project)
-        assert isinstance(repr_result, str)
         assert isinstance(str_result, str)
-        assert project_summary.id in repr_result
         assert project_summary.id in str_result

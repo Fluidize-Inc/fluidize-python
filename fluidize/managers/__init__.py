@@ -10,11 +10,11 @@ Architecture Overview:
     The managers module implements a two-tier pattern:
 
     1. **Global Managers** - Handle cross-project operations
-       - `Projects`: Creates, retrieves, updates, and lists projects
+       - `RegistryManager`: Creates, retrieves, updates, and lists projects
 
     2. **Project-Scoped Managers** - Bound to specific projects
-       - `ProjectGraph`: Manages nodes and edges within a project's computational graph
-       - `ProjectRuns`: Executes and monitors workflow runs for a project
+       - `GraphManager`: Manages nodes and edges within a project's computational graph
+       - `RunsManager`: Executes and monitors workflow runs for a project
 
 Design Pattern:
     The module uses a wrapper pattern where global managers return entity
@@ -22,8 +22,8 @@ Design Pattern:
 
         client.projects (Projects)
             └── .create() / .get() → Project entity
-                    ├── .graph (ProjectGraph) - Computational graph operations
-                    └── .runs (ProjectRuns) - Workflow execution operations
+                    ├── .graph (GraphManager) - Computational graph operations
+                    └── .runs (RunsManager) - Workflow execution operations
 
 Usage Examples:
     Basic project workflow::
@@ -76,8 +76,8 @@ Usage Examples:
 File Structure:
     - `projects.py`: Global project CRUD operations (Projects class)
     - `project_manager.py`: Single project entity with sub-managers (Project class)
-    - `project_graph.py`: Project-scoped graph operations (ProjectGraph class)
-    - `project_runs.py`: Project-scoped run operations (ProjectRuns class)
+    - `graph.py`: Project-scoped graph operations (GraphManager class)
+    - `runs.py`: Project-scoped run operations (RunsManager class)
 
 Threading and adapter Support:
     All managers are thread-safe and support both local filesystem and
@@ -85,8 +85,8 @@ Threading and adapter Support:
     of adapter is transparent to the manager classes.
 
 See Also:
-    - :class:`~fluidize.managers.projects.Projects`: Global project manager
-    - :class:`~fluidize.managers.project_manager.Project`: Project entity wrapper
-    - :class:`~fluidize.managers.project_graph.ProjectGraph`: Graph operations
-    - :class:`~fluidize.managers.project_runs.ProjectRuns`: Run operations
+    - :class:`~fluidize.managers.registry.RegistryManager`: Global project manager
+    - :class:`~fluidize.managers.project.ProjectManager`: Project entity wrapper
+    - :class:`~fluidize.managers.graph.GraphManager`: Graph operations
+    - :class:`~fluidize.managers.runs.RunsManager`: Run operations
 """
