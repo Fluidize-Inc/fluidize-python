@@ -37,7 +37,7 @@ class RunsManager:
         Returns:
             Dictionary with flow_status and run_number
         """
-        return self.adapter.runs.run_flow(self.project, payload)  # type: ignore[no-any-return]
+        return self.adapter.runs.run_flow(project=self.project, payload=payload)  # type: ignore[no-any-return]
 
     def list_runs(self) -> list[str]:
         """

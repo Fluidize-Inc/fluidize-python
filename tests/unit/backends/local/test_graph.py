@@ -77,7 +77,7 @@ class TestGraphHandler:
         node = SampleGraphs.sample_nodes()[0]
         mock_processor.insert_node.return_value = node
 
-        result = graph_handler.insert_node(sample_project, node, True)
+        result = graph_handler.insert_node(node, sample_project, sim_global=True)
 
         assert result == node
         mock_processor.insert_node.assert_called_once_with(node, True)
@@ -87,7 +87,7 @@ class TestGraphHandler:
         node = SampleGraphs.sample_nodes()[1]
         mock_processor.insert_node.return_value = node
 
-        result = graph_handler.insert_node(sample_project, node, False)
+        result = graph_handler.insert_node(node, sample_project, sim_global=False)
 
         assert result == node
         mock_processor.insert_node.assert_called_once_with(node, False)
@@ -97,7 +97,7 @@ class TestGraphHandler:
         node = SampleGraphs.sample_nodes()[0]
         mock_processor.insert_node.return_value = node
 
-        result = graph_handler.insert_node(sample_project, node)
+        result = graph_handler.insert_node(node, sample_project)  # sim_global defaults to True
 
         assert result == node
         mock_processor.insert_node.assert_called_once_with(node, True)  # Default is True
@@ -160,7 +160,7 @@ class TestGraphHandler:
         mock_processor.insert_node.side_effect = ValueError("Invalid node data")
 
         with pytest.raises(ValueError, match="Invalid node data"):
-            graph_handler.insert_node(sample_project, node)
+            graph_handler.insert_node(node, sample_project)
 
     def test_processor_error_propagation_delete_node(self, graph_handler, mock_processor, sample_project):
         """Test that processor errors are propagated for delete_node."""
@@ -196,7 +196,7 @@ class TestGraphHandler:
 
             # Perform multiple operations
             handler.get_graph(sample_project)
-            handler.insert_node(sample_project, SampleGraphs.sample_nodes()[0])
+            handler.insert_node(SampleGraphs.sample_nodes()[0], sample_project)
             handler.delete_node(sample_project, "test-id")
 
             # Verify processor was created for each operation
@@ -245,7 +245,7 @@ class TestGraphHandler:
 
             # Perform full CRUD cycle
             graph_data = handler.get_graph(sample_project)
-            inserted_node = handler.insert_node(sample_project, node)
+            inserted_node = handler.insert_node(node, sample_project)
             updated_node = handler.update_node_position(sample_project, node)
             handler.delete_node(sample_project, "test-node-id")
             upserted_edge = handler.upsert_edge(sample_project, edge)
@@ -297,6 +297,9 @@ class TestGraphHandler:
             handler_method = getattr(handler, operation)
             if operation == "ensure_graph_initialized":
                 handler_method(sample_project)
+            elif operation == "insert_node":
+                # insert_node uses direct arguments
+                handler_method(args[0], sample_project, args[1])
             else:
                 handler_method(sample_project, *args)
 

@@ -97,10 +97,9 @@ class TestGraphManager:
 
         assert isinstance(result, NodeManager)
         assert result.node_id == node.id
+        # Verify that insert_node was called with correct arguments
         mock_adapter.graph.insert_node.assert_called_once_with(
-            project_graph.project,
-            node,
-            True,  # Default sim_global=True
+            node=node, project=project_graph.project, sim_global=True
         )
 
     def test_add_node_with_sim_global_false(self, project_graph, mock_adapter):
@@ -112,7 +111,10 @@ class TestGraphManager:
 
         assert isinstance(result, NodeManager)
         assert result.node_id == node.id
-        mock_adapter.graph.insert_node.assert_called_once_with(project_graph.project, node, False)
+        # Verify that insert_node was called with correct arguments
+        mock_adapter.graph.insert_node.assert_called_once_with(
+            node=node, project=project_graph.project, sim_global=False
+        )
 
     def test_add_node_from_scratch_success(self, project_graph, mock_adapter):
         """Test successful node creation from scratch."""
@@ -296,8 +298,9 @@ class TestGraphManager:
         # Verify each call was made with correct project context
         calls = mock_adapter.graph.insert_node.call_args_list
         assert len(calls) == 2
-        assert calls[0][0][0] == project1  # First call with project1
-        assert calls[1][0][0] == project2  # Second call with project2
+        # Check that both calls received correct keyword arguments
+        assert calls[0].kwargs["project"] == project1  # First call with project1
+        assert calls[1].kwargs["project"] == project2  # Second call with project2
 
     def test_all_methods_delegate_to_adapter(self, project_graph, mock_adapter):
         """Test that all GraphManager methods properly delegate to adapter."""
@@ -385,10 +388,15 @@ class TestGraphManager:
             mock_adapter.graph.delete_edge.call_args_list,
         ]
 
-        # All calls should include the same project as first argument
-        for call_list in all_calls:
+        # All calls should include the same project (either as first argument or keyword)
+        for i, call_list in enumerate(all_calls):
             if call_list:  # If method was called
-                assert call_list[0][0][0] == project
+                if i == 1:  # insert_node call index
+                    # For insert_node, check the project in keyword arguments
+                    assert call_list[0].kwargs["project"] == project
+                else:
+                    # For other calls, project is still the first argument
+                    assert call_list[0][0][0] == project
 
     def test_get_parameters_success(self, project_graph, mock_adapter):
         """Test successful parameter retrieval through ProjectGraph."""

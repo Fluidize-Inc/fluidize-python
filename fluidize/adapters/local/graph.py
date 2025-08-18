@@ -40,14 +40,14 @@ class GraphHandler:
         processor = GraphProcessor(project)
         return processor.get_graph()
 
-    def insert_node(self, project: ProjectSummary, node: GraphNode, sim_global: bool = True) -> GraphNode:
+    def insert_node(self, node: GraphNode, project: ProjectSummary, sim_global: bool = True) -> GraphNode:
         """
         Insert a new node into the project graph.
 
         Args:
-            project: The project to add the node to
             node: The node to insert
-            sim_global: Whether to use global simulations (placeholder for future)
+            project: The project to add the node to
+            sim_global: Whether to use global simulations
 
         Returns:
             The inserted node

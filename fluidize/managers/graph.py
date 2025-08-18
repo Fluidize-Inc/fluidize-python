@@ -68,7 +68,7 @@ class GraphManager:
         Returns:
             The added node
         """
-        inserted_node = self.adapter.graph.insert_node(self.project, node, sim_global)
+        inserted_node = self.adapter.graph.insert_node(node=node, project=self.project, sim_global=sim_global)
         return self.get_node(inserted_node.id)
 
     def add_node_from_scratch(

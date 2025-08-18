@@ -48,6 +48,7 @@ class RegistryManager:
         )
         return ProjectManager(self.adapter, project_summary)
 
+    # - [ ] ISSUE #1: Project not found error should be put out when invalid project is put with get
     def get(self, project_id: str) -> ProjectManager:
         """
         Get a project by ID.
