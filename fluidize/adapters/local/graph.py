@@ -5,7 +5,7 @@ This module provides the local adapter interface for graph operations,
 wrapping the core GraphProcessor with adapter-specific functionality.
 """
 
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from fluidize.core.modules.graph.processor import GraphProcessor
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
@@ -13,6 +13,9 @@ from fluidize.core.types.node import nodeMetadata_simulation, nodeParameters_sim
 from fluidize.core.types.parameters import Parameter
 from fluidize.core.types.project import ProjectSummary
 from fluidize.core.utils.pathfinder.path_finder import PathFinder
+
+if TYPE_CHECKING:
+    from fluidize.managers.graph import InsertNodeRequest
 
 
 class GraphHandler:
@@ -40,20 +43,18 @@ class GraphHandler:
         processor = GraphProcessor(project)
         return processor.get_graph()
 
-    def insert_node(self, project: ProjectSummary, node: GraphNode, sim_global: bool = True) -> GraphNode:
+    def insert_node(self, request: "InsertNodeRequest") -> GraphNode:
         """
         Insert a new node into the project graph.
 
         Args:
-            project: The project to add the node to
-            node: The node to insert
-            sim_global: Whether to use global simulations (placeholder for future)
+            request: InsertNodeRequest containing node, project, and sim_global
 
         Returns:
             The inserted node
         """
-        processor = GraphProcessor(project)
-        return processor.insert_node(node, sim_global)
+        processor = GraphProcessor(request.project)
+        return processor.insert_node(request.node, request.sim_global)
 
     def insert_node_from_scratch(
         self,

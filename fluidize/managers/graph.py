@@ -4,6 +4,8 @@ Project-scoped graph manager for user-friendly graph operations.
 
 from typing import TYPE_CHECKING, Any, Optional
 
+from pydantic import BaseModel
+
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
 
 if TYPE_CHECKING:
@@ -11,6 +13,15 @@ if TYPE_CHECKING:
 from fluidize.core.types.node import nodeMetadata_simulation, nodeProperties_simulation
 from fluidize.core.types.parameters import Parameter
 from fluidize.core.types.project import ProjectSummary
+
+
+# TODO: the ty
+class InsertNodeRequest(BaseModel):
+    """Uniform request structure for inserting nodes in both local and API modes."""
+
+    node: GraphNode
+    project: ProjectSummary
+    sim_global: bool = True
 
 
 class GraphManager:
@@ -68,7 +79,9 @@ class GraphManager:
         Returns:
             The added node
         """
-        inserted_node = self.adapter.graph.insert_node(self.project, node, sim_global)
+        # Create uniform request structure for both local and API modes
+        request = InsertNodeRequest(node=node, project=self.project, sim_global=sim_global)
+        inserted_node = self.adapter.graph.insert_node(request)
         return self.get_node(inserted_node.id)
 
     def add_node_from_scratch(
