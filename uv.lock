@@ -759,7 +759,7 @@ dev = [
 requires-dist = [
     { name = "asciitree", specifier = ">=0.3.3" },
     { name = "docker", specifier = ">=7.1.0" },
-    { name = "fluidize-sdk", specifier = ">=0.6.0" },
+    { name = "fluidize-sdk", specifier = ">=0.7.0" },
     { name = "jinja2", specifier = ">=3.1.6" },
     { name = "mlflow", specifier = ">=3.1.4" },
     { name = "networkx", specifier = ">=3.2.1" },
@@ -786,7 +786,7 @@ dev = [
 
 [[package]]
 name = "fluidize-sdk"
-version = "0.6.0"
+version = "0.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -796,9 +796,9 @@ dependencies = [
     { name = "sniffio" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f0/6d/41a511df1e9f2cfb6526a349162ea7032ef2ef3d4ced52b8ff81a036ca84/fluidize_sdk-0.6.0.tar.gz", hash = "sha256:cb4548e3ebac5c949b177a6f352edc91be5ffd82900dd0267159027ffb895633", size = 119144, upload-time = "2025-08-16T09:45:34.48Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ad/58/af4a33d85bdebfa45cf8994eff983ac23e98a1086cc8dd3cd4b1c4adad7e/fluidize_sdk-0.7.0.tar.gz", hash = "sha256:9f1e2b5c38409790ce36e0e5d85792575a2045c1780ba12a74f1fc7dec87ddb6", size = 119652, upload-time = "2025-08-18T00:45:01.689Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e9/6e/25a81bd993b6dec0733e7f4f13f199a40e3500222907bfab54fc5e946eea/fluidize_sdk-0.6.0-py3-none-any.whl", hash = "sha256:22db9101b88bbf0adea113057f96ce9436985ce3b9e635fedcdb421fff399ab2", size = 121524, upload-time = "2025-08-16T09:45:32.874Z" },
+    { url = "https://files.pythonhosted.org/packages/01/e3/10c44e47f5fe50edb7d91fcdcc3613ec7ed8b34471e888d260f2415f52ae/fluidize_sdk-0.7.0-py3-none-any.whl", hash = "sha256:32744079456e5a5b6cc99e2ce1c48c9f42339f1e72a778383643711e0dcd1faf", size = 122274, upload-time = "2025-08-18T00:45:00.047Z" },
 ]
 
 [[package]]
