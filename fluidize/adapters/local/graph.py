@@ -15,9 +15,7 @@ from fluidize.core.types.project import ProjectSummary
 from fluidize.core.utils.pathfinder.path_finder import PathFinder
 
 if TYPE_CHECKING:
-    pass
-
-from fluidize.managers.graph import InsertNodeRequest
+    from fluidize.managers.graph import InsertNodeRequest
 
 
 class GraphHandler:
