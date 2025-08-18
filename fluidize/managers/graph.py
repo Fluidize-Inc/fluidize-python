@@ -4,8 +4,6 @@ Project-scoped graph manager for user-friendly graph operations.
 
 from typing import TYPE_CHECKING, Any, Optional
 
-from pydantic import BaseModel
-
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
 
 if TYPE_CHECKING:
@@ -13,15 +11,6 @@ if TYPE_CHECKING:
 from fluidize.core.types.node import nodeMetadata_simulation, nodeProperties_simulation
 from fluidize.core.types.parameters import Parameter
 from fluidize.core.types.project import ProjectSummary
-
-
-# TODO: the schemas should be defined in the schemas folder, which need to be migrated from the api backend.
-class InsertNodeRequest(BaseModel):
-    """Uniform request structure for inserting nodes in both local and API modes."""
-
-    node: GraphNode
-    project: ProjectSummary
-    sim_global: bool = True
 
 
 class GraphManager:
@@ -79,20 +68,7 @@ class GraphManager:
         Returns:
             The added node
         """
-        # ISSUE #2:
-        # Temporary adapter detection - check if using SDK/API mode vs local mode
-        if hasattr(self.adapter, "__class__") and "FluidizeSDK" in str(type(self.adapter)):
-            # API mode: SDK expects keyword arguments directly
-            inserted_node = self.adapter.graph.insert_node(node=node, project=self.project, sim_global=sim_global)
-        else:
-            # Local mode: expects InsertNodeRequest wrapper
-            project_dict = self.project.model_dump() if hasattr(self.project, "model_dump") else self.project
-            request = InsertNodeRequest(
-                node=node,
-                project=ProjectSummary(**project_dict) if isinstance(project_dict, dict) else project_dict,
-                sim_global=sim_global,
-            )
-            inserted_node = self.adapter.graph.insert_node(request)
+        inserted_node = self.adapter.graph.insert_node(node=node, project=self.project, sim_global=sim_global)
         return self.get_node(inserted_node.id)
 
     def add_node_from_scratch(

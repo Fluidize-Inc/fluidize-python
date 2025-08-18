@@ -8,7 +8,7 @@ import pytest
 from fluidize.core.types.node import author, nodeMetadata_simulation, nodeProperties_simulation, tag
 from fluidize.core.types.parameters import Parameter
 from fluidize.core.types.runs import RunStatus
-from fluidize.managers.graph import GraphManager, InsertNodeRequest
+from fluidize.managers.graph import GraphManager
 from fluidize.managers.node import NodeManager
 from tests.fixtures.sample_graphs import SampleGraphs
 from tests.fixtures.sample_projects import SampleProjects
@@ -97,14 +97,10 @@ class TestGraphManager:
 
         assert isinstance(result, NodeManager)
         assert result.node_id == node.id
-        # Verify that insert_node was called with an InsertNodeRequest
-        mock_adapter.graph.insert_node.assert_called_once()
-        call_args = mock_adapter.graph.insert_node.call_args[0]
-        request = call_args[0]
-        assert isinstance(request, InsertNodeRequest)
-        assert request.node == node
-        assert request.project == project_graph.project
-        assert request.sim_global is True
+        # Verify that insert_node was called with correct arguments
+        mock_adapter.graph.insert_node.assert_called_once_with(
+            node=node, project=project_graph.project, sim_global=True
+        )
 
     def test_add_node_with_sim_global_false(self, project_graph, mock_adapter):
         """Test node addition with sim_global=False."""
@@ -115,14 +111,10 @@ class TestGraphManager:
 
         assert isinstance(result, NodeManager)
         assert result.node_id == node.id
-        # Verify that insert_node was called with an InsertNodeRequest with sim_global=False
-        mock_adapter.graph.insert_node.assert_called_once()
-        call_args = mock_adapter.graph.insert_node.call_args[0]
-        request = call_args[0]
-        assert isinstance(request, InsertNodeRequest)
-        assert request.node == node
-        assert request.project == project_graph.project
-        assert request.sim_global is False
+        # Verify that insert_node was called with correct arguments
+        mock_adapter.graph.insert_node.assert_called_once_with(
+            node=node, project=project_graph.project, sim_global=False
+        )
 
     def test_add_node_from_scratch_success(self, project_graph, mock_adapter):
         """Test successful node creation from scratch."""
@@ -306,13 +298,9 @@ class TestGraphManager:
         # Verify each call was made with correct project context
         calls = mock_adapter.graph.insert_node.call_args_list
         assert len(calls) == 2
-        # Check that both calls received InsertNodeRequest with correct projects
-        request1 = calls[0][0][0]
-        request2 = calls[1][0][0]
-        assert isinstance(request1, InsertNodeRequest)
-        assert isinstance(request2, InsertNodeRequest)
-        assert request1.project == project1  # First call with project1
-        assert request2.project == project2  # Second call with project2
+        # Check that both calls received correct keyword arguments
+        assert calls[0].kwargs["project"] == project1  # First call with project1
+        assert calls[1].kwargs["project"] == project2  # Second call with project2
 
     def test_all_methods_delegate_to_adapter(self, project_graph, mock_adapter):
         """Test that all GraphManager methods properly delegate to adapter."""
@@ -400,15 +388,12 @@ class TestGraphManager:
             mock_adapter.graph.delete_edge.call_args_list,
         ]
 
-        # All calls should include the same project as first argument
-        # (except insert_node which now uses InsertNodeRequest)
+        # All calls should include the same project (either as first argument or keyword)
         for i, call_list in enumerate(all_calls):
             if call_list:  # If method was called
                 if i == 1:  # insert_node call index
-                    # For insert_node, check the project in the InsertNodeRequest
-                    request = call_list[0][0][0]
-                    assert isinstance(request, InsertNodeRequest)
-                    assert request.project == project
+                    # For insert_node, check the project in keyword arguments
+                    assert call_list[0].kwargs["project"] == project
                 else:
                     # For other calls, project is still the first argument
                     assert call_list[0][0][0] == project
