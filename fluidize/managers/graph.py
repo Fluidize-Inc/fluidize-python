@@ -79,7 +79,16 @@ class GraphManager:
         Returns:
             The added node
         """
-        inserted_node = self.adapter.graph.insert_node(self.project, node, sim_global)
+        # Create uniform request structure for both local and API modes
+        # Convert ProjectSummary to dict and back to avoid validation issues with nested model validators
+        # - [ ] ISSUE #2: Finding a better way to sync types with API and Local Execution
+        project_dict = self.project.model_dump() if hasattr(self.project, "model_dump") else self.project
+        request = InsertNodeRequest(
+            node=node,
+            project=ProjectSummary(**project_dict) if isinstance(project_dict, dict) else project_dict,
+            sim_global=sim_global,
+        )
+        inserted_node = self.adapter.graph.insert_node(request)
         return self.get_node(inserted_node.id)
 
     def add_node_from_scratch(
