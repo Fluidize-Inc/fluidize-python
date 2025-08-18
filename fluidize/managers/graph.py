@@ -4,7 +4,7 @@ Project-scoped graph manager for user-friendly graph operations.
 
 from typing import TYPE_CHECKING, Any, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from fluidize.core.types.graph import GraphData, GraphEdge, GraphNode
 
@@ -22,6 +22,17 @@ class InsertNodeRequest(BaseModel):
     node: GraphNode
     project: ProjectSummary
     sim_global: bool = True
+
+    @field_validator("project")
+    @classmethod
+    def validate_project(cls, v: Any) -> ProjectSummary:
+        """Validate project field, handling both dict and ProjectSummary instances."""
+        if isinstance(v, ProjectSummary):
+            return v
+        if isinstance(v, dict):
+            return ProjectSummary.model_validate(v)
+        msg = "Invalid project type"
+        raise ValueError(msg)
 
 
 class GraphManager:
