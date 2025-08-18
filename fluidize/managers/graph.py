@@ -15,7 +15,7 @@ from fluidize.core.types.parameters import Parameter
 from fluidize.core.types.project import ProjectSummary
 
 
-# TODO: the ty
+# TODO: the schemas should be defined in the schemas folder, which need to be migrated from the api backend.
 class InsertNodeRequest(BaseModel):
     """Uniform request structure for inserting nodes in both local and API modes."""
 
@@ -79,9 +79,7 @@ class GraphManager:
         Returns:
             The added node
         """
-        # Create uniform request structure for both local and API modes
-        request = InsertNodeRequest(node=node, project=self.project, sim_global=sim_global)
-        inserted_node = self.adapter.graph.insert_node(request)
+        inserted_node = self.adapter.graph.insert_node(self.project, node, sim_global)
         return self.get_node(inserted_node.id)
 
     def add_node_from_scratch(
