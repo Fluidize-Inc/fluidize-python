@@ -1,5 +1,7 @@
 from typing import Any, Optional
 
+from fluidize.core.utils.exceptions import ProjectAlreadyExistsError
+
 from .project import ProjectManager
 
 
@@ -38,7 +40,19 @@ class RegistryManager:
 
         Returns:
             Created project wrapped in Project class
+
+        Raises:
+            ProjectAlreadyExistsError: If a project with the same ID already exists
         """
+        # Check if project already exists
+        try:
+            self.get(project_id)
+            # If we get here, project exists - raise error
+            raise ProjectAlreadyExistsError(project_id)
+        except FileNotFoundError:
+            # Project doesn't exist, proceed with creation
+            pass
+
         project_summary = self.adapter.projects.upsert(
             id=project_id,
             label=label,

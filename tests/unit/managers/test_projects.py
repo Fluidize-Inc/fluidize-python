@@ -4,6 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from fluidize.core.utils.exceptions import ProjectAlreadyExistsError
 from fluidize.managers.registry import RegistryManager
 from tests.fixtures.sample_projects import SampleProjects
 
@@ -35,6 +36,8 @@ class TestProjectsManager:
 
         sample_project = SampleProjects.standard_project()
         mock_adapter.projects.upsert.return_value = sample_project
+        # Mock retrieve to raise FileNotFoundError (project doesn't exist yet)
+        mock_adapter.projects.retrieve.side_effect = FileNotFoundError("Project not found")
 
         result = projects_manager.create(
             project_id=sample_project.id,
@@ -65,6 +68,8 @@ class TestProjectsManager:
         project_id = "minimal-create"
         minimal_project = SampleProjects.minimal_project()
         mock_adapter.projects.upsert.return_value = minimal_project
+        # Mock retrieve to raise FileNotFoundError (project doesn't exist yet)
+        mock_adapter.projects.retrieve.side_effect = FileNotFoundError("Project not found")
 
         result = projects_manager.create(project_id)
 
@@ -81,6 +86,8 @@ class TestProjectsManager:
 
         sample_project = SampleProjects.standard_project()
         mock_adapter.projects.upsert.return_value = sample_project
+        # Mock retrieve to raise FileNotFoundError (project doesn't exist yet)
+        mock_adapter.projects.retrieve.side_effect = FileNotFoundError("Project not found")
 
         result = projects_manager.create(
             project_id="partial-create", label="Partial Project", description="Only some fields provided"
@@ -119,6 +126,25 @@ class TestProjectsManager:
             projects_manager.get(project_id)
 
         mock_adapter.projects.retrieve.assert_called_once_with(project_id)
+
+    def test_create_project_already_exists(self, projects_manager, mock_adapter):
+        """Test create method raises error when project already exists."""
+        sample_project = SampleProjects.standard_project()
+        project_id = sample_project.id
+
+        # Mock get to return existing project (no FileNotFoundError)
+        mock_adapter.projects.retrieve.return_value = sample_project
+
+        with pytest.raises(ProjectAlreadyExistsError) as exc_info:
+            projects_manager.create(project_id, label="New Label")
+
+        # Verify error message contains project ID
+        assert project_id in str(exc_info.value)
+        assert exc_info.value.project_id == project_id
+
+        # Verify retrieve was called but upsert was not
+        mock_adapter.projects.retrieve.assert_called_once_with(project_id)
+        mock_adapter.projects.upsert.assert_not_called()
 
     def test_list_projects_empty(self, projects_manager, mock_adapter):
         """Test list method when no projects exist."""
@@ -258,7 +284,8 @@ class TestProjectsManager:
 
     def test_adapter_error_propagation(self, projects_manager, mock_adapter):
         """Test that adapter errors are properly propagated through manager methods."""
-        # Test create error
+        # Test create error - first mock retrieve to return FileNotFoundError (project doesn't exist)
+        mock_adapter.projects.retrieve.side_effect = FileNotFoundError("Project not found")
         mock_adapter.projects.upsert.side_effect = ValueError("Invalid project data")
 
         with pytest.raises(ValueError, match="Invalid project data"):
@@ -290,6 +317,12 @@ class TestProjectsManager:
         mock_adapter.projects.list.return_value = [test_project]
 
         # Call all manager methods
+        # Mock retrieve to raise FileNotFoundError (project doesn't exist yet)
+        mock_adapter.projects.retrieve.side_effect = [
+            FileNotFoundError("Project not found"),
+            test_project,
+            test_project,
+        ]
         manager.create("test-create")
         manager.get("test-get")
         manager.list()
@@ -297,7 +330,7 @@ class TestProjectsManager:
 
         # Verify adapter was called
         assert mock_adapter.projects.upsert.call_count == 2  # create + update
-        mock_adapter.projects.retrieve.assert_called_once()
+        assert mock_adapter.projects.retrieve.call_count == 2  # create (check if exists) + get
         mock_adapter.projects.list.assert_called_once()
 
     def test_manager_interface_compatibility(self, mock_adapter):
@@ -327,6 +360,12 @@ class TestProjectsManager:
         mock_adapter.projects.list.return_value = [sample_project]
 
         # Test create returns Project wrapper
+        # Mock retrieve to raise FileNotFoundError for create (project doesn't exist yet)
+        mock_adapter.projects.retrieve.side_effect = [
+            FileNotFoundError("Project not found"),
+            sample_project,
+            sample_project,
+        ]
         created_project = manager.create("test-create")
         assert isinstance(created_project, ProjectManager)
         assert created_project.id == sample_project.id
@@ -356,6 +395,8 @@ class TestProjectsManager:
         mock_adapter.projects.upsert.return_value = sample_project
         mock_adapter.graph = Mock()  # Mock graph handler
 
+        # Mock retrieve to raise FileNotFoundError (project doesn't exist yet)
+        mock_adapter.projects.retrieve.side_effect = FileNotFoundError("Project not found")
         project = manager.create("test-graph-access")
 
         # Verify project has graph property
