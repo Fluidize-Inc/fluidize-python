@@ -1,5 +1,7 @@
 from typing import Any, Optional
 
+from fluidize_sdk import NotFoundError
+
 from fluidize.core.utils.exceptions import ProjectAlreadyExistsError
 
 from .project import ProjectManager
@@ -49,7 +51,7 @@ class RegistryManager:
             self.get(project_id)
             # If we get here, project exists - raise error
             raise ProjectAlreadyExistsError(project_id)
-        except FileNotFoundError:
+        except (NotFoundError, FileNotFoundError):
             # Project doesn't exist, proceed with creation
             pass
 
