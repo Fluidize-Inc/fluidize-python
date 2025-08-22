@@ -7,7 +7,7 @@ from typing import Any
 from upath import UPath
 
 from fluidize.core.types.project import ProjectSummary
-from fluidize.core.types.runs import RunFlowPayload
+from fluidize.core.types.runs import RunFlowPayload, projectRunMetadata
 
 
 class RunsManager:
@@ -48,17 +48,17 @@ class RunsManager:
         """
         return self.adapter.runs.list_runs(self.project)  # type: ignore[no-any-return]
 
-    def get_status(self, run_number: int) -> dict[str, Any]:
+    def get_metadata(self, run_number: int) -> projectRunMetadata:
         """
-        Get the status of a specific run for this project.
+        Get the metadata of a specific run for this project.
 
         Args:
             run_number: The run number to check
 
         Returns:
-            Dictionary with run status information
+            Dictionary with run metadata information
         """
-        return self.adapter.runs.get_run_status(self.project, run_number)  # type: ignore[no-any-return]
+        return self.adapter.runs.get_run_metadata(self.project, run_number)  # type: ignore[no-any-return]
 
     def list_node_outputs(self, run_number: int, node_id: str) -> list[str]:
         """

@@ -12,7 +12,7 @@ from fluidize.core.constants import FileConstants
 from fluidize.core.modules.graph.process import ProcessGraph
 from fluidize.core.modules.run.project.project_runner import ProjectRunner
 from fluidize.core.types.project import ProjectSummary
-from fluidize.core.types.runs import RunFlowPayload
+from fluidize.core.types.runs import RunFlowPayload, projectRunMetadata
 from fluidize.core.utils.dataloader.data_loader import DataLoader
 from fluidize.core.utils.pathfinder.path_finder import PathFinder
 
@@ -110,7 +110,7 @@ class RunsHandler:
         """
         return DataLoader.list_runs(project)
 
-    def get_run_status(self, project: ProjectSummary, run_number: int) -> dict[str, Any]:
+    def get_run_metadata(self, project: ProjectSummary, run_number: int) -> projectRunMetadata:
         """
         Get the status of a specific run.
 
@@ -121,9 +121,7 @@ class RunsHandler:
         Returns:
             Dictionary with run status information
         """
-        # This would load run metadata and return status
-        # Implementation depends on how run status is stored
-        return {"run_number": run_number, "status": "unknown"}
+        return projectRunMetadata.from_file(directory=PathFinder.get_run_path(project, run_number))
 
     def list_node_outputs(self, project: ProjectSummary, run_number: int, node_id: str) -> list[str]:
         """

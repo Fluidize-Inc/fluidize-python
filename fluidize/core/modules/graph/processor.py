@@ -60,6 +60,7 @@ class GraphProcessor:
             print(f"Error loading graph for project {self.project.id}: {e!s}")
             return GraphData(nodes=[], edges=[])
 
+    # TODO : FIX THIS GRAPH NODE ADDITION HERE IN THE API! (THE TRAILING SLASHES GIVE PROBLEMS WHEN COPYING NODE DIRECTORY)
     def insert_node(self, node: GraphNode, sim_global: bool = True) -> GraphNode:
         """
         Inserts a node from the list of simulations or creates a new one.
