@@ -58,7 +58,7 @@ class RunsManager:
         Returns:
             Dictionary with run metadata information
         """
-        return self.adapter.runs.get_run_metadata(run_number, id=self.project)  # type: ignore[no-any-return]
+        return self.adapter.runs.get_run_metadata(run_number, project_id=self.project.id)  # type: ignore[no-any-return]
 
     def list_node_outputs(self, run_number: int, node_id: str) -> list[str]:
         """

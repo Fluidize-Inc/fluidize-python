@@ -110,17 +110,18 @@ class RunsHandler:
         """
         return DataLoader.list_runs(project)
 
-    def get_run_metadata(self, project: ProjectSummary, run_number: int) -> projectRunMetadata:
+    def get_run_metadata(self, project_id: str, run_number: int) -> projectRunMetadata:
         """
         Get the status of a specific run.
 
         Args:
-            project: The project containing the run
+            project_id: The id for the project containing the run
             run_number: The run number to check
 
         Returns:
             Dictionary with run status information
         """
+        project = ProjectSummary(id=project_id)
         return projectRunMetadata.from_file(directory=PathFinder.get_run_path(project, run_number))
 
     def list_node_outputs(self, project: ProjectSummary, run_number: int, node_id: str) -> list[str]:
