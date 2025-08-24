@@ -19,17 +19,49 @@ class TestSimulationsManager:
     @pytest.fixture
     def simulations_manager(self, mock_adapter):
         """Create a SimulationsManager instance for testing."""
-        with patch("fluidize.managers.simulations.FluidizeSDK"):
+        with (
+            patch("fluidize.managers.simulations.FluidizeSDK"),
+            patch("fluidize.managers.simulations.config") as mock_config,
+        ):
+            mock_config.api_key = "test-api-key"
             return SimulationsManager(mock_adapter)
 
     @patch("fluidize.managers.simulations.FluidizeSDK")
-    def test_init(self, mock_sdk_class, mock_adapter):
+    @patch("fluidize.managers.simulations.config")
+    def test_init(self, mock_config, mock_sdk_class, mock_adapter):
         """Test SimulationsManager initialization."""
+        mock_config.api_key = "test-api-key"
+        # Ensure mock_adapter doesn't have SDK attributes so new SDK is created
+        mock_adapter.api_token = None
+        mock_adapter.simulation = None
+
         manager = SimulationsManager(mock_adapter)
 
         assert manager._adapter is mock_adapter
         assert manager.fluidize_sdk is not None
-        mock_sdk_class.assert_called_once()
+        mock_sdk_class.assert_called_once_with(api_token="test-api-key")  # noqa: S106
+
+    def test_init_with_fluidize_sdk_adapter(self):
+        """Test SimulationsManager initialization when adapter is already FluidizeSDK."""
+        mock_sdk_adapter = Mock()
+        mock_sdk_adapter.api_token = "existing-token"  # noqa: S105
+        mock_sdk_adapter.simulation = Mock()
+
+        manager = SimulationsManager(mock_sdk_adapter)
+
+        assert manager._adapter is mock_sdk_adapter
+        assert manager.fluidize_sdk is mock_sdk_adapter
+
+    @patch("fluidize.managers.simulations.config")
+    def test_init_without_api_key_raises_error(self, mock_config, mock_adapter):
+        """Test that initialization raises error when no API key is available."""
+        mock_config.api_key = None
+        # Ensure mock_adapter doesn't have SDK attributes so new SDK creation is attempted
+        mock_adapter.api_token = None
+        mock_adapter.simulation = None
+
+        with pytest.raises(ValueError, match="API key is required"):
+            SimulationsManager(mock_adapter)
 
     @patch("fluidize.managers.simulations.FluidizeSDK")
     def test_list_simulations_returns_list(self, mock_sdk_class, simulations_manager):
