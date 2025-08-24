@@ -2,6 +2,7 @@ from typing import Any
 
 from fluidize_sdk import FluidizeSDK
 
+from fluidize.config import config
 from fluidize.core.types.node import nodeMetadata_simulation
 
 
@@ -16,8 +17,22 @@ class SimulationsManager:
             adapter: adapter (FluidizeSDK or LocalAdapter)
         """
         self._adapter = adapter
-        # TODO: Fix hardcoding of api_token and remove type ignore
-        self.fluidize_sdk = FluidizeSDK(api_token="placeholder")  # noqa: S106
+
+        # Use the adapter if it's already a FluidizeSDK instance, otherwise create one
+        if (
+            hasattr(adapter, "api_token")
+            and hasattr(adapter, "simulation")
+            and adapter.api_token is not None
+            and adapter.simulation is not None
+        ):
+            # Assume it's already a FluidizeSDK instance
+            self.fluidize_sdk = adapter
+        else:
+            # Create FluidizeSDK with proper API key from config
+            if not config.api_key:
+                msg = "API key is required. Set the FLUIDIZE_API_KEY environment variable."
+                raise ValueError(msg)
+            self.fluidize_sdk = FluidizeSDK(api_token=config.api_key)
 
     def list_simulations(self) -> list[Any]:
         """
